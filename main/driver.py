@@ -4,6 +4,7 @@ import sqlite3
 import os
 import pathlib
 
+# TODO: Add more line edits in sign up dialog, such as name, age, location, email
 
 def main():
     connection = sqlite3.connect('database\\accounts.db')
@@ -19,7 +20,7 @@ def main():
             password text
         )""")
 
-    # cursor.execute("INSERT INTO accounts VALUES ('xbryan25','123')")
+    # cursor.execute("INSERT INTO accounts VALUES ('admin','123')")
 
     app = QApplication([])
     login = login_page.LoginPage()
