@@ -12,16 +12,14 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
 
-        # Size Policy
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(MainWindow.sizePolicy().hasHeightForWidth())
-
         # Main Window
         MainWindow.setObjectName("MainWindow")
         MainWindow.setEnabled(True)
         MainWindow.resize(400, 400)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(MainWindow.sizePolicy().hasHeightForWidth())
         MainWindow.setSizePolicy(sizePolicy)
         MainWindow.setMinimumSize(QtCore.QSize(400, 400))
         MainWindow.setMaximumSize(QtCore.QSize(400, 400))
@@ -33,6 +31,19 @@ class Ui_MainWindow(object):
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
+
+        # Title Section
+        self.title_label = QtWidgets.QLabel(parent=self.centralwidget)
+        self.title_label.setMaximumSize(QtCore.QSize(16777215, 125))
+        font = QtGui.QFont()
+        font.setFamily("Oswald SemiBold")
+        font.setPointSize(22)
+        font.setBold(True)
+        font.setWeight(75)
+        self.title_label.setFont(font)
+        self.title_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.title_label.setObjectName("title_label")
+        self.gridLayout.addWidget(self.title_label, 0, 0, 1, 1)
 
         # Username Section
         self.username_container = QtWidgets.QWidget(parent=self.centralwidget)
@@ -88,6 +99,29 @@ class Ui_MainWindow(object):
         self.password_lineedit.setObjectName("password_lineedit")
         self.horizontalLayout_2.addWidget(self.password_lineedit)
         self.gridLayout.addWidget(self.password_container, 4, 0, 1, 1)
+
+        # Show Password Section
+        self.show_password_container = QtWidgets.QWidget(parent=self.centralwidget)
+        self.show_password_container.setMaximumSize(QtCore.QSize(500, 25))
+        self.show_password_container.setObjectName("show_password_container")
+        self.verticalLayout = QtWidgets.QVBoxLayout(self.show_password_container)
+        self.verticalLayout.setContentsMargins(40, 0, -1, 0)
+        self.verticalLayout.setSpacing(6)
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.show_password_checkbox = QtWidgets.QCheckBox(parent=self.show_password_container)
+        self.show_password_checkbox.setEnabled(True)
+        self.show_password_checkbox.setMinimumSize(QtCore.QSize(20, 25))
+        self.show_password_checkbox.setMaximumSize(QtCore.QSize(125, 25))
+        font = QtGui.QFont()
+        font.setFamily("Oswald")
+        font.setPointSize(10)
+        self.show_password_checkbox.setFont(font)
+        self.show_password_checkbox.setCheckable(True)
+        self.show_password_checkbox.setChecked(False)
+        self.show_password_checkbox.setTristate(False)
+        self.show_password_checkbox.setObjectName("show_password_checkbox")
+        self.verticalLayout.addWidget(self.show_password_checkbox)
+        self.gridLayout.addWidget(self.show_password_container, 5, 0, 1, 1)
 
         # Buttons Section
         self.buttons_container = QtWidgets.QWidget(parent=self.centralwidget)
@@ -145,32 +179,18 @@ class Ui_MainWindow(object):
 "")
         self.login_button.setObjectName("login_button")
         self.horizontalLayout_3.addWidget(self.login_button)
-        self.gridLayout.addWidget(self.buttons_container, 5, 0, 1, 1)
+        self.gridLayout.addWidget(self.buttons_container, 6, 0, 1, 1)
 
-        # Title Section
-        self.title_label = QtWidgets.QLabel(parent=self.centralwidget)
-        self.title_label.setMaximumSize(QtCore.QSize(16777215, 125))
-        font = QtGui.QFont()
-        font.setFamily("Oswald SemiBold")
-        font.setPointSize(22)
-        font.setBold(True)
-        font.setWeight(75)
-        self.title_label.setFont(font)
-        self.title_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.title_label.setObjectName("title_label")
-        self.gridLayout.addWidget(self.title_label, 0, 0, 1, 1)
-
-        # Set central widget
         MainWindow.setCentralWidget(self.centralwidget)
-
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Movie and TV Show Review App"))
-        self.password_label.setText(_translate("MainWindow", "Password"))
+        self.title_label.setText(_translate("MainWindow", "Movie and TV Show Review App"))
         self.username_label.setText(_translate("MainWindow", "Username"))
         self.sign_up_button.setText(_translate("MainWindow", "Sign Up"))
         self.login_button.setText(_translate("MainWindow", "Log In"))
-        self.title_label.setText(_translate("MainWindow", "Movie and TV Show Review App"))
+        self.password_label.setText(_translate("MainWindow", "Password"))
+        self.show_password_checkbox.setText(_translate("MainWindow", "Show password?"))

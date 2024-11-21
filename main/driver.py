@@ -1,10 +1,7 @@
 from main.login import login_page
 from PyQt6.QtWidgets import QApplication
 import sqlite3
-import os
-import pathlib
 
-# TODO: Add more line edits in sign up dialog, such as name, age, location, email
 
 def main():
     connection = sqlite3.connect('database\\accounts.db')
