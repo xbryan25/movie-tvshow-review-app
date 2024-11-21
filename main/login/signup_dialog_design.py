@@ -126,6 +126,7 @@ class Ui_Dialog(object):
         self.age_spinbox.setFont(font)
         self.age_spinbox.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.age_spinbox.setObjectName("age_spinbox")
+        self.age_spinbox.setMaximum(100)
         self.horizontalLayout_5.addWidget(self.age_spinbox)
         self.gridLayout.addWidget(self.age_container, 3, 1, 1, 1)
 
