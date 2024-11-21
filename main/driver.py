@@ -17,7 +17,12 @@ def main():
     if not tableExists:
         cursor.execute("""CREATE TABLE accounts (
             username text,
-            password text
+            password text,
+            firstname text,
+            lastname text,
+            email text,
+            age integer,
+            gender text
         )""")
 
     # cursor.execute("INSERT INTO accounts VALUES ('admin','123')")

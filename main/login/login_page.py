@@ -41,9 +41,15 @@ class LoginPage(QMainWindow, LoginPageUI):
             elif signup_dialog.password_lineedit.text() != signup_dialog.confirm_password_lineedit.text():
                 print("Password and confirm password is not equal")
             else:
-                cursor.execute("INSERT INTO accounts VALUES (:email, :password)",
-                               {"email": signup_dialog.username_lineedit.text(),
-                                "password": signup_dialog.password_lineedit.text()})
+                cursor.execute("INSERT INTO accounts VALUES "
+                               "(:username, :password, :firstname, :lastname, :email, :age, :gender)",
+                               {"username": signup_dialog.username_lineedit.text(),
+                                "password": signup_dialog.password_lineedit.text(),
+                                "firstname": signup_dialog.firstname_lineedit.text(),
+                                "lastname": signup_dialog.lastname_lineedit.text(),
+                                "email": signup_dialog.email_lineedit.text(),
+                                "age": signup_dialog.age_spinbox.value(),
+                                "gender": signup_dialog.gender_combobox.currentText()})
 
                 print("Account created!")
 
@@ -78,7 +84,6 @@ class LoginPage(QMainWindow, LoginPageUI):
             print("Username is blank")
         else:
             print("Account doesn't exist, kindly sign up")
-
 
         connection.commit()
         connection.close()
