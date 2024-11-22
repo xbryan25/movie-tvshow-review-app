@@ -1,9 +1,11 @@
 from main.choose_title.choose_titles_page_design import Ui_MainWindow as ChooseTitlesPageUI
 
-from PyQt6.QtWidgets import QMainWindow
+from PyQt6.QtWidgets import QMainWindow, QLabel
+from PyQt6.QtGui import QPixmap, QImage
 import requests
 import sqlite3
 import re
+import urllib
 
 
 class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
@@ -18,13 +20,29 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
 
         self.load_pictures()
 
-
-
     def load_pictures(self):
 
         popular_movies_api_url = "https://api.themoviedb.org/3/movie/popular?language=en-US&page=1"
         response = requests.get(popular_movies_api_url, headers=self.api_headers)
 
-        for i in range(4):
-            print(response.json()['results'][i]['original_title'])
+        # for i in range(4):
+        #     url = 'https://image.tmdb.org/t/p/original/' + response.json()['results'][i]['poster_path']
+        #
+        #     image = QImage()
+        #     image.loadFromData(requests.get(url).content)
+        #
+        #     image_label.setPixmap(QPixmap(image))
+        #     image_label.show()
 
+        labels = self.widget_2.findChildren(QLabel)
+
+        # TODO: Add loading screen
+
+        for i in range(4):
+            url = 'https://image.tmdb.org/t/p/original/' + response.json()['results'][i]['poster_path']
+
+            image = QImage()
+            image.loadFromData(requests.get(url).content)
+
+            labels[i].setPixmap(QPixmap(image))
+            labels[i].show()
