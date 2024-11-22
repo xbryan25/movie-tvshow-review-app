@@ -1,8 +1,12 @@
+from main.choose_title.choose_titles_page_design import Ui_MainWindow as ChooseTitlesPageUI
+
 from main.login.login_page_design import Ui_MainWindow as LoginPageUI
 from main.login.signup_dialog import SignupDialog
 from PyQt6.QtWidgets import QMainWindow, QLineEdit
 import sqlite3
 import re
+
+# from main.choose_title.choose_titles_page
 
 
 class LoginPage(QMainWindow, LoginPageUI):
@@ -126,6 +130,9 @@ class LoginPage(QMainWindow, LoginPageUI):
             if self.password_lineedit.text() == all_password[password_index]:
                 print(" password is correct")
                 print("\nWelcome!")
+
+                self.changeToChooseTitlePage()
+
             elif self.password_lineedit.text() == "":
                 print(" password is blank")
             else:
@@ -138,4 +145,15 @@ class LoginPage(QMainWindow, LoginPageUI):
 
         connection.commit()
         connection.close()
+
+    def changeToChooseTitlePage(self):
+        # Make a new QMainWindow for ChooseTitlePage
+        self.window = QMainWindow()
+        self.ui = ChooseTitlesPageUI()
+        self.ui.setupUi(self.window)
+        self.window.show()
+
+        # Hide the LoginPage
+        self.hide()
+
 
