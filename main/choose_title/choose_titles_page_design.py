@@ -8,6 +8,8 @@
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 
+from main.choose_title.posters import Poster
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -25,7 +27,8 @@ class Ui_MainWindow(object):
         self.widget_2.setObjectName("widget_2")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.widget_2)
         self.horizontalLayout.setObjectName("horizontalLayout")
-        self.label_0 = QtWidgets.QLabel(parent=self.widget_2)
+
+        self.label_0 = Poster(parent=self.widget_2)
         self.label_0.setMinimumSize(QtCore.QSize(211, 0))
         self.label_0.setMaximumSize(QtCore.QSize(211, 16777215))
         self.label_0.setStyleSheet("border-width: 1px;\n"
@@ -36,7 +39,8 @@ class Ui_MainWindow(object):
         self.label_0.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.label_0.setObjectName("label_0")
         self.horizontalLayout.addWidget(self.label_0)
-        self.label_1 = QtWidgets.QLabel(parent=self.widget_2)
+
+        self.label_1 = Poster(parent=self.widget_2)
         self.label_1.setMinimumSize(QtCore.QSize(211, 0))
         self.label_1.setMaximumSize(QtCore.QSize(211, 16777215))
         self.label_1.setStyleSheet("border-width: 1px;\n"
@@ -47,7 +51,8 @@ class Ui_MainWindow(object):
         self.label_1.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.label_1.setObjectName("label_1")
         self.horizontalLayout.addWidget(self.label_1)
-        self.label_4 = QtWidgets.QLabel(parent=self.widget_2)
+
+        self.label_4 = Poster(parent=self.widget_2)
         self.label_4.setMinimumSize(QtCore.QSize(211, 0))
         self.label_4.setMaximumSize(QtCore.QSize(211, 16777215))
         self.label_4.setStyleSheet("border-width: 1px;\n"
@@ -58,7 +63,8 @@ class Ui_MainWindow(object):
         self.label_4.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.label_4.setObjectName("label_4")
         self.horizontalLayout.addWidget(self.label_4)
-        self.label_3 = QtWidgets.QLabel(parent=self.widget_2)
+
+        self.label_3 = Poster(parent=self.widget_2)
         self.label_3.setMinimumSize(QtCore.QSize(211, 0))
         self.label_3.setMaximumSize(QtCore.QSize(211, 16777215))
         self.label_3.setStyleSheet("border-width: 1px;\n"

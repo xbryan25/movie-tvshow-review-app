@@ -1,5 +1,7 @@
 from main.choose_title.choose_titles_page_design import Ui_MainWindow as ChooseTitlesPageUI
 
+from main.choose_title.posters import Poster
+
 from PyQt6.QtWidgets import QMainWindow, QLabel
 from PyQt6.QtGui import QPixmap, QImage
 import requests
@@ -34,7 +36,8 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
         #     image_label.setPixmap(QPixmap(image))
         #     image_label.show()
 
-        labels = self.widget_2.findChildren(QLabel)
+        # Find the children of the Poster class
+        labels = self.widget_2.findChildren(Poster)
 
         # TODO: Add loading screen
 
