@@ -2,8 +2,9 @@ from main.choose_title.choose_titles_page_design import Ui_MainWindow as ChooseT
 
 from main.choose_title.posters import Poster
 
-from PyQt6.QtWidgets import QMainWindow, QLabel
+from PyQt6.QtWidgets import QMainWindow, QLabel, QFrame
 from PyQt6.QtGui import QPixmap, QImage
+from PyQt6.QtCore import QSize, Qt
 import requests
 import sqlite3
 import re
@@ -19,6 +20,9 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
             "accept": "application/json",
             "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3N2Y0OWMyYmEyNmUxN2ZjMDkyY2VkYmQ2M2ZiZWIzNiIsIm5iZiI6MTczMjE2NjEzOS4wNDMzNTc0LCJzdWIiOiI2NzNlYzE5NzQ2NTQxYmJjZDM3OWNmZTYiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.j9GlO1y5TXH6iexR69tp03m39ScK9-CoKdjbkfVBqJY"
         }
+
+        for i in range(15):
+            self.make_more_posters(i)
 
         self.load_pictures()
 
@@ -37,15 +41,30 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
         #     image_label.show()
 
         # Find the children of the Poster class
-        labels = self.widget_2.findChildren(Poster)
+        poster_containers = self.scrollAreaWidgetContents.findChildren(Poster)
+
 
         # TODO: Add loading screen
 
-        for i in range(4):
+        for i in range(15):
             url = 'https://image.tmdb.org/t/p/original/' + response.json()['results'][i]['poster_path']
 
             image = QImage()
             image.loadFromData(requests.get(url).content)
 
-            labels[i].setPixmap(QPixmap(image))
-            labels[i].show()
+            poster_containers[i].setPixmap(QPixmap(image))
+            poster_containers[i].show()
+
+    def make_more_posters(self, column):
+
+        frame_name = "frame " + str(column + 1)
+
+        self.label = Poster(parent=self.scrollAreaWidgetContents)
+        self.label.setMinimumSize(QSize(200, 300))
+        self.label.setMaximumSize(QSize(200, 300))
+        # self.label.setStyleSheet("background-color: rgb(229, 229, 229)")
+        self.label.setText("")
+        self.label.setScaledContents(True)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.label.setObjectName(frame_name)
+        self.gridLayout.addWidget(self.label, 0, column, 1, 1)

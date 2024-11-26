@@ -8,3 +8,6 @@ class Poster(QLabel):
 
     def mousePressEvent(self, event):
         print("clicked")
+
+    def mouseMoveEvent(self, ev):
+        print("domain")
