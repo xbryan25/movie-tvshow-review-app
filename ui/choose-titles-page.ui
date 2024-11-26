@@ -16,6 +16,48 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
+     <widget class="QFrame" name="frame">
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QLabel" name="label_3">
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>50</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Oswald SemiBold</family>
+           <pointsize>22</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Movies</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
      <widget class="QScrollArea" name="scrollArea">
       <property name="maximumSize">
        <size>
@@ -24,21 +66,29 @@
        </size>
       </property>
       <property name="styleSheet">
-       <string notr="true">QScrollBar{
-}
-
+       <string notr="true">
 QScrollBar:horizontal{
 	border: none;
-	background-color: rgb(59, 59, 90);
-	height: 14px;
-	margin: 15px 0 15px 0;
-	border-radius: 0px;
+	background-color: rgb(43, 56, 138);
+	height: 10px;
+	margin: 0 0 0 0;
+	border-radius: 5px;
 }
 
+
 QScrollBar::handle:horizontal{
-	background-color: rgb(80, 80, 122);
+	background-color: rgb(131, 207, 241);
 	min-width: 30px;
 	border-radius: 7px;
+}
+
+
+QScrollBar::handle:horizontal:hover{
+	background-color: rgb(131, 180, 210);
+}
+
+QScrollBar::handle:horizontal:pressed{
+	background-color: rgb(120, 170, 190);
 }
 </string>
       </property>
@@ -54,10 +104,10 @@ QScrollBar::handle:horizontal{
       <widget class="QWidget" name="scrollAreaWidgetContents">
        <property name="geometry">
         <rect>
-         <x>-1</x>
+         <x>0</x>
          <y>0</y>
-         <width>1018</width>
-         <height>336</height>
+         <width>880</width>
+         <height>346</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout">
@@ -65,13 +115,13 @@ QScrollBar::handle:horizontal{
          <widget class="QLabel" name="label">
           <property name="minimumSize">
            <size>
-            <width>1000</width>
+            <width>200</width>
             <height>300</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>1000</width>
+            <width>200</width>
             <height>300</height>
            </size>
           </property>
@@ -79,13 +129,13 @@ QScrollBar::handle:horizontal{
            <string notr="true">QLabel{
 background-color: rgb(229, 229, 229);
 border-radius: 2px;
-border-width: 1px;
-border-color: black;
+
 border-style: outset;
 }
 
 QLabel:hover{
-background-color: rgb(200, 200, 200);
+border-width: 1px;
+border-color:black;
 }
 
 </string>
@@ -107,13 +157,13 @@ background-color: rgb(200, 200, 200);
       <property name="minimumSize">
        <size>
         <width>0</width>
-        <height>300</height>
+        <height>250</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
         <width>16777215</width>
-        <height>300</height>
+        <height>250</height>
        </size>
       </property>
       <property name="styleSheet">

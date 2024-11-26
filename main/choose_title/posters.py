@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QLabel
-
+from PyQt6.QtCore import QRect, QPropertyAnimation
 
 class Poster(QLabel):
     def __init__(self, parent):
@@ -10,4 +10,7 @@ class Poster(QLabel):
         print("clicked")
 
     def mouseMoveEvent(self, ev):
-        print("domain")
+        pass
+
+    def resize_animation(self):
+        pass

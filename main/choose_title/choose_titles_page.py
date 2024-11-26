@@ -59,12 +59,16 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
 
         frame_name = "frame " + str(column + 1)
 
+        # Don't forget to change QLabel to Poster
+
         self.label = Poster(parent=self.scrollAreaWidgetContents)
         self.label.setMinimumSize(QSize(200, 300))
         self.label.setMaximumSize(QSize(200, 300))
-        # self.label.setStyleSheet("background-color: rgb(229, 229, 229)")
+
         self.label.setText("")
-        self.label.setScaledContents(True)
         self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.label.setObjectName(frame_name)
+        self.label.setScaledContents(True)
+
+
         self.gridLayout.addWidget(self.label, 0, column, 1, 1)

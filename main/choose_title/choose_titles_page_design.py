@@ -17,34 +17,88 @@ class Ui_MainWindow(object):
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
         self.verticalLayout.setObjectName("verticalLayout")
-
+        self.frame = QtWidgets.QFrame(parent=self.centralwidget)
+        self.frame.setMaximumSize(QtCore.QSize(16777215, 50))
+        self.frame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
+        self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
+        self.frame.setObjectName("frame")
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self.frame)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.label_3 = QtWidgets.QLabel(parent=self.frame)
+        self.label_3.setMaximumSize(QtCore.QSize(16777215, 50))
+        font = QtGui.QFont()
+        font.setFamily("Oswald SemiBold")
+        font.setPointSize(22)
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_3.setFont(font)
+        self.label_3.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.label_3.setObjectName("label_3")
+        self.horizontalLayout.addWidget(self.label_3)
+        self.verticalLayout.addWidget(self.frame)
         self.scrollArea = QtWidgets.QScrollArea(parent=self.centralwidget)
         self.scrollArea.setMaximumSize(QtCore.QSize(880, 350))
+        self.scrollArea.setStyleSheet("\n"
+"QScrollBar:horizontal{\n"
+"    border: none;\n"
+"    background-color: rgb(43, 56, 138);\n"
+"    height: 10px;\n"
+"    margin: 0 0 0 0;\n"
+"    border-radius: 5px;\n"
+"}\n"
+"\n"
+"\n"
+"QScrollBar::handle:horizontal{\n"
+"    background-color: rgb(131, 207, 241);\n"
+"    min-width: 30px;\n"
+"    border-radius: 7px;\n"
+"}\n"
+"\n"
+"\n"
+"QScrollBar::handle:horizontal:hover{\n"
+"    background-color: rgb(131, 180, 210);\n"
+"}\n"
+"\n"
+"QScrollBar::handle:horizontal:pressed{\n"
+"    background-color: rgb(120, 170, 190);\n"
+"}\n"
+"")
         self.scrollArea.setFrameShape(QtWidgets.QFrame.Shape.NoFrame)
         self.scrollArea.setLineWidth(1)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
-
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 880, 350))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 880, 346))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.gridLayout = QtWidgets.QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout.setObjectName("gridLayout")
 
-        # self.label = QtWidgets.QLabel(parent=self.scrollAreaWidgetContents)
-        # self.label.setMinimumSize(QtCore.QSize(200, 300))
-        # self.label.setMaximumSize(QtCore.QSize(200, 300))
-        # self.label.setStyleSheet("background-color: rgb(229, 229, 229)")
-        # self.label.setText("")
-        # self.label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        # self.label.setObjectName("label")
-        # self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
+#         self.label = QtWidgets.QLabel(parent=self.scrollAreaWidgetContents)
+#         self.label.setMinimumSize(QtCore.QSize(200, 300))
+#         self.label.setMaximumSize(QtCore.QSize(200, 300))
+#         self.label.setStyleSheet("QLabel{\n"
+# "background-color: rgb(229, 229, 229);\n"
+# "border-radius: 2px;\n"
+# "\n"
+# "border-style: outset;\n"
+# "}\n"
+# "\n"
+# "QLabel:hover{\n"
+# "border-width: 1px;\n"
+# "border-color:black;\n"
+# "}\n"
+# "\n"
+# "")
+#         self.label.setText("")
+#         self.label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+#         self.label.setObjectName("label")
+#         self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
 
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.verticalLayout.addWidget(self.scrollArea)
         self.widget = QtWidgets.QWidget(parent=self.centralwidget)
-        self.widget.setMinimumSize(QtCore.QSize(0, 300))
-        self.widget.setMaximumSize(QtCore.QSize(16777215, 300))
+        self.widget.setMinimumSize(QtCore.QSize(0, 250))
+        self.widget.setMaximumSize(QtCore.QSize(16777215, 250))
         self.widget.setStyleSheet("border-width: 1px;\n"
 "border-color: black;\n"
 "border-style: outset;")
@@ -63,4 +117,5 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Choose a Movie or a TV Show"))
+        self.label_3.setText(_translate("MainWindow", "Movies"))
         self.label_2.setText(_translate("MainWindow", "test"))
