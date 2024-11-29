@@ -4,7 +4,7 @@ from main.choose_title.posters import Poster
 
 from PyQt6.QtWidgets import QMainWindow, QLabel, QFrame
 from PyQt6.QtGui import QPixmap, QImage
-from PyQt6.QtCore import QSize, Qt
+from PyQt6.QtCore import QSize, Qt, QPropertyAnimation, QRect, QEvent
 import requests
 import sqlite3
 import re
@@ -70,5 +70,19 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
         self.label.setObjectName(frame_name)
         self.label.setScaledContents(True)
 
+        self.label.setStyleSheet("QLabel{\n"
+                                 "padding: 3px 3px 3px 3px;\n"
+                                 "}\n"
+                                 "\n"
+                                 "QLabel:hover{\n"
+                                 "border: 4px solid blue;\n"
+                                 "border-radius: 1px;\n"
+                                 "}\n"
+                                 "\n"
+                                 "")
 
         self.gridLayout.addWidget(self.label, 0, column, 1, 1)
+
+
+
+

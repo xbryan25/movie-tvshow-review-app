@@ -84,8 +84,8 @@ class Ui_MainWindow(object):
 # "}\n"
 # "\n"
 # "QLabel:hover{\n"
-# "border-width: 1px;\n"
-# "border-color:black;\n"
+# "border-width: 3px;\n"
+# "border-color: black;\n"
 # "}\n"
 # "\n"
 # "")
