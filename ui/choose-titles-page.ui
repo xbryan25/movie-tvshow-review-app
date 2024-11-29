@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>898</width>
-    <height>676</height>
+    <width>900</width>
+    <height>816</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
       <property name="maximumSize">
        <size>
         <width>16777215</width>
-        <height>50</height>
+        <height>60</height>
        </size>
       </property>
       <property name="frameShape">
@@ -47,7 +47,7 @@
           </font>
          </property>
          <property name="text">
-          <string>Movies</string>
+          <string>Popular Movies</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -59,6 +59,12 @@
     </item>
     <item>
      <widget class="QScrollArea" name="scrollArea">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>340</height>
+       </size>
+      </property>
       <property name="maximumSize">
        <size>
         <width>880</width>
@@ -107,7 +113,7 @@ QScrollBar::handle:horizontal:pressed{
          <x>0</x>
          <y>0</y>
          <width>880</width>
-         <height>346</height>
+         <height>340</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout">
@@ -151,33 +157,144 @@ border-radius: 1px;
      </widget>
     </item>
     <item>
-     <widget class="QWidget" name="widget" native="true">
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>250</height>
-       </size>
-      </property>
+     <widget class="QFrame" name="frame_2">
       <property name="maximumSize">
        <size>
         <width>16777215</width>
-        <height>250</height>
+        <height>60</height>
        </size>
       </property>
-      <property name="styleSheet">
-       <string notr="true">border-width: 1px;
-border-color: black;
-border-style: outset;</string>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout_2">
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
-        <widget class="QLabel" name="label_2">
+        <widget class="QLabel" name="label_4">
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>70</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Oswald SemiBold</family>
+           <pointsize>22</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
          <property name="text">
-          <string>test</string>
+          <string>Popular TV Shows</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
          </property>
         </widget>
        </item>
       </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QScrollArea" name="scrollArea_2">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>340</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>880</width>
+        <height>350</height>
+       </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">
+QScrollBar:horizontal{
+	border: none;
+	background-color: rgb(43, 56, 138);
+	height: 10px;
+	margin: 0 0 0 0;
+	border-radius: 5px;
+}
+
+
+QScrollBar::handle:horizontal{
+	background-color: rgb(131, 207, 241);
+	min-width: 30px;
+	border-radius: 7px;
+}
+
+
+QScrollBar::handle:horizontal:hover{
+	background-color: rgb(131, 180, 210);
+}
+
+QScrollBar::handle:horizontal:pressed{
+	background-color: rgb(120, 170, 190);
+}
+</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
+      <property name="lineWidth">
+       <number>1</number>
+      </property>
+      <property name="widgetResizable">
+       <bool>true</bool>
+      </property>
+      <widget class="QWidget" name="scrollAreaWidgetContents_2">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>880</width>
+         <height>340</height>
+        </rect>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="minimumSize">
+           <size>
+            <width>200</width>
+            <height>300</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>200</width>
+            <height>300</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QLabel{
+background-color: orange;
+border-style: outset;
+}
+
+QLabel:hover{
+border: 4px solid blue;
+border-radius: 1px;
+}
+
+</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>

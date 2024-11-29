@@ -22,14 +22,24 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
         }
 
         for i in range(15):
-            self.make_more_posters(i)
+            self.make_more_movie_posters(i)
+            self.make_more_tv_show_posters(i)
 
         self.load_pictures()
+
+        print("Done!")
 
     def load_pictures(self):
 
         popular_movies_api_url = "https://api.themoviedb.org/3/movie/popular?language=en-US&page=1"
-        response = requests.get(popular_movies_api_url, headers=self.api_headers)
+        popular_movies_api_response = requests.get(popular_movies_api_url, headers=self.api_headers)
+
+        popular_tv_shows_api_url = "https://api.themoviedb.org/3/tv/popular?language=en-US&page=1"
+        popular_tv_shows_api_response = requests.get(popular_tv_shows_api_url, headers=self.api_headers)
+
+        # test = "https://api.themoviedb.org/3/tv/popular?language=en-US&page=1&with_original_language=en"
+        # tester = requests.get(test, headers=self.api_headers)
+        # print(tester.json())
 
         # for i in range(4):
         #     url = 'https://image.tmdb.org/t/p/original/' + response.json()['results'][i]['poster_path']
@@ -41,23 +51,30 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
         #     image_label.show()
 
         # Find the children of the Poster class
-        poster_containers = self.scrollAreaWidgetContents.findChildren(Poster)
-
+        movie_poster_containers = self.scrollAreaWidgetContents.findChildren(Poster)
+        tv_show_poster_containers = self.scrollAreaWidgetContents_2.findChildren(Poster)
 
         # TODO: Add loading screen
 
         for i in range(15):
-            url = 'https://image.tmdb.org/t/p/original/' + response.json()['results'][i]['poster_path']
+            movie_img_url = 'https://image.tmdb.org/t/p/original/' + popular_movies_api_response.json()['results'][i]['poster_path']
 
-            image = QImage()
-            image.loadFromData(requests.get(url).content)
+            movie_image = QImage()
+            movie_image.loadFromData(requests.get(movie_img_url).content)
 
-            poster_containers[i].setPixmap(QPixmap(image))
-            poster_containers[i].show()
+            movie_poster_containers[i].setPixmap(QPixmap(movie_image))
+            movie_poster_containers[i].show()
 
-    def make_more_posters(self, column):
+            tv_show_img_url = 'https://image.tmdb.org/t/p/original/' + popular_tv_shows_api_response.json()['results'][i]['poster_path']
 
-        frame_name = "frame " + str(column + 1)
+            tv_show_image = QImage()
+            tv_show_image.loadFromData(requests.get(tv_show_img_url).content)
+
+            tv_show_poster_containers[i].setPixmap(QPixmap(tv_show_image))
+            tv_show_poster_containers[i].show()
+
+    def make_more_movie_posters(self, column):
+        frame_name = "movie_frame_" + str(column + 1)
 
         # Don't forget to change QLabel to Poster
 
@@ -81,8 +98,38 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
                                  "\n"
                                  "")
 
+        movie_poster_containers = self.scrollAreaWidgetContents.findChildren(Poster)
+
         self.gridLayout.addWidget(self.label, 0, column, 1, 1)
 
+
+
+    def make_more_tv_show_posters(self, column):
+        frame_name = "tv_show_frame_" + str(column + 1)
+
+        # Don't forget to change QLabel to Poster
+
+        self.label_2 = Poster(parent=self.scrollAreaWidgetContents_2)
+        self.label_2.setMinimumSize(QSize(200, 300))
+        self.label_2.setMaximumSize(QSize(200, 300))
+
+        self.label_2.setText("")
+        self.label_2.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.label_2.setObjectName(frame_name)
+        self.label_2.setScaledContents(True)
+
+        self.label_2.setStyleSheet("QLabel{\n"
+                                 "padding: 3px 3px 3px 3px;\n"
+                                 "}\n"
+                                 "\n"
+                                 "QLabel:hover{\n"
+                                 "border: 4px solid blue;\n"
+                                 "border-radius: 1px;\n"
+                                 "}\n"
+                                 "\n"
+                                 "")
+
+        self.gridLayout_2.addWidget(self.label_2, 0, column, 1, 1)
 
 
 

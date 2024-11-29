@@ -12,13 +12,14 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(898, 676)
+        MainWindow.resize(900, 816)
+        MainWindow.resize(900, 816)
         self.centralwidget = QtWidgets.QWidget(parent=MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
         self.verticalLayout.setObjectName("verticalLayout")
         self.frame = QtWidgets.QFrame(parent=self.centralwidget)
-        self.frame.setMaximumSize(QtCore.QSize(16777215, 50))
+        self.frame.setMaximumSize(QtCore.QSize(16777215, 60))
         self.frame.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.frame.setObjectName("frame")
@@ -68,7 +69,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 880, 346))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 880, 340))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.gridLayout = QtWidgets.QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout.setObjectName("gridLayout")
@@ -77,15 +78,13 @@ class Ui_MainWindow(object):
 #         self.label.setMinimumSize(QtCore.QSize(200, 300))
 #         self.label.setMaximumSize(QtCore.QSize(200, 300))
 #         self.label.setStyleSheet("QLabel{\n"
-# "background-color: rgb(229, 229, 229);\n"
-# "border-radius: 2px;\n"
-# "\n"
+# "background-color: orange;\n"
 # "border-style: outset;\n"
 # "}\n"
 # "\n"
 # "QLabel:hover{\n"
-# "border-width: 3px;\n"
-# "border-color: black;\n"
+# "border: 4px solid blue;\n"
+# "border-radius: 1px;\n"
 # "}\n"
 # "\n"
 # "")
@@ -96,19 +95,84 @@ class Ui_MainWindow(object):
 
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.verticalLayout.addWidget(self.scrollArea)
-        self.widget = QtWidgets.QWidget(parent=self.centralwidget)
-        self.widget.setMinimumSize(QtCore.QSize(0, 250))
-        self.widget.setMaximumSize(QtCore.QSize(16777215, 250))
-        self.widget.setStyleSheet("border-width: 1px;\n"
-"border-color: black;\n"
-"border-style: outset;")
-        self.widget.setObjectName("widget")
-        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.widget)
-        self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.label_2 = QtWidgets.QLabel(parent=self.widget)
-        self.label_2.setObjectName("label_2")
-        self.verticalLayout_2.addWidget(self.label_2)
-        self.verticalLayout.addWidget(self.widget)
+        self.frame_2 = QtWidgets.QFrame(parent=self.centralwidget)
+        self.frame_2.setMaximumSize(QtCore.QSize(16777215, 60))
+        self.frame_2.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
+        self.frame_2.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
+        self.frame_2.setObjectName("frame_2")
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.frame_2)
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.label_4 = QtWidgets.QLabel(parent=self.frame_2)
+        self.label_4.setMaximumSize(QtCore.QSize(16777215, 50))
+        font = QtGui.QFont()
+        font.setFamily("Oswald SemiBold")
+        font.setPointSize(22)
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_4.setFont(font)
+        self.label_4.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.label_4.setObjectName("label_4")
+        self.horizontalLayout_2.addWidget(self.label_4)
+        self.verticalLayout.addWidget(self.frame_2)
+        self.scrollArea_2 = QtWidgets.QScrollArea(parent=self.centralwidget)
+        self.scrollArea_2.setMaximumSize(QtCore.QSize(880, 350))
+        self.scrollArea_2.setStyleSheet("\n"
+"QScrollBar:horizontal{\n"
+"    border: none;\n"
+"    background-color: rgb(43, 56, 138);\n"
+"    height: 10px;\n"
+"    margin: 0 0 0 0;\n"
+"    border-radius: 5px;\n"
+"}\n"
+"\n"
+"\n"
+"QScrollBar::handle:horizontal{\n"
+"    background-color: rgb(131, 207, 241);\n"
+"    min-width: 30px;\n"
+"    border-radius: 7px;\n"
+"}\n"
+"\n"
+"\n"
+"QScrollBar::handle:horizontal:hover{\n"
+"    background-color: rgb(131, 180, 210);\n"
+"}\n"
+"\n"
+"QScrollBar::handle:horizontal:pressed{\n"
+"    background-color: rgb(120, 170, 190);\n"
+"}\n"
+"")
+        self.scrollArea_2.setFrameShape(QtWidgets.QFrame.Shape.NoFrame)
+        self.scrollArea_2.setLineWidth(1)
+        self.scrollArea_2.setWidgetResizable(True)
+        self.scrollArea_2.setObjectName("scrollArea_2")
+
+        self.scrollAreaWidgetContents_2 = QtWidgets.QWidget()
+        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 880, 340))
+        self.scrollAreaWidgetContents_2.setObjectName("scrollAreaWidgetContents_2")
+        self.gridLayout_2 = QtWidgets.QGridLayout(self.scrollAreaWidgetContents_2)
+        self.gridLayout_2.setObjectName("gridLayout_2")
+
+#         self.label_2 = QtWidgets.QLabel(parent=self.scrollAreaWidgetContents_2)
+#         self.label_2.setMinimumSize(QtCore.QSize(200, 300))
+#         self.label_2.setMaximumSize(QtCore.QSize(200, 300))
+#         self.label_2.setStyleSheet("QLabel{\n"
+# "background-color: orange;\n"
+# "border-style: outset;\n"
+# "}\n"
+# "\n"
+# "QLabel:hover{\n"
+# "border: 4px solid blue;\n"
+# "border-radius: 1px;\n"
+# "}\n"
+# "\n"
+# "")
+#         self.label_2.setText("")
+#         self.label_2.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+#         self.label_2.setObjectName("label_2")
+#         self.gridLayout_2.addWidget(self.label_2, 0, 0, 1, 1)
+
+        self.scrollArea_2.setWidget(self.scrollAreaWidgetContents_2)
+        self.verticalLayout.addWidget(self.scrollArea_2)
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
@@ -117,5 +181,5 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Choose a Movie or a TV Show"))
-        self.label_3.setText(_translate("MainWindow", "Movies"))
-        self.label_2.setText(_translate("MainWindow", "test"))
+        self.label_3.setText(_translate("MainWindow", "Popular Movies"))
+        self.label_4.setText(_translate("MainWindow", "Popular TV Shows"))
