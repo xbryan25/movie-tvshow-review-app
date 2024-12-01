@@ -4,11 +4,53 @@ from main.choose_title.posters import Poster
 
 from PyQt6.QtWidgets import QMainWindow, QLabel, QFrame
 from PyQt6.QtGui import QPixmap, QImage
-from PyQt6.QtCore import QSize, Qt, QPropertyAnimation, QRect, QEvent
+from PyQt6.QtCore import (QSize, Qt, QPropertyAnimation, QRect, QEvent, QThread, QObject, pyqtSignal, QRunnable,
+                          pyqtSlot, QThreadPool)
+from main.loading_screen.loading_screen import LoadingScreen
 import requests
 import sqlite3
 import re
 import urllib
+import asyncio
+import threading
+import sys
+import traceback
+
+import time
+
+
+class WorkerSignals(QObject):
+    finished = pyqtSignal()
+    error = pyqtSignal(tuple)
+    result = pyqtSignal(object)
+    progress = pyqtSignal(int)
+
+
+# For QThread
+class LoadPicturesWorker(QRunnable):
+
+    def __init__(self, fn):
+        super().__init__()
+        self.fn = fn
+        self.signals = WorkerSignals()
+
+        # self.kwargs['progress_callback'] = self.signals.progress
+
+    @pyqtSlot()
+    def run(self):
+        self.fn()
+        self.signals.finished.emit()
+
+        # try:
+        #     result = self.fn()
+        # except:
+        #     traceback.print_exc()
+        #     exctype, value = sys.exc_info()[:2]
+        #     self.signals.error.emit((exctype, value, traceback.format_exc()))
+        # else:
+        #     self.signals.result.emit(result)  # Return the result of the processing
+        # finally:
+        #     self.signals.finished.emit()
 
 
 class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
@@ -25,30 +67,32 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
             self.make_more_movie_posters(i)
             self.make_more_tv_show_posters(i)
 
-        self.load_pictures()
+        self.loading_screen = LoadingScreen()
+        self.loading_screen.show()
 
-        print("Done!")
+        self.threadpool = QThreadPool()
+        self.start_load_pictures_thread()
+
+
+    def start_load_pictures_thread(self):
+        load_pictures_worker = LoadPicturesWorker(self.load_pictures)
+
+        load_pictures_worker.signals.finished.connect(self.show_choose_titles_page)
+
+        self.threadpool.start(load_pictures_worker)
+        # self.threadpool.waitForDone()
+
+        # self.show()
+
 
     def load_pictures(self):
+        print("reach here111")
 
         popular_movies_api_url = "https://api.themoviedb.org/3/movie/popular?language=en-US&page=1"
         popular_movies_api_response = requests.get(popular_movies_api_url, headers=self.api_headers)
 
         popular_tv_shows_api_url = "https://api.themoviedb.org/3/tv/popular?language=en-US&page=1"
         popular_tv_shows_api_response = requests.get(popular_tv_shows_api_url, headers=self.api_headers)
-
-        # test = "https://api.themoviedb.org/3/tv/popular?language=en-US&page=1&with_original_language=en"
-        # tester = requests.get(test, headers=self.api_headers)
-        # print(tester.json())
-
-        # for i in range(4):
-        #     url = 'https://image.tmdb.org/t/p/original/' + response.json()['results'][i]['poster_path']
-        #
-        #     image = QImage()
-        #     image.loadFromData(requests.get(url).content)
-        #
-        #     image_label.setPixmap(QPixmap(image))
-        #     image_label.show()
 
         # Find the children of the Poster class
         movie_poster_containers = self.scrollAreaWidgetContents.findChildren(Poster)
@@ -57,7 +101,8 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
         # TODO: Add loading screen
 
         for i in range(15):
-            movie_img_url = 'https://image.tmdb.org/t/p/original/' + popular_movies_api_response.json()['results'][i]['poster_path']
+            movie_img_url = 'https://image.tmdb.org/t/p/original/' + popular_movies_api_response.json()['results'][i][
+                'poster_path']
 
             movie_image = QImage()
             movie_image.loadFromData(requests.get(movie_img_url).content)
@@ -65,13 +110,29 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
             movie_poster_containers[i].setPixmap(QPixmap(movie_image))
             movie_poster_containers[i].show()
 
-            tv_show_img_url = 'https://image.tmdb.org/t/p/original/' + popular_tv_shows_api_response.json()['results'][i]['poster_path']
+            tv_show_img_url = 'https://image.tmdb.org/t/p/original/' + \
+                              popular_tv_shows_api_response.json()['results'][i]['poster_path']
 
             tv_show_image = QImage()
             tv_show_image.loadFromData(requests.get(tv_show_img_url).content)
 
             tv_show_poster_containers[i].setPixmap(QPixmap(tv_show_image))
             tv_show_poster_containers[i].show()
+
+            print(f"{((i + 1) / 15) * 100}")
+            self.loading_screen.loading_progress_bar.setValue(int(((i + 1) / 15) * 100))
+
+        print("reach here")
+
+        # self.loading_screen.hide()
+
+        # self.show()
+
+    def show_choose_titles_page(self):
+        print("doneze")
+        self.loading_screen.hide()
+
+        self.show()
 
     def make_more_movie_posters(self, column):
         frame_name = "movie_frame_" + str(column + 1)
@@ -101,8 +162,6 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
         movie_poster_containers = self.scrollAreaWidgetContents.findChildren(Poster)
 
         self.gridLayout.addWidget(self.label, 0, column, 1, 1)
-
-
 
     def make_more_tv_show_posters(self, column):
         frame_name = "tv_show_frame_" + str(column + 1)

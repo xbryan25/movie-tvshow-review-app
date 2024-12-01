@@ -153,4 +153,4 @@ class LoginPage(QMainWindow, LoginPageUI):
 
         self.choose_titles_page = ChooseTitlesPage()
 
-        self.choose_titles_page.show()
+        # self.choose_titles_page.show()
