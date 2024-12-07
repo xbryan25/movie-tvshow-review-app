@@ -52,7 +52,7 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
             "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3N2Y0OWMyYmEyNmUxN2ZjMDkyY2VkYmQ2M2ZiZWIzNiIsIm5iZiI6MTczMjE2NjEzOS4wNDMzNTc0LCJzdWIiOiI2NzNlYzE5NzQ2NTQxYmJjZDM3OWNmZTYiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.j9GlO1y5TXH6iexR69tp03m39ScK9-CoKdjbkfVBqJY"
         }
 
-        for i in range(15):
+        for i in range(2):
             self.make_more_movie_posters(i)
             self.make_more_tv_show_posters(i)
 
@@ -84,29 +84,29 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
 
         # TODO: Add loading screen
 
-        for i in range(15):
+        for i in range(2):
             movie_img_url = 'https://image.tmdb.org/t/p/original/' + popular_movies_api_response.json()['results'][i][
                 'poster_path']
 
-            movie_title = popular_movies_api_response.json()['results'][i][
-                'original_title']
+            movie_id = popular_movies_api_response.json()['results'][i][
+                'id']
 
             movie_image = QImage()
             movie_image.loadFromData(requests.get(movie_img_url).content)
 
-            movie_poster_containers[i].setTitle(movie_title)
+            movie_poster_containers[i].setMediaId(movie_id)
             movie_poster_containers[i].setPixmap(QPixmap(movie_image))
             movie_poster_containers[i].show()
 
             tv_show_img_url = 'https://image.tmdb.org/t/p/original/' + \
                               popular_tv_shows_api_response.json()['results'][i]['poster_path']
 
-            tv_show_title = popular_tv_shows_api_response.json()['results'][i]['original_name']
+            tv_show_id = popular_tv_shows_api_response.json()['results'][i]['id']
 
             tv_show_image = QImage()
             tv_show_image.loadFromData(requests.get(tv_show_img_url).content)
 
-            tv_show_poster_containers[i].setTitle(tv_show_title)
+            tv_show_poster_containers[i].setMediaId(tv_show_id)
             tv_show_poster_containers[i].setPixmap(QPixmap(tv_show_image))
             tv_show_poster_containers[i].show()
 
@@ -122,7 +122,7 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
 
         # Don't forget to change QLabel to Poster
 
-        self.label = Poster(parent=self.scrollAreaWidgetContents)
+        self.label = Poster(parent=self.scrollAreaWidgetContents, media_type="movie")
         self.label.setMinimumSize(QSize(200, 300))
         self.label.setMaximumSize(QSize(200, 300))
 
@@ -142,7 +142,7 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
                                  "\n"
                                  "")
 
-        movie_poster_containers = self.scrollAreaWidgetContents.findChildren(Poster)
+        # movie_poster_containers = self.scrollAreaWidgetContents.findChildren(Poster)
 
         self.gridLayout.addWidget(self.label, 0, column, 1, 1)
 
@@ -151,7 +151,7 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
 
         # Don't forget to change QLabel to Poster
 
-        self.label_2 = Poster(parent=self.scrollAreaWidgetContents_2)
+        self.label_2 = Poster(parent=self.scrollAreaWidgetContents_2, media_type="tv")
         self.label_2.setMinimumSize(QSize(200, 300))
         self.label_2.setMaximumSize(QSize(200, 300))
 

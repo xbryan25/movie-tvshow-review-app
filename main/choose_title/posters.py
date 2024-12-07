@@ -1,20 +1,30 @@
 from PyQt6.QtWidgets import QLabel
 from PyQt6.QtCore import QRect, QPropertyAnimation
 
+from main.about_title.about_title import AboutTitlePage
+
+
 # TODO: Finish pulsing animation whenever a poster gets hovered by the mouse
 
 class Poster(QLabel):
-    def __init__(self, parent):
+    def __init__(self, parent, media_type):
         super().__init__()
         self.parent = parent
         self.setMouseTracking(True)
         self.title = ""
+        self.media_id = ""
+        self.media_type = media_type
 
     def setTitle(self, title):
         self.title = title
 
+    def setMediaId(self, media_id):
+        self.media_id = media_id
+
     def mousePressEvent(self, event):
         print(self.title)
+        self.about_title_page = AboutTitlePage(self.media_id, self.media_type)
+        self.about_title_page.show()
 
     def mouseMoveEvent(self, ev):
         pass
