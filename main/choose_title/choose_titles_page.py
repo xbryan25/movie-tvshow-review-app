@@ -18,6 +18,9 @@ import traceback
 
 import time
 
+# Multithreading credits: https://www.pythonguis.com/tutorials/multithreading-pyqt6-applications-qthreadpool/#qrunnable-and-the-qthreadpool
+# https://realpython.com/python-pyqt-qthread/
+
 
 class WorkerSignals(QObject):
     finished = pyqtSignal()
@@ -28,29 +31,15 @@ class WorkerSignals(QObject):
 
 # For QThread
 class LoadPicturesWorker(QRunnable):
-
     def __init__(self, fn):
         super().__init__()
         self.fn = fn
         self.signals = WorkerSignals()
 
-        # self.kwargs['progress_callback'] = self.signals.progress
-
     @pyqtSlot()
     def run(self):
         self.fn()
         self.signals.finished.emit()
-
-        # try:
-        #     result = self.fn()
-        # except:
-        #     traceback.print_exc()
-        #     exctype, value = sys.exc_info()[:2]
-        #     self.signals.error.emit((exctype, value, traceback.format_exc()))
-        # else:
-        #     self.signals.result.emit(result)  # Return the result of the processing
-        # finally:
-        #     self.signals.finished.emit()
 
 
 class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
@@ -73,17 +62,12 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
         self.threadpool = QThreadPool()
         self.start_load_pictures_thread()
 
-
     def start_load_pictures_thread(self):
         load_pictures_worker = LoadPicturesWorker(self.load_pictures)
 
         load_pictures_worker.signals.finished.connect(self.show_choose_titles_page)
 
         self.threadpool.start(load_pictures_worker)
-        # self.threadpool.waitForDone()
-
-        # self.show()
-
 
     def load_pictures(self):
         print("reach here111")
@@ -104,34 +88,33 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
             movie_img_url = 'https://image.tmdb.org/t/p/original/' + popular_movies_api_response.json()['results'][i][
                 'poster_path']
 
+            movie_title = popular_movies_api_response.json()['results'][i][
+                'original_title']
+
             movie_image = QImage()
             movie_image.loadFromData(requests.get(movie_img_url).content)
 
+            movie_poster_containers[i].setTitle(movie_title)
             movie_poster_containers[i].setPixmap(QPixmap(movie_image))
             movie_poster_containers[i].show()
 
             tv_show_img_url = 'https://image.tmdb.org/t/p/original/' + \
                               popular_tv_shows_api_response.json()['results'][i]['poster_path']
 
+            tv_show_title = popular_tv_shows_api_response.json()['results'][i]['original_name']
+
             tv_show_image = QImage()
             tv_show_image.loadFromData(requests.get(tv_show_img_url).content)
 
+            tv_show_poster_containers[i].setTitle(tv_show_title)
             tv_show_poster_containers[i].setPixmap(QPixmap(tv_show_image))
             tv_show_poster_containers[i].show()
 
-            print(f"{((i + 1) / 15) * 100}")
+            print(f"{((i + 1) / 15) * 100:.2f}")
             self.loading_screen.loading_progress_bar.setValue(int(((i + 1) / 15) * 100))
 
-        print("reach here")
-
-        # self.loading_screen.hide()
-
-        # self.show()
-
     def show_choose_titles_page(self):
-        print("doneze")
         self.loading_screen.hide()
-
         self.show()
 
     def make_more_movie_posters(self, column):

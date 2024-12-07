@@ -8,9 +8,13 @@ class Poster(QLabel):
         super().__init__()
         self.parent = parent
         self.setMouseTracking(True)
+        self.title = ""
+
+    def setTitle(self, title):
+        self.title = title
 
     def mousePressEvent(self, event):
-        print("clicked")
+        print(self.title)
 
     def mouseMoveEvent(self, ev):
         pass
