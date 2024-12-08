@@ -21,6 +21,7 @@ class AboutTitlePage(QMainWindow, AboutTitleDesignUI):
         self.setupUi(self)
 
         self.load_contents()
+        self.star_slider.valueChanged.connect(self.change_own_rating_slider)
 
     def load_contents(self):
         if self.media_type == "movie":
@@ -54,7 +55,6 @@ class AboutTitlePage(QMainWindow, AboutTitleDesignUI):
             self.poster_label.setScaledContents(True)
 
 
-
     def get_directors(self, movie_url):
         movie_credits_url = movie_url + "/credits?language=en-US"
         movie_credits_response = requests.get(movie_credits_url, headers=self.api_headers).json()
@@ -75,6 +75,15 @@ class AboutTitlePage(QMainWindow, AboutTitleDesignUI):
 
         return ', '.join(genres)
 
+    def change_own_rating_slider(self):
+        star_slider_value = round(self.star_slider.value()/2, 1)
+
+        temp = list(str(star_slider_value))
+
+        if temp[2] == '5':
+            self.star_label.setText(f"Own rating: {star_slider_value: .1f} stars")
+        else:
+            self.star_label.setText(f"Own rating: {star_slider_value: .0f} stars")
 
     # def split_title(self):
     #     return '+'.join(self.title.split())
