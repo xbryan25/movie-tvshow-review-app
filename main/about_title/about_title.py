@@ -112,18 +112,30 @@ class AboutTitlePage(QMainWindow, AboutTitleDesignUI):
         liked_movies = json.loads(cursor.execute("""SELECT liked_movies FROM liked_media WHERE account_id=(:account_id)""",
                                       {"account_id": self.account_id}).fetchone()[0])
 
+        # Same thing with the liked_tv_shows_column
+        liked_tv_shows = json.loads(cursor.execute("""SELECT liked_tv_shows FROM liked_media WHERE account_id=(:account_id)""",
+                                      {"account_id": self.account_id}).fetchone()[0])
+
         if self.add_to_liked_state == "not clicked":
             self.add_to_liked_button.setText("Remove from Liked")
 
-            if self.media_type == "movie":
-                if self.media_id not in liked_movies:
-                    liked_movies.append(self.media_id)
+            if self.media_type == "movie" and self.media_id not in liked_movies:
+                liked_movies.append(self.media_id)
 
-            # Converts the list into a json
-            liked_movies_json = json.dumps(liked_movies)
+                # Converts the list into a json
+                liked_movies_json = json.dumps(liked_movies)
 
-            cursor.execute("""UPDATE liked_media SET liked_movies=(:liked_movies) WHERE account_id=(:account_id)""",
-                           {"liked_movies": liked_movies_json, "account_id": self.account_id})
+                cursor.execute("""UPDATE liked_media SET liked_movies=(:liked_movies) WHERE account_id=(:account_id)""",
+                               {"liked_movies": liked_movies_json, "account_id": self.account_id})
+
+            if self.media_type == "tv" and self.media_id not in liked_tv_shows:
+                liked_tv_shows.append(self.media_id)
+
+                # Converts the list into a json
+                liked_tv_shows_json = json.dumps(liked_tv_shows)
+
+                cursor.execute("""UPDATE liked_media SET liked_tv_shows=(:liked_tv_shows) WHERE account_id=(:account_id)""",
+                               {"liked_tv_shows": liked_tv_shows_json, "account_id": self.account_id})
 
             self.add_to_liked_state = "clicked"
         else:
