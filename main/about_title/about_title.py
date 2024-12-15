@@ -62,6 +62,36 @@ class AboutTitlePage(QMainWindow, AboutTitleDesignUI):
             self.poster_label.setPixmap(QPixmap(movie_image))
             self.poster_label.setScaledContents(True)
 
+        elif self.media_type == "tv":
+            tv_show_url = f"https://api.themoviedb.org/3/tv/{self.media_id}"
+            tv_show_response = requests.get(tv_show_url, headers=self.api_headers).json()
+
+            print(tv_show_response)
+
+            tv_show_title = tv_show_response['name']
+            tv_show_overview = tv_show_response['overview']
+            tv_show_vote_average = tv_show_response['vote_average']
+            tv_show_release_year = (tv_show_response['first_air_date'].split('-'))[0]
+            tv_show_img_url = 'https://image.tmdb.org/t/p/original' + tv_show_response['poster_path']
+            tv_show_genres = self.get_genres(tv_show_response['genres'])
+
+            # print(movie_overview)
+            # print(movie_vote_average)
+            # print(movie_release_year)
+            #
+            self.title_label.setText(tv_show_title)
+            self.year_label.setText(str(tv_show_release_year))
+            self.general_stars_label.setText(str(tv_show_vote_average))
+            self.synopsis_label.setText(tv_show_overview)
+            self.director_label.setText("Directed by: " + self.get_directors(tv_show_url))
+            self.genres_label.setText("Genres: " + tv_show_genres)
+
+            tv_show_image = QImage()
+            tv_show_image.loadFromData(requests.get(tv_show_img_url).content)
+
+            self.poster_label.setPixmap(QPixmap(tv_show_image))
+            self.poster_label.setScaledContents(True)
+
     def get_directors(self, movie_url):
         movie_credits_url = movie_url + "/credits?language=en-US"
         movie_credits_response = requests.get(movie_credits_url, headers=self.api_headers).json()
