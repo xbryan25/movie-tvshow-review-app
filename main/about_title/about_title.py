@@ -4,10 +4,11 @@ from PyQt6.QtWidgets import QMainWindow
 from PyQt6.QtGui import QImage, QPixmap
 from main.about_title.about_title_design import Ui_MainWindow as AboutTitleDesignUI
 import requests
-
+import sqlite3
+import json
 
 class AboutTitlePage(QMainWindow, AboutTitleDesignUI):
-    def __init__(self, media_id, media_type):
+    def __init__(self, media_id, media_type, account_id):
         super().__init__()
 
         self.api_headers = {
@@ -17,11 +18,18 @@ class AboutTitlePage(QMainWindow, AboutTitleDesignUI):
 
         self.media_id = media_id
         self.media_type = media_type
+        self.account_id = account_id
 
         self.setupUi(self)
 
         self.load_contents()
         self.star_slider.valueChanged.connect(self.change_own_rating_slider)
+
+        self.add_to_liked_button.clicked.connect(self.add_to_liked)
+        self.add_to_liked_state = "not clicked"
+
+        self.add_to_watchlist_button.clicked.connect(self.add_to_watchlist)
+        self.add_to_watchlist_state = "not clicked"
 
     def load_contents(self):
         if self.media_type == "movie":
@@ -54,7 +62,6 @@ class AboutTitlePage(QMainWindow, AboutTitleDesignUI):
             self.poster_label.setPixmap(QPixmap(movie_image))
             self.poster_label.setScaledContents(True)
 
-
     def get_directors(self, movie_url):
         movie_credits_url = movie_url + "/credits?language=en-US"
         movie_credits_response = requests.get(movie_credits_url, headers=self.api_headers).json()
@@ -84,6 +91,60 @@ class AboutTitlePage(QMainWindow, AboutTitleDesignUI):
             self.star_label.setText(f"Own rating: {star_slider_value: .1f} stars")
         else:
             self.star_label.setText(f"Own rating: {star_slider_value: .0f} stars")
+
+    def add_to_liked(self):
+        connection = sqlite3.connect('database\\accounts.db')
+        cursor = connection.cursor()
+
+        # Check if row with account_id exists in liked_media table
+        does_row_with_account_id_exist = cursor.execute("""SELECT * FROM liked_media WHERE account_id=(:account_id)""",
+                                               {"account_id": self.account_id}).fetchone()
+
+        if not does_row_with_account_id_exist:
+            liked_movies_json_placeholder = json.dumps([])
+            liked_tv_shows_json_placeholder = json.dumps([])
+
+            cursor.execute("""INSERT INTO liked_media VALUES (:account_id, :liked_movies, :liked_tv_shows)""",
+                           {"account_id": self.account_id, "liked_movies": liked_movies_json_placeholder,
+                            "liked_tv_shows": liked_tv_shows_json_placeholder})
+
+        # Reads the json in liked_movies column, converts it into a list
+        liked_movies = json.loads(cursor.execute("""SELECT liked_movies FROM liked_media WHERE account_id=(:account_id)""",
+                                      {"account_id": self.account_id}).fetchone()[0])
+
+        if self.add_to_liked_state == "not clicked":
+            self.add_to_liked_button.setText("Remove from Liked")
+
+            if self.media_type == "movie":
+                if self.media_id not in liked_movies:
+                    liked_movies.append(self.media_id)
+
+            # Converts the list into a json
+            liked_movies_json = json.dumps(liked_movies)
+
+            cursor.execute("""UPDATE liked_media SET liked_movies=(:liked_movies) WHERE account_id=(:account_id)""",
+                           {"liked_movies": liked_movies_json, "account_id": self.account_id})
+
+            self.add_to_liked_state = "clicked"
+        else:
+            self.add_to_liked_button.setText("Add to Liked")
+
+            self.add_to_liked_state = "not clicked"
+
+        connection.commit()
+        connection.close()
+
+    def add_to_watchlist(self):
+        if self.add_to_watchlist_state == "not clicked":
+            self.add_to_watchlist_button.setText("Remove from Watchlist")
+
+            self.add_to_watchlist_state = "clicked"
+        else:
+            self.add_to_watchlist_button.setText("Add to Watchlist")
+
+            self.add_to_watchlist_state = "not clicked"
+
+
 
     # def split_title(self):
     #     return '+'.join(self.title.split())

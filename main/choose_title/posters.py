@@ -7,13 +7,14 @@ from main.about_title.about_title import AboutTitlePage
 # TODO: Finish pulsing animation whenever a poster gets hovered by the mouse
 
 class Poster(QLabel):
-    def __init__(self, parent, media_type):
+    def __init__(self, parent, media_type, account_id):
         super().__init__()
         self.parent = parent
         self.setMouseTracking(True)
         self.title = ""
         self.media_id = ""
         self.media_type = media_type
+        self.account_id = account_id
 
     def setTitle(self, title):
         self.title = title
@@ -23,7 +24,7 @@ class Poster(QLabel):
 
     def mousePressEvent(self, event):
         print(self.title)
-        self.about_title_page = AboutTitlePage(self.media_id, self.media_type)
+        self.about_title_page = AboutTitlePage(self.media_id, self.media_type, self.account_id)
         self.about_title_page.show()
 
     def mouseMoveEvent(self, ev):

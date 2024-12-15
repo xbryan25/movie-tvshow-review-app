@@ -43,7 +43,7 @@ class LoadPicturesWorker(QRunnable):
 
 
 class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
-    def __init__(self):
+    def __init__(self, account_id):
         super().__init__()
 
         self.setupUi(self)
@@ -51,6 +51,8 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
             "accept": "application/json",
             "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3N2Y0OWMyYmEyNmUxN2ZjMDkyY2VkYmQ2M2ZiZWIzNiIsIm5iZiI6MTczMjE2NjEzOS4wNDMzNTc0LCJzdWIiOiI2NzNlYzE5NzQ2NTQxYmJjZDM3OWNmZTYiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.j9GlO1y5TXH6iexR69tp03m39ScK9-CoKdjbkfVBqJY"
         }
+
+        self.account_id = account_id
 
         for i in range(2):
             self.make_more_movie_posters(i)
@@ -122,7 +124,7 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
 
         # Don't forget to change QLabel to Poster
 
-        self.label = Poster(parent=self.scrollAreaWidgetContents, media_type="movie")
+        self.label = Poster(parent=self.scrollAreaWidgetContents, media_type="movie", account_id=self.account_id)
         self.label.setMinimumSize(QSize(200, 300))
         self.label.setMaximumSize(QSize(200, 300))
 
@@ -151,7 +153,7 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
 
         # Don't forget to change QLabel to Poster
 
-        self.label_2 = Poster(parent=self.scrollAreaWidgetContents_2, media_type="tv")
+        self.label_2 = Poster(parent=self.scrollAreaWidgetContents_2, media_type="tv", account_id=self.account_id)
         self.label_2.setMinimumSize(QSize(200, 300))
         self.label_2.setMaximumSize(QSize(200, 300))
 

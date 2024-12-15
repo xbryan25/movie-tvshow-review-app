@@ -13,14 +13,22 @@ def main():
 
     if not tableExists:
         cursor.execute("""CREATE TABLE accounts (
-            username text,
-            password text,
-            firstname text,
-            lastname text,
-            email text,
-            age integer,
-            gender text
+            account_id INTEGER PRIMARY KEY,
+            username TEXT,
+            password TEXT,
+            firstname TEXT,
+            lastname TEXT,
+            email TEXT,
+            age INTEGER,
+            gender TEXT
         )""")
+
+        cursor.execute("""CREATE TABLE liked_media (
+                            account_id INTEGER,
+                            liked_movies TEXT,
+                            liked_tv_shows TEXT,
+                            FOREIGN KEY(account_id) REFERENCES accounts(account_id)
+                        )""")
 
     # cursor.execute("INSERT INTO accounts VALUES ('admin','123')")
 

@@ -76,7 +76,7 @@ class LoginPage(QMainWindow, LoginPageUI):
             no_issues = False
 
         if no_issues:
-            cursor.execute("INSERT INTO accounts VALUES "
+            cursor.execute("INSERT INTO accounts (username, password, firstname, lastname, email, age, gender) VALUES "
                            "(:username, :password, :firstname, :lastname, :email, :age, :gender)",
                            {"username": signup_dialog.username_lineedit.text(),
                             "password": signup_dialog.password_lineedit.text(),
@@ -132,7 +132,10 @@ class LoginPage(QMainWindow, LoginPageUI):
                 print(" password is correct")
                 print("\nWelcome!")
 
-                self.change_to_choose_title_page()
+                username = self.username_lineedit.text()
+                account_id = cursor.execute("SELECT account_id FROM accounts WHERE username=(:username)",
+                                            {"username": username}).fetchone()[0]
+                self.change_to_choose_title_page(account_id)
 
             elif self.password_lineedit.text() == "":
                 print(" password is blank")
@@ -147,10 +150,9 @@ class LoginPage(QMainWindow, LoginPageUI):
         connection.commit()
         connection.close()
 
-
-    def change_to_choose_title_page(self):
+    def change_to_choose_title_page(self, account_id):
         self.hide()
 
-        self.choose_titles_page = ChooseTitlesPage()
+        self.choose_titles_page = ChooseTitlesPage(account_id)
 
         # self.choose_titles_page.show()
