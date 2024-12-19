@@ -20,16 +20,22 @@ class AboutTitlePage(QMainWindow, AboutTitleDesignUI):
         self.media_type = media_type
         self.account_id = account_id
 
+        self.add_to_liked_state = "not clicked"
+        self.add_to_watchlist_state = "not clicked"
+
         self.setupUi(self)
 
+        self.initialize_liked_media_table()
+
         self.load_contents()
+        self.set_liked_button_state()
+
         self.star_slider.valueChanged.connect(self.change_own_rating_slider)
 
         self.add_to_liked_button.clicked.connect(self.add_to_liked)
-        self.add_to_liked_state = "not clicked"
 
         self.add_to_watchlist_button.clicked.connect(self.add_to_watchlist)
-        self.add_to_watchlist_state = "not clicked"
+
 
     def load_contents(self):
         if self.media_type == "movie":
@@ -92,6 +98,38 @@ class AboutTitlePage(QMainWindow, AboutTitleDesignUI):
             self.poster_label.setPixmap(QPixmap(tv_show_image))
             self.poster_label.setScaledContents(True)
 
+    # # Made add_to_liked_state a property so that it can be manipulated after __init__
+    # @property
+    # def add_to_liked_state(self):
+    #     return self._add_to_liked_state
+    #
+    # @add_to_liked_state.setter
+    # def add_to_liked_state(self, state):
+    #     self._add_to_liked_state = state
+
+    def set_liked_button_state(self):
+        connection = sqlite3.connect('database\\accounts.db')
+        cursor = connection.cursor()
+
+        if self.media_type == "movie":
+            liked_movies = json.loads(
+                cursor.execute("""SELECT liked_movies FROM liked_media WHERE account_id=(:account_id)""",
+                               {"account_id": self.account_id}).fetchone()[0])
+            if self.media_id in liked_movies:
+                self.add_to_liked_button.setText("Remove from Liked")
+
+                self.add_to_liked_state = "clicked"
+
+        else:
+            liked_tv_shows = json.loads(
+                cursor.execute("""SELECT liked_tv_shows FROM liked_media WHERE account_id=(:account_id)""",
+                               {"account_id": self.account_id}).fetchone()[0])
+
+            if self.media_id in liked_tv_shows:
+                self.add_to_liked_button.setText("Remove from Liked")
+
+                self.add_to_liked_state = "clicked"
+
     def get_directors(self, movie_url):
         movie_credits_url = movie_url + "/credits?language=en-US"
         movie_credits_response = requests.get(movie_credits_url, headers=self.api_headers).json()
@@ -126,17 +164,17 @@ class AboutTitlePage(QMainWindow, AboutTitleDesignUI):
         connection = sqlite3.connect('database\\accounts.db')
         cursor = connection.cursor()
 
-        # Check if row with account_id exists in liked_media table
-        does_row_with_account_id_exist = cursor.execute("""SELECT * FROM liked_media WHERE account_id=(:account_id)""",
-                                               {"account_id": self.account_id}).fetchone()
-
-        if not does_row_with_account_id_exist:
-            liked_movies_json_placeholder = json.dumps([])
-            liked_tv_shows_json_placeholder = json.dumps([])
-
-            cursor.execute("""INSERT INTO liked_media VALUES (:account_id, :liked_movies, :liked_tv_shows)""",
-                           {"account_id": self.account_id, "liked_movies": liked_movies_json_placeholder,
-                            "liked_tv_shows": liked_tv_shows_json_placeholder})
+        # # Check if row with account_id exists in liked_media table
+        # does_row_with_account_id_exist = cursor.execute("""SELECT * FROM liked_media WHERE account_id=(:account_id)""",
+        #                                        {"account_id": self.account_id}).fetchone()
+        #
+        # if not does_row_with_account_id_exist:
+        #     liked_movies_json_placeholder = json.dumps([])
+        #     liked_tv_shows_json_placeholder = json.dumps([])
+        #
+        #     cursor.execute("""INSERT INTO liked_media VALUES (:account_id, :liked_movies, :liked_tv_shows)""",
+        #                    {"account_id": self.account_id, "liked_movies": liked_movies_json_placeholder,
+        #                     "liked_tv_shows": liked_tv_shows_json_placeholder})
 
         # Reads the json in liked_movies column, converts it into a list
         liked_movies = json.loads(cursor.execute("""SELECT liked_movies FROM liked_media WHERE account_id=(:account_id)""",
@@ -171,6 +209,24 @@ class AboutTitlePage(QMainWindow, AboutTitleDesignUI):
         else:
             self.add_to_liked_button.setText("Add to Liked")
 
+            if self.media_type == "movie" and self.media_id in liked_movies:
+                liked_movies.pop(liked_movies.index(self.media_id))
+
+                # Converts the list into a json
+                liked_movies_json = json.dumps(liked_movies)
+
+                cursor.execute("""UPDATE liked_media SET liked_movies=(:liked_movies) WHERE account_id=(:account_id)""",
+                               {"liked_movies": liked_movies_json, "account_id": self.account_id})
+
+            if self.media_type == "tv" and self.media_id in liked_tv_shows:
+                liked_tv_shows.pop(liked_tv_shows.index(self.media_id))
+
+                # Converts the list into a json
+                liked_tv_shows_json = json.dumps(liked_tv_shows)
+
+                cursor.execute("""UPDATE liked_media SET liked_tv_shows=(:liked_tv_shows) WHERE account_id=(:account_id)""",
+                               {"liked_tv_shows": liked_tv_shows_json, "account_id": self.account_id})
+
             self.add_to_liked_state = "not clicked"
 
         connection.commit()
@@ -186,7 +242,24 @@ class AboutTitlePage(QMainWindow, AboutTitleDesignUI):
 
             self.add_to_watchlist_state = "not clicked"
 
+    def initialize_liked_media_table(self):
+        connection = sqlite3.connect('database\\accounts.db')
+        cursor = connection.cursor()
 
+        # Check if row with account_id exists in liked_media table
+        does_row_with_account_id_exist = cursor.execute("""SELECT * FROM liked_media WHERE account_id=(:account_id)""",
+                                               {"account_id": self.account_id}).fetchone()
+
+        if not does_row_with_account_id_exist:
+            liked_movies_json_placeholder = json.dumps([])
+            liked_tv_shows_json_placeholder = json.dumps([])
+
+            cursor.execute("""INSERT INTO liked_media VALUES (:account_id, :liked_movies, :liked_tv_shows)""",
+                           {"account_id": self.account_id, "liked_movies": liked_movies_json_placeholder,
+                            "liked_tv_shows": liked_tv_shows_json_placeholder})
+
+        connection.commit()
+        connection.close()
 
     # def split_title(self):
     #     return '+'.join(self.title.split())
