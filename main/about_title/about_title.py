@@ -26,9 +26,12 @@ class AboutTitlePage(QMainWindow, AboutTitleDesignUI):
         self.setupUi(self)
 
         self.initialize_liked_media_table()
+        self.initialize_to_watch_media_table()
 
         self.load_contents()
+
         self.set_liked_button_state()
+        self.set_watchlist_button_state()
 
         self.star_slider.valueChanged.connect(self.change_own_rating_slider)
 
@@ -129,6 +132,30 @@ class AboutTitlePage(QMainWindow, AboutTitleDesignUI):
                 self.add_to_liked_button.setText("Remove from Liked")
 
                 self.add_to_liked_state = "clicked"
+
+    def set_watchlist_button_state(self):
+        connection = sqlite3.connect('database\\accounts.db')
+        cursor = connection.cursor()
+
+        if self.media_type == "movie":
+            movies_to_watch = json.loads(
+                cursor.execute("""SELECT movies_to_watch FROM media_to_watch WHERE account_id=(:account_id)""",
+                               {"account_id": self.account_id}).fetchone()[0])
+
+            if self.media_id in movies_to_watch:
+                self.add_to_watchlist_button.setText("Remove from Watchlist")
+
+                self.add_to_watchlist_state = "clicked"
+
+        else:
+            tv_shows_to_watch = json.loads(
+                cursor.execute("""SELECT tv_shows_to_watch FROM media_to_watch WHERE account_id=(:account_id)""",
+                               {"account_id": self.account_id}).fetchone()[0])
+
+            if self.media_id in tv_shows_to_watch:
+                self.add_to_watchlist_button.setText("Remove from Watchlist")
+
+                self.add_to_watchlist_state = "clicked"
 
     def get_directors(self, movie_url):
         movie_credits_url = movie_url + "/credits?language=en-US"
@@ -233,14 +260,66 @@ class AboutTitlePage(QMainWindow, AboutTitleDesignUI):
         connection.close()
 
     def add_to_watchlist(self):
+        connection = sqlite3.connect('database\\accounts.db')
+        cursor = connection.cursor()
+
+        movies_to_watch = json.loads(
+            cursor.execute("""SELECT movies_to_watch FROM media_to_watch WHERE account_id=(:account_id)""",
+                           {"account_id": self.account_id}).fetchone()[0])
+
+        tv_shows_to_watch = json.loads(
+            cursor.execute("""SELECT tv_shows_to_watch FROM media_to_watch WHERE account_id=(:account_id)""",
+                           {"account_id": self.account_id}).fetchone()[0])
+
         if self.add_to_watchlist_state == "not clicked":
             self.add_to_watchlist_button.setText("Remove from Watchlist")
+
+            if self.media_type == "movie" and self.media_id not in movies_to_watch:
+                movies_to_watch.append(self.media_id)
+
+                # Converts the list into a json
+                movies_to_watch_json = json.dumps(movies_to_watch)
+
+                cursor.execute("""UPDATE media_to_watch SET movies_to_watch=(:movies_to_watch) WHERE account_id=(:account_id)""",
+                               {"movies_to_watch": movies_to_watch_json, "account_id": self.account_id})
+
+            if self.media_type == "tv" and self.media_id not in tv_shows_to_watch:
+                tv_shows_to_watch.append(self.media_id)
+
+                # Converts the list into a json
+                tv_shows_to_watch_json = json.dumps(tv_shows_to_watch)
+
+                cursor.execute(
+                    """UPDATE media_to_watch SET tv_shows_to_watch=(:tv_shows_to_watch) WHERE account_id=(:account_id)""",
+                    {"tv_shows_to_watch": tv_shows_to_watch_json, "account_id": self.account_id})
 
             self.add_to_watchlist_state = "clicked"
         else:
             self.add_to_watchlist_button.setText("Add to Watchlist")
 
+            if self.media_type == "movie" and self.media_id in movies_to_watch:
+                movies_to_watch.pop(movies_to_watch.index(self.media_id))
+
+                # Converts the list into a json
+                movies_to_watch_json = json.dumps(movies_to_watch)
+
+                cursor.execute("""UPDATE media_to_watch SET movies_to_watch=(:movies_to_watch) WHERE account_id=(:account_id)""",
+                               {"movies_to_watch": movies_to_watch_json, "account_id": self.account_id})
+
+            if self.media_type == "tv" and self.media_id in tv_shows_to_watch:
+                tv_shows_to_watch.pop(tv_shows_to_watch.index(self.media_id))
+
+                # Converts the list into a json
+                tv_shows_to_watch_json = json.dumps(tv_shows_to_watch)
+
+                cursor.execute(
+                    """UPDATE media_to_watch SET tv_shows_to_watch=(:tv_shows_to_watch) WHERE account_id=(:account_id)""",
+                    {"tv_shows_to_watch": tv_shows_to_watch_json, "account_id": self.account_id})
+
             self.add_to_watchlist_state = "not clicked"
+
+        connection.commit()
+        connection.close()
 
     def initialize_liked_media_table(self):
         connection = sqlite3.connect('database\\accounts.db')
@@ -257,6 +336,25 @@ class AboutTitlePage(QMainWindow, AboutTitleDesignUI):
             cursor.execute("""INSERT INTO liked_media VALUES (:account_id, :liked_movies, :liked_tv_shows)""",
                            {"account_id": self.account_id, "liked_movies": liked_movies_json_placeholder,
                             "liked_tv_shows": liked_tv_shows_json_placeholder})
+
+        connection.commit()
+        connection.close()
+
+    def initialize_to_watch_media_table(self):
+        connection = sqlite3.connect('database\\accounts.db')
+        cursor = connection.cursor()
+
+        # Check if row with account_id exists in liked_media table
+        does_row_with_account_id_exist = cursor.execute("""SELECT * FROM media_to_watch WHERE account_id=(:account_id)""",
+                                                        {"account_id": self.account_id}).fetchone()
+
+        if not does_row_with_account_id_exist:
+            movies_to_watch_json_placeholder = json.dumps([])
+            tv_shows_to_watch_json_placeholder = json.dumps([])
+
+            cursor.execute("""INSERT INTO media_to_watch VALUES (:account_id, :movies_to_watch, :tv_shows_to_watch)""",
+                           {"account_id": self.account_id, "movies_to_watch": movies_to_watch_json_placeholder,
+                            "tv_shows_to_watch": tv_shows_to_watch_json_placeholder})
 
         connection.commit()
         connection.close()
