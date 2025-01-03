@@ -3,6 +3,10 @@ from main.choose_title.choose_titles_page import ChooseTitlesPage
 
 from main.login.login_page_design import Ui_MainWindow as LoginPageUI
 from main.login.signup_dialog import SignupDialog
+
+from main.login.login_successful_dialog import LoginSuccessfulDialog
+from main.login.signup_successful_dialog import SignupSuccessfulDialog
+
 from PyQt6.QtWidgets import QMainWindow, QLineEdit
 import sqlite3
 import re
@@ -91,6 +95,15 @@ class LoginPage(QMainWindow, LoginPageUI):
         connection.commit()
         connection.close()
 
+        signup_successful_dialog = SignupSuccessfulDialog()
+        signup_successful_dialog.proceed_button.clicked.connect(lambda: self.close_signup_dialogs(signup_dialog, signup_successful_dialog))
+        signup_successful_dialog.exec()
+
+    @staticmethod
+    def close_signup_dialogs(signup_dialog, signup_successful_dialog):
+        signup_dialog.close()
+        signup_successful_dialog.close()
+
     @staticmethod
     def is_valid_email(email):
         valid_email = re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email)
@@ -135,7 +148,9 @@ class LoginPage(QMainWindow, LoginPageUI):
                 username = self.username_lineedit.text()
                 account_id = cursor.execute("SELECT account_id FROM accounts WHERE username=(:username)",
                                             {"username": username}).fetchone()[0]
-                self.change_to_choose_title_page(account_id)
+                # self.change_to_choose_title_page(account_id)
+
+                self.login_successful(account_id)
 
             elif self.password_lineedit.text() == "":
                 print(" password is blank")
@@ -150,7 +165,18 @@ class LoginPage(QMainWindow, LoginPageUI):
         connection.commit()
         connection.close()
 
-    def change_to_choose_title_page(self, account_id):
+    def login_successful(self, account_id):
+        login_successful_dialog = LoginSuccessfulDialog()
+
+        # Put a timer here?
+
+        login_successful_dialog.proceed_button.clicked.connect(lambda: self.change_to_choose_title_page(account_id, login_successful_dialog))
+
+        login_successful_dialog.exec()
+
+    def change_to_choose_title_page(self, account_id, login_successful_dialog):
+        login_successful_dialog.close()
+
         self.hide()
 
         self.choose_titles_page = ChooseTitlesPage(account_id)
