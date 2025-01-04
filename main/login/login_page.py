@@ -7,6 +7,8 @@ from main.login.signup_dialog import SignupDialog
 from main.login.login_successful_dialog import LoginSuccessfulDialog
 from main.login.signup_successful_dialog import SignupSuccessfulDialog
 
+from main.login.signup_fail_dialog import SignupFailDialog
+
 from PyQt6.QtWidgets import QMainWindow, QLineEdit
 import sqlite3
 import re
@@ -50,33 +52,37 @@ class LoginPage(QMainWindow, LoginPageUI):
         # Convert each tuple to string
         all_username = [str(account[0]) for account in all_usernames]
 
+        issues_found = []
+
         if not self.is_valid_name(signup_dialog.firstname_lineedit.text()):
-            print("First name format is invalid")
+            issues_found.append("First name format is invalid")
             no_issues = False
 
         if not self.is_valid_name(signup_dialog.lastname_lineedit.text()):
-            print("Last name format is invalid")
+            issues_found.append("Last name format is invalid")
             no_issues = False
 
-        if not self.is_valid_email(signup_dialog.email_lineedit.text()):
-            print("Email format is invalid")
+        if signup_dialog.email_lineedit.text() == "":
+            issues_found.append("Email is blank")
+        elif not self.is_valid_email(signup_dialog.email_lineedit.text()):
+            issues_found.append("Email format is invalid")
             no_issues = False
 
         if signup_dialog.username_lineedit.text() in all_username:
-            print("Username already exists")
+            issues_found.append("Username already exists")
             no_issues = False
         elif signup_dialog.username_lineedit.text() == "":
-            print("Username is blank")
+            issues_found.append("Username is blank")
             no_issues = False
 
         if signup_dialog.password_lineedit.text() == "":
-            print("Password is blank")
+            issues_found.append("Password is blank")
             no_issues = False
         elif signup_dialog.confirm_password_lineedit.text() == "":
-            print("Confirm password is blank")
+            issues_found.append("Confirm password is blank")
             no_issues = False
         elif signup_dialog.password_lineedit.text() != signup_dialog.confirm_password_lineedit.text():
-            print("Password and confirm password is not equal")
+            issues_found.append("Password and confirm password is not equal")
             no_issues = False
 
         if no_issues:
@@ -92,12 +98,24 @@ class LoginPage(QMainWindow, LoginPageUI):
 
             print("Account created!")
 
+            signup_successful_dialog = SignupSuccessfulDialog()
+            signup_successful_dialog.proceed_button.clicked.connect(
+                lambda: self.close_signup_dialogs(signup_dialog, signup_successful_dialog))
+            signup_successful_dialog.exec()
+
+        else:
+            signup_fail_dialog = SignupFailDialog(issues_found)
+
+            signup_fail_dialog.proceed_button.clicked.connect(lambda: self.close_signup_fail_dialog(signup_fail_dialog))
+
+            signup_fail_dialog.exec()
+
         connection.commit()
         connection.close()
 
-        signup_successful_dialog = SignupSuccessfulDialog()
-        signup_successful_dialog.proceed_button.clicked.connect(lambda: self.close_signup_dialogs(signup_dialog, signup_successful_dialog))
-        signup_successful_dialog.exec()
+    @staticmethod
+    def close_signup_fail_dialog(signup_fail_dialog):
+        signup_fail_dialog.close()
 
     @staticmethod
     def close_signup_dialogs(signup_dialog, signup_successful_dialog):
