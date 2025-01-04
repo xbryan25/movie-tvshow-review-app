@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'login-successful.ui'
+# Form implementation generated from reading ui file 'login-status.ui'
 #
 # Created by: PyQt6 UI code generator 6.7.1
 #
@@ -18,17 +18,15 @@ class Ui_Dialog(object):
         self.verticalLayout = QtWidgets.QVBoxLayout(Dialog)
         self.verticalLayout.setSpacing(10)
         self.verticalLayout.setObjectName("verticalLayout")
-
-        self.no_issues_label = QtWidgets.QLabel(parent=Dialog)
-        self.no_issues_label.setMaximumSize(QtCore.QSize(227, 36))
+        self.text_label = QtWidgets.QLabel(parent=Dialog)
+        self.text_label.setMaximumSize(QtCore.QSize(227, 36))
         font = QtGui.QFont()
         font.setFamily("Oswald")
         font.setPointSize(16)
-        self.no_issues_label.setFont(font)
-        self.no_issues_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.no_issues_label.setObjectName("no_issues_label")
-        self.verticalLayout.addWidget(self.no_issues_label)
-
+        self.text_label.setFont(font)
+        self.text_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.text_label.setObjectName("text_label")
+        self.verticalLayout.addWidget(self.text_label)
         self.proceed_button = QtWidgets.QPushButton(parent=Dialog)
         font = QtGui.QFont()
         font.setFamily("Oswald")
@@ -42,6 +40,6 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Login successful!"))
-        self.no_issues_label.setText(_translate("Dialog", "No issues logging in!"))
+        Dialog.setWindowTitle(_translate("Dialog", "-"))
+        self.text_label.setText(_translate("Dialog", "-"))
         self.proceed_button.setText(_translate("Dialog", "Click here to proceed"))

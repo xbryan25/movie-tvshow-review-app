@@ -4,7 +4,7 @@ from main.choose_title.choose_titles_page import ChooseTitlesPage
 from main.login.login_page_design import Ui_MainWindow as LoginPageUI
 from main.login.signup_dialog import SignupDialog
 
-from main.login.login_successful_dialog import LoginSuccessfulDialog
+from main.login.login_status_dialog import LoginStatusDialog
 from main.login.signup_successful_dialog import SignupSuccessfulDialog
 
 from main.login.signup_fail_dialog import SignupFailDialog
@@ -42,6 +42,8 @@ class LoginPage(QMainWindow, LoginPageUI):
     def make_new_account(self, signup_dialog):
         connection = sqlite3.connect('database\\accounts.db')
         cursor = connection.cursor()
+
+        # TODO: Trim the leading and trailing spaces before checking each field
 
         # The no_issues variable checks if all the input fields in the signup dialog are correct
         # If no_issues stays True, then the account will be inserted into the database
@@ -154,14 +156,15 @@ class LoginPage(QMainWindow, LoginPageUI):
         all_username = [str(account[0]) for account in all_accounts_username_password]
         all_password = [str(account[1]) for account in all_accounts_username_password]
 
-        if self.username_lineedit.text() in all_username:
-            print("Username exists,", end="")
+        no_issues = True
+        issue_message = ""
 
+        # TODO: Trim the leading and trailing spaces before checking each field
+
+        if self.username_lineedit.text() in all_username:
             password_index = all_username.index(self.username_lineedit.text())
 
             if self.password_lineedit.text() == all_password[password_index]:
-                print(" password is correct")
-                print("\nWelcome!")
 
                 username = self.username_lineedit.text()
                 account_id = cursor.execute("SELECT account_id FROM accounts WHERE username=(:username)",
@@ -171,21 +174,37 @@ class LoginPage(QMainWindow, LoginPageUI):
                 self.login_successful(account_id)
 
             elif self.password_lineedit.text() == "":
-                print(" password is blank")
+                issue_message = "Password is blank."
+                no_issues = False
             else:
-                print(" wrong password")
+                issue_message = "Password is wrong."
+                no_issues = False
 
         elif self.username_lineedit.text() == "":
-            print("Username is blank")
+            issue_message = "Username is blank."
+            no_issues = False
         else:
-            print("Account doesn't exist, kindly sign up")
+            issue_message = "Account doesn't exist."
+            no_issues = False
+
+        if not no_issues:
+            login_failure_dialog = LoginStatusDialog()
+            login_failure_dialog.text_label.setText(issue_message)
+            login_failure_dialog.setWindowTitle("Login failure.")
+            login_failure_dialog.proceed_button.clicked.connect(lambda: self.close_login_failure_dialog(login_failure_dialog))
+            login_failure_dialog.exec()
 
         connection.commit()
         connection.close()
 
-    def login_successful(self, account_id):
-        login_successful_dialog = LoginSuccessfulDialog()
+    @staticmethod
+    def close_login_failure_dialog(login_failure_dialog):
+        login_failure_dialog.close()
 
+    def login_successful(self, account_id):
+        login_successful_dialog = LoginStatusDialog()
+        login_successful_dialog.setWindowTitle("Login successful.")
+        login_successful_dialog.text_label.setText("No issues logging in!")
         # Put a timer here?
 
         login_successful_dialog.proceed_button.clicked.connect(lambda: self.change_to_choose_title_page(account_id, login_successful_dialog))
