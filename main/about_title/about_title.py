@@ -2,7 +2,10 @@ from os.path import split
 
 from PyQt6.QtWidgets import QMainWindow
 from PyQt6.QtGui import QImage, QPixmap
+
 from main.about_title.about_title_design import Ui_MainWindow as AboutTitleDesignUI
+from main.about_title.movie_review import MovieReview
+
 import requests
 import sqlite3
 import json
@@ -19,6 +22,9 @@ class AboutTitlePage(QMainWindow, AboutTitleDesignUI):
         self.media_id = media_id
         self.media_type = media_type
         self.account_id = account_id
+
+        # To be overwritten later
+        self.media_title = ""
 
         self.add_to_liked_state = "not clicked"
         self.add_to_watchlist_state = "not clicked"
@@ -39,6 +45,9 @@ class AboutTitlePage(QMainWindow, AboutTitleDesignUI):
 
         self.add_to_watchlist_button.clicked.connect(self.add_to_watchlist)
 
+        if self.media_type == "movie":
+            self.add_review_button.clicked.connect(self.add_review_movie)
+
 
     def load_contents(self):
         if self.media_type == "movie":
@@ -47,7 +56,8 @@ class AboutTitlePage(QMainWindow, AboutTitleDesignUI):
 
             print(movie_response)
 
-            movie_title = movie_response['title']
+            # To be used in the class
+            self.media_title = movie_response['title']
             movie_overview = movie_response['overview']
             movie_vote_average = movie_response['vote_average']
             movie_release_year = (movie_response['release_date'].split('-'))[0]
@@ -58,7 +68,7 @@ class AboutTitlePage(QMainWindow, AboutTitleDesignUI):
             print(movie_vote_average)
             print(movie_release_year)
 
-            self.title_label.setText(movie_title)
+            self.title_label.setText(self.media_title)
             self.year_label.setText(str(movie_release_year))
             self.general_stars_label.setText(str(movie_vote_average))
             self.synopsis_label.setText(movie_overview)
@@ -75,9 +85,8 @@ class AboutTitlePage(QMainWindow, AboutTitleDesignUI):
             tv_show_url = f"https://api.themoviedb.org/3/tv/{self.media_id}"
             tv_show_response = requests.get(tv_show_url, headers=self.api_headers).json()
 
-            print(tv_show_response)
-
-            tv_show_title = tv_show_response['name']
+            # To be used in the class
+            self.media_title = tv_show_response['name']
             tv_show_overview = tv_show_response['overview']
             tv_show_vote_average = tv_show_response['vote_average']
             tv_show_release_year = (tv_show_response['first_air_date'].split('-'))[0]
@@ -88,7 +97,7 @@ class AboutTitlePage(QMainWindow, AboutTitleDesignUI):
             # print(movie_vote_average)
             # print(movie_release_year)
             #
-            self.title_label.setText(tv_show_title)
+            self.title_label.setText(self.media_title)
             self.year_label.setText(str(tv_show_release_year))
             self.general_stars_label.setText(str(tv_show_vote_average))
             self.synopsis_label.setText(tv_show_overview)
@@ -359,5 +368,11 @@ class AboutTitlePage(QMainWindow, AboutTitleDesignUI):
         connection.commit()
         connection.close()
 
+    def add_review_movie(self):
+        self.movie_review = MovieReview()
+
+        self.movie_review.title_label.setText(self.media_title)
+
+        self.movie_review.show()
     # def split_title(self):
     #     return '+'.join(self.title.split())
