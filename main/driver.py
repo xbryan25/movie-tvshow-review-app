@@ -37,6 +37,13 @@ def main():
                                     FOREIGN KEY(account_id) REFERENCES accounts(account_id)
                                 )""")
 
+        cursor.execute("""CREATE TABLE reviews (
+                                            account_id INTEGER,
+                                            movie_reviews TEXT,
+                                            tv_show_reviews TEXT,
+                                            FOREIGN KEY(account_id) REFERENCES accounts(account_id)
+                                        )""")
+
     # cursor.execute("INSERT INTO accounts VALUES ('admin','123')")
 
     app = QApplication([])

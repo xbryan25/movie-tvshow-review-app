@@ -10,6 +10,7 @@ import requests
 import sqlite3
 import json
 
+
 class AboutTitlePage(QMainWindow, AboutTitleDesignUI):
     def __init__(self, media_id, media_type, account_id):
         super().__init__()
@@ -34,6 +35,8 @@ class AboutTitlePage(QMainWindow, AboutTitleDesignUI):
         self.initialize_liked_media_table()
         self.initialize_to_watch_media_table()
 
+        self.initialize_reviews_table()
+
         self.load_contents()
 
         self.set_liked_button_state()
@@ -47,7 +50,6 @@ class AboutTitlePage(QMainWindow, AboutTitleDesignUI):
 
         if self.media_type == "movie":
             self.add_review_button.clicked.connect(self.add_review_movie)
-
 
     def load_contents(self):
         if self.media_type == "movie":
@@ -330,6 +332,8 @@ class AboutTitlePage(QMainWindow, AboutTitleDesignUI):
         connection.commit()
         connection.close()
 
+    # TODO: Make the following three functions be called upon the creation of the account?
+
     def initialize_liked_media_table(self):
         connection = sqlite3.connect('database\\accounts.db')
         cursor = connection.cursor()
@@ -368,8 +372,35 @@ class AboutTitlePage(QMainWindow, AboutTitleDesignUI):
         connection.commit()
         connection.close()
 
+    def initialize_reviews_table(self):
+        connection = sqlite3.connect('database\\accounts.db')
+        cursor = connection.cursor()
+
+        # Check if row with account_id exists in liked_media table
+        does_row_with_account_id_exist = cursor.execute(
+            """SELECT * FROM reviews WHERE account_id=(:account_id)""",
+            {"account_id": self.account_id}).fetchone()
+
+        if not does_row_with_account_id_exist:
+            movie_reviews_json_placeholder = json.dumps({})
+
+            # movie_ids_json_placeholder = json.dumps([])
+            # movie_reviews_json_placeholder = json.dumps([])
+
+            tv_show_reviews_json_placeholder = json.dumps({})
+
+            # tv_show_ids_json_placeholder = json.dumps([])
+            # tv_show_reviews_json_placeholder = json.dumps([])
+
+            cursor.execute("""INSERT INTO reviews VALUES (:account_id, :movie_reviews, :tv_show_reviews)""",
+                           {"account_id": self.account_id, "movie_reviews": movie_reviews_json_placeholder,
+                            "tv_show_reviews": tv_show_reviews_json_placeholder})
+
+        connection.commit()
+        connection.close()
+
     def add_review_movie(self):
-        self.movie_review = MovieReview()
+        self.movie_review = MovieReview(self.account_id, self.media_id)
 
         self.movie_review.title_label.setText(self.media_title)
 
