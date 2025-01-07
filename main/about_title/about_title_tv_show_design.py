@@ -15,8 +15,8 @@ class Ui_MainWindow(object):
         MainWindow.resize(922, 606)
         self.centralwidget = QtWidgets.QWidget(parent=MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-        self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
-        self.verticalLayout.setObjectName("verticalLayout")
+        self.gridLayout_2 = QtWidgets.QGridLayout(self.centralwidget)
+        self.gridLayout_2.setObjectName("gridLayout_2")
         self.display_info_widget = QtWidgets.QWidget(parent=self.centralwidget)
         self.display_info_widget.setStyleSheet("")
         self.display_info_widget.setObjectName("display_info_widget")
@@ -82,13 +82,14 @@ class Ui_MainWindow(object):
         self.genres_label.setIndent(28)
         self.genres_label.setObjectName("genres_label")
         self.gridLayout.addWidget(self.genres_label, 2, 1, 1, 2)
-        self.scrollArea = QtWidgets.QScrollArea(parent=self.display_info_widget)
-        self.scrollArea.setMaximumSize(QtCore.QSize(16777215, 50))
-        self.scrollArea.setStyleSheet("\n"
+
+        self.season_buttons_scroll_area = QtWidgets.QScrollArea(parent=self.display_info_widget)
+        self.season_buttons_scroll_area.setMaximumSize(QtCore.QSize(16777215, 50))
+        self.season_buttons_scroll_area.setStyleSheet("\n"
 "QScrollBar:horizontal{\n"
 "    border: none;\n"
 "    background-color: rgb(43, 56, 138);\n"
-"    height: 10px;\n"
+"    height: 3px;\n"
 "    margin: 0 0 0 0;\n"
 "    border-radius: 5px;\n"
 "}\n"
@@ -110,22 +111,27 @@ class Ui_MainWindow(object):
 "}\n"
 "\n"
 "")
-        self.scrollArea.setFrameShape(QtWidgets.QFrame.Shape.NoFrame)
-        self.scrollArea.setWidgetResizable(True)
-        self.scrollArea.setObjectName("scrollArea")
-        self.scrollAreaWidgetContents_3 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, 0, 577, 50))
-        self.scrollAreaWidgetContents_3.setObjectName("scrollAreaWidgetContents_3")
-        self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.scrollAreaWidgetContents_3)
-        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        self.pushButton_4 = QtWidgets.QPushButton(parent=self.scrollAreaWidgetContents_3)
-        font = QtGui.QFont()
-        font.setFamily("Oswald")
-        self.pushButton_4.setFont(font)
-        self.pushButton_4.setObjectName("pushButton_4")
-        self.horizontalLayout_2.addWidget(self.pushButton_4)
-        self.scrollArea.setWidget(self.scrollAreaWidgetContents_3)
-        self.gridLayout.addWidget(self.scrollArea, 6, 1, 1, 2)
+        self.season_buttons_scroll_area.setFrameShape(QtWidgets.QFrame.Shape.NoFrame)
+        self.season_buttons_scroll_area.setWidgetResizable(True)
+        self.season_buttons_scroll_area.setObjectName("season_buttons_scroll_area")
+        self.season_buttons_scroll_area_widget_contents = QtWidgets.QWidget()
+        self.season_buttons_scroll_area_widget_contents.setGeometry(QtCore.QRect(0, 0, 577, 50))
+        self.season_buttons_scroll_area_widget_contents.setObjectName("season_buttons_scroll_area_widget_contents")
+        self.seasons_buttons_grid = QtWidgets.QGridLayout(self.season_buttons_scroll_area_widget_contents)
+        self.seasons_buttons_grid.setObjectName("seasons_buttons_grid")
+
+        # self.temp_button = QtWidgets.QPushButton(parent=self.season_buttons_scroll_area_widget_contents)
+        # self.temp_button.setMaximumSize(QtCore.QSize(75, 27))
+        # font = QtGui.QFont()
+        # font.setFamily("Oswald")
+        # font.setPointSize(10)
+        # self.temp_button.setFont(font)
+        # self.temp_button.setObjectName("temp_button")
+        # self.seasons_buttons_grid.addWidget(self.temp_button, 0, 0, 1, 1)
+
+        self.season_buttons_scroll_area.setWidget(self.season_buttons_scroll_area_widget_contents)
+        self.gridLayout.addWidget(self.season_buttons_scroll_area, 6, 1, 1, 2)
+
         self.general_stars_label = QtWidgets.QLabel(parent=self.display_info_widget)
         self.general_stars_label.setMaximumSize(QtCore.QSize(16777215, 50))
         self.general_stars_label.setStyleSheet("background-color: rgb(255, 243, 65)")
@@ -141,7 +147,7 @@ class Ui_MainWindow(object):
         self.poster_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.poster_label.setObjectName("poster_label")
         self.gridLayout.addWidget(self.poster_label, 0, 0, 6, 1)
-        self.verticalLayout.addWidget(self.display_info_widget)
+        self.gridLayout_2.addWidget(self.display_info_widget, 0, 0, 1, 1)
         self.user_input_widget = QtWidgets.QWidget(parent=self.centralwidget)
         self.user_input_widget.setMaximumSize(QtCore.QSize(16777215, 100))
         self.user_input_widget.setStyleSheet("")
@@ -206,7 +212,7 @@ class Ui_MainWindow(object):
         self.add_review_button.setFont(font)
         self.add_review_button.setObjectName("add_review_button")
         self.horizontalLayout.addWidget(self.add_review_button)
-        self.verticalLayout.addWidget(self.user_input_widget)
+        self.gridLayout_2.addWidget(self.user_input_widget, 1, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
@@ -220,7 +226,7 @@ class Ui_MainWindow(object):
         self.synopsis_label.setText(_translate("MainWindow", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."))
         self.title_label.setText(_translate("MainWindow", "[title]g"))
         self.genres_label.setText(_translate("MainWindow", "Genres: "))
-        self.pushButton_4.setText(_translate("MainWindow", "temp"))
+        # self.temp_button.setText(_translate("MainWindow", "Season 1"))
         self.general_stars_label.setText(_translate("MainWindow", "☆☆☆☆☆"))
         self.poster_label.setText(_translate("MainWindow", "TextLabel"))
         self.add_to_liked_button.setText(_translate("MainWindow", "Add to Liked"))

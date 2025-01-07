@@ -31,11 +31,11 @@ class Poster(QLabel):
     def mousePressEvent(self, event):
         # print(self.title)
 
-        if self.media_id == "movie":
+        if self.media_type == "movie":
             self.about_title_movie_page = AboutTitleMoviePage(self.media_id, self.media_type, self.account_id)
             self.about_title_movie_page.show()
         else:
-            self.about_title_tv_show_page = AboutTitleTvShowPage(self.media_id, self.media_type, self.account_id)
+            self.about_title_tv_show_page = AboutTitleTvShowPage(self.media_id, self.account_id)
             self.about_title_tv_show_page.show()
 
     def mouseMoveEvent(self, ev):

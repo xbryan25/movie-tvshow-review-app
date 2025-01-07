@@ -14,8 +14,8 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
+   <layout class="QGridLayout" name="gridLayout_2">
+    <item row="0" column="0">
      <widget class="QWidget" name="display_info_widget" native="true">
       <property name="styleSheet">
        <string notr="true"/>
@@ -196,7 +196,7 @@ padding: 10px;</string>
         </widget>
        </item>
        <item row="6" column="1" colspan="2">
-        <widget class="QScrollArea" name="scrollArea">
+        <widget class="QScrollArea" name="season_buttons_scroll_area">
          <property name="maximumSize">
           <size>
            <width>16777215</width>
@@ -237,7 +237,7 @@ QScrollBar::handle:horizontal:pressed{
          <property name="widgetResizable">
           <bool>true</bool>
          </property>
-         <widget class="QWidget" name="scrollAreaWidgetContents_3">
+         <widget class="QWidget" name="season_buttons_scroll_area_widget_contents">
           <property name="geometry">
            <rect>
             <x>0</x>
@@ -246,16 +246,23 @@ QScrollBar::handle:horizontal:pressed{
             <height>50</height>
            </rect>
           </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_2">
-           <item>
-            <widget class="QPushButton" name="pushButton_4">
+          <layout class="QGridLayout" name="seasons_buttons_grid">
+           <item row="0" column="0">
+            <widget class="QPushButton" name="temp_button">
+             <property name="maximumSize">
+              <size>
+               <width>150</width>
+               <height>27</height>
+              </size>
+             </property>
              <property name="font">
               <font>
                <family>Oswald</family>
+               <pointsize>10</pointsize>
               </font>
              </property>
              <property name="text">
-              <string>temp</string>
+              <string>Season 1</string>
              </property>
             </widget>
            </item>
@@ -316,7 +323,7 @@ QScrollBar::handle:horizontal:pressed{
       </layout>
      </widget>
     </item>
-    <item>
+    <item row="1" column="0">
      <widget class="QWidget" name="user_input_widget" native="true">
       <property name="maximumSize">
        <size>
