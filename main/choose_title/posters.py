@@ -1,7 +1,9 @@
 from PyQt6.QtWidgets import QLabel
 from PyQt6.QtCore import QRect, QPropertyAnimation
 
-from main.about_title.about_title import AboutTitlePage
+from main.about_title.about_title_movie import AboutTitleMoviePage
+from main.about_title.about_title_tv_show import AboutTitleTvShowPage
+
 from PyQt6.QtGui import QCursor
 from PyQt6.QtCore import Qt
 
@@ -27,9 +29,14 @@ class Poster(QLabel):
         self.media_id = media_id
 
     def mousePressEvent(self, event):
-        print(self.title)
-        self.about_title_page = AboutTitlePage(self.media_id, self.media_type, self.account_id)
-        self.about_title_page.show()
+        # print(self.title)
+
+        if self.media_id == "movie":
+            self.about_title_movie_page = AboutTitleMoviePage(self.media_id, self.media_type, self.account_id)
+            self.about_title_movie_page.show()
+        else:
+            self.about_title_tv_show_page = AboutTitleTvShowPage(self.media_id, self.media_type, self.account_id)
+            self.about_title_tv_show_page.show()
 
     def mouseMoveEvent(self, ev):
         pass

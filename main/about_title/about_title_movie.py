@@ -3,7 +3,7 @@ from os.path import split
 from PyQt6.QtWidgets import QMainWindow
 from PyQt6.QtGui import QImage, QPixmap
 
-from main.about_title.about_title_design import Ui_MainWindow as AboutTitleDesignUI
+from main.about_title.about_title_movie_design import Ui_MainWindow as AboutTitleMovieDesignUI
 from main.about_title.movie_review import MovieReview
 
 import requests
@@ -11,7 +11,7 @@ import sqlite3
 import json
 
 
-class AboutTitlePage(QMainWindow, AboutTitleDesignUI):
+class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
     def __init__(self, media_id, media_type, account_id):
         super().__init__()
 
