@@ -13,9 +13,24 @@ class MovieReview(QMainWindow, MovieReviewUI):
         self.setupUi(self)
 
         self.account_id = account_id
-        self.media_id = media_id
+        self.media_id = str(media_id)
+
+        self.show_old_review()
 
         self.save_button.clicked.connect(self.add_review)
+
+    def show_old_review(self):
+        connection = sqlite3.connect('database\\accounts.db')
+        cursor = connection.cursor()
+
+        movie_reviews = json.loads(
+            cursor.execute("""SELECT movie_reviews FROM reviews WHERE account_id=(:account_id)""",
+                           {"account_id": self.account_id}).fetchone()[0])
+
+        movie_ids = movie_reviews.keys()
+
+        if self.media_id in movie_ids:
+            self.review_plain_text.setPlainText(movie_reviews[self.media_id])
 
     def add_review(self):
         connection = sqlite3.connect('database\\accounts.db')
@@ -26,7 +41,7 @@ class MovieReview(QMainWindow, MovieReviewUI):
 
         movie_ids = movie_reviews.keys()
 
-        if str(self.media_id) in movie_ids:
+        if self.media_id in movie_ids:
             movie_reviews[self.media_id] = self.review_plain_text.toPlainText()
         else:
             movie_reviews.update({self.media_id: self.review_plain_text.toPlainText()})

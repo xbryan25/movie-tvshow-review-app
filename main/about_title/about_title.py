@@ -41,6 +41,7 @@ class AboutTitlePage(QMainWindow, AboutTitleDesignUI):
 
         self.set_liked_button_state()
         self.set_watchlist_button_state()
+        self.set_review_button_state()
 
         self.star_slider.valueChanged.connect(self.change_own_rating_slider)
 
@@ -167,6 +168,22 @@ class AboutTitlePage(QMainWindow, AboutTitleDesignUI):
                 self.add_to_watchlist_button.setText("Remove from Watchlist")
 
                 self.add_to_watchlist_state = "clicked"
+
+    def set_review_button_state(self):
+        connection = sqlite3.connect('database\\accounts.db')
+        cursor = connection.cursor()
+
+        movie_reviews = json.loads(
+            cursor.execute("""SELECT movie_reviews FROM reviews WHERE account_id=(:account_id)""",
+                           {"account_id": self.account_id}).fetchone()[0])
+
+        movie_ids = movie_reviews.keys()
+
+        if str(self.media_id) in movie_ids:
+            self.add_review_button.setText("Edit Review")
+
+        connection.commit()
+        connection.close()
 
     def get_directors(self, movie_url):
         movie_credits_url = movie_url + "/credits?language=en-US"
