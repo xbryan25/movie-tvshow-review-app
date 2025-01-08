@@ -208,7 +208,7 @@ padding: 10px;</string>
 QScrollBar:horizontal{
 	border: none;
 	background-color: rgb(43, 56, 138);
-	height: 10px;
+	height: 5px;
 	margin: 0 0 0 0;
 	border-radius: 5px;
 }

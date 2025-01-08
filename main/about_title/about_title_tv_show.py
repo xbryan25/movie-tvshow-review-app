@@ -56,7 +56,7 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
         tv_show_url = f"https://api.themoviedb.org/3/tv/{self.media_id}"
         tv_show_response = requests.get(tv_show_url, headers=self.api_headers).json()
 
-        # print(tv_show_response)
+        print(tv_show_response)
 
         # To be used in the class
         self.media_title = tv_show_response['name']
@@ -332,6 +332,43 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
             self.season_button.setObjectName(f'{(season['name']).lower()}_button')
 
             self.seasons_buttons_grid.addWidget(self.season_button, 0, self.seasons.index(season), 1, 1)
+
+        self.attach_connection_to_change_season()
+
+    def attach_connection_to_change_season(self):
+        season_buttons = self.season_buttons_scroll_area_widget_contents.findChildren(QPushButton)
+
+        for i in range(len(season_buttons)):
+            # Used tip from
+            # https://stackoverflow.com/questions/6784084/how-to-pass-arguments-to-functions-by-the-click-of-button-in-pyqt
+            # magamig's comment
+
+            season_buttons[i].clicked.connect(lambda state, j=i: self.change_season(j))
+
+    def change_season(self, season_index):
+        get_season_synopsis = self.seasons[season_index]['overview']
+
+        get_air_date = self.seasons[season_index]['air_date']
+        get_vote_average = self.seasons[season_index]['vote_average']
+
+        if get_season_synopsis == "" and not get_air_date and get_vote_average == 0.0:
+            self.synopsis_label.setText("Not yet released.")
+            self.year_label.setText("Unknown")
+
+        elif get_season_synopsis == "":
+            self.synopsis_label.setText("No information available.")
+        else:
+            self.synopsis_label.setText(get_season_synopsis)
+
+        if get_air_date:
+            get_air_date = (get_air_date.split('-'))[0]
+            self.year_label.setText(get_air_date)
+
+        # print(self.seasons[season_index])
+        #
+        # season_button.synopsis_label.setText((self.seasons[season_index])['overview'])
+
+
 
     # def add_review_movie(self):
     #     self.movie_review = MovieReview(self.account_id, self.media_id)
