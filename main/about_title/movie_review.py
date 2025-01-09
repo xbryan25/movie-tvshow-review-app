@@ -1,4 +1,4 @@
-from main.about_title.movie_review_design import Ui_MainWindow as MovieReviewUI
+from main.about_title.media_review_design import Ui_MainWindow as MediaReviewUI
 
 import sqlite3
 import json
@@ -6,7 +6,7 @@ import json
 from PyQt6.QtWidgets import QMainWindow
 
 
-class MovieReview(QMainWindow, MovieReviewUI):
+class MovieReview(QMainWindow, MediaReviewUI):
     def __init__(self, account_id, media_id):
         super().__init__()
 

@@ -49,8 +49,7 @@ class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
 
         self.add_to_watchlist_button.clicked.connect(self.add_to_watchlist)
 
-        if self.media_type == "movie":
-            self.add_review_button.clicked.connect(self.add_review_movie)
+        self.add_review_button.clicked.connect(self.add_review_movie)
 
     def load_contents(self):
         if self.media_type == "movie":

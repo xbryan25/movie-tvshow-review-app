@@ -5,6 +5,7 @@ from PyQt6.QtGui import QImage, QPixmap, QFont
 from PyQt6.QtCore import QSize, Qt
 
 from main.about_title.about_title_tv_show_design import Ui_MainWindow as AboutTitleTvShowDesignUI
+from main.about_title.tv_show_review import TvShowReview
 
 import requests
 import sqlite3
@@ -26,6 +27,7 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
         # To be overwritten later
         self.media_title = ""
         self.seasons = []
+        self.clicked_season = ''
 
 
         self.add_to_liked_state = "not clicked"
@@ -51,6 +53,8 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
         self.add_to_liked_button.clicked.connect(self.add_to_liked)
 
         self.add_to_watchlist_button.clicked.connect(self.add_to_watchlist)
+
+        self.add_review_button.clicked.connect(self.add_review_season)
 
     def load_contents(self):
         tv_show_url = f"https://api.themoviedb.org/3/tv/{self.media_id}"
@@ -288,17 +292,23 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
             get_air_date = (get_air_date.split('-'))[0]
             self.year_label.setText(get_air_date)
 
+        # Overwrite self.clicked_season in __init__
+        self.clicked_season = season_index
+        print(self.clicked_season + 1)
+
         # print(self.seasons[season_index])
         #
         # season_button.synopsis_label.setText((self.seasons[season_index])['overview'])
 
+    # def add_connection_from_review_button_to_seasons(self):
+    #     for season in self.seasons:
+    #         # _season is just another name of season, I just can't think of any word other than season
+    #         self.add_review_button.clicked.connect(lambda state, _season=season: self.add_review_season(_season))
 
+    def add_review_season(self):
+        self.tv_show_review = TvShowReview(self.account_id, self.media_id, self.clicked_season)
+        self.tv_show_review.title_label.setText(f"{self.media_title} | Season {self.clicked_season + 1}")
 
-    # def add_review_movie(self):
-    #     self.movie_review = MovieReview(self.account_id, self.media_id)
-    #
-    #     self.movie_review.title_label.setText(self.media_title)
-    #
-    #     self.movie_review.show()
-    # def split_title(self):
-    #     return '+'.join(self.title.split())
+        self.tv_show_review.show()
+    def split_title(self):
+        return '+'.join(self.title.split())
