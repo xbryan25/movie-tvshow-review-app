@@ -7,6 +7,8 @@ from main.login.signup_dialog import SignupDialog
 from main.login.login_status_dialog import LoginStatusDialog
 from main.login.signup_successful_dialog import SignupSuccessfulDialog
 
+from main.login.initialize_account import InitializeAccount
+
 from main.login.signup_fail_dialog import SignupFailDialog
 
 from PyQt6.QtWidgets import QMainWindow, QLineEdit
@@ -25,6 +27,9 @@ class LoginPage(QMainWindow, LoginPageUI):
         self.sign_up_button.clicked.connect(self.signup_clicked)
         self.login_button.clicked.connect(self.check_if_account_exists)
         self.show_password_checkbox.stateChanged.connect(self.show_password_text_login)
+
+        # Temporary account_id; to be overwritten
+        self.account_id = 0
 
     def show_password_text_login(self):
         if self.show_password_checkbox.isChecked():
@@ -100,10 +105,9 @@ class LoginPage(QMainWindow, LoginPageUI):
 
             print("Account created!")
 
-            signup_successful_dialog = SignupSuccessfulDialog()
-            signup_successful_dialog.proceed_button.clicked.connect(
-                lambda: self.close_signup_dialogs(signup_dialog, signup_successful_dialog))
-            signup_successful_dialog.exec()
+            # Overwrite self.account_id
+            self.account_id = cursor.execute("SELECT account_id FROM accounts WHERE username=(:username)",
+                                            {"username": signup_dialog.username_lineedit.text()}).fetchone()[0]
 
         else:
             signup_fail_dialog = SignupFailDialog(issues_found)
@@ -114,6 +118,17 @@ class LoginPage(QMainWindow, LoginPageUI):
 
         connection.commit()
         connection.close()
+
+        # The reason that this is at the bottom is to avoid OperationalError: database is locked
+        # where more than one cursor is active, the previous cursor has to be closed first
+        if no_issues:
+            initialize_account = InitializeAccount(self.account_id)
+            initialize_account.initialize()
+
+            signup_successful_dialog = SignupSuccessfulDialog()
+            signup_successful_dialog.proceed_button.clicked.connect(
+                lambda: self.close_signup_dialogs(signup_dialog, signup_successful_dialog))
+            signup_successful_dialog.exec()
 
     @staticmethod
     def close_signup_fail_dialog(signup_fail_dialog):
