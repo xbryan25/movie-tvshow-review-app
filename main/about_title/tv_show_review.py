@@ -16,22 +16,35 @@ class TvShowReview(QMainWindow, MediaReviewUI):
         self.media_id = str(media_id)
         self.clicked_season = clicked_season
 
-        # self.show_old_review()
+        self.show_old_review()
 
         self.save_button.clicked.connect(self.add_review)
 
-    def show_old_review(self, season):
+    def show_old_review(self):
         connection = sqlite3.connect('database\\accounts.db')
         cursor = connection.cursor()
 
-        movie_reviews = json.loads(
-            cursor.execute("""SELECT movie_reviews FROM reviews WHERE account_id=(:account_id)""",
+        current_season = f'Season {self.clicked_season + 1}'
+
+        tv_show_reviews = json.loads(
+            cursor.execute("""SELECT tv_show_reviews FROM reviews WHERE account_id=(:account_id)""",
                            {"account_id": self.account_id}).fetchone()[0])
 
-        movie_ids = movie_reviews.keys()
+        tv_show_ids = tv_show_reviews.keys()
 
-        if self.media_id in movie_ids:
-            self.review_plain_text.setPlainText(movie_reviews[self.media_id])
+        # if self.media_id in movie_ids:
+        #     self.review_plain_text.setPlainText(movie_reviews[self.media_id])
+
+        if self.media_id in tv_show_ids:
+            tv_show_season_reviews = tv_show_reviews[self.media_id]
+
+            reviewed_seasons = tv_show_season_reviews.keys()
+
+            if current_season in reviewed_seasons:
+                self.review_plain_text.setPlainText(tv_show_reviews[self.media_id][current_season])
+
+        connection.commit()
+        connection.close()
 
     def add_review(self):
         connection = sqlite3.connect('database\\accounts.db')
