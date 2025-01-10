@@ -27,7 +27,7 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
         # To be overwritten later
         self.media_title = ""
         self.seasons = []
-        self.clicked_season = ''
+        self.clicked_season = 'Series'
 
 
         self.add_to_liked_state = "not clicked"
@@ -72,6 +72,8 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
 
         self.seasons = tv_show_response['seasons']
 
+        self.add_series_dictionary(tv_show_response['number_of_episodes'], tv_show_response['vote_average'],
+                                   tv_show_response['overview'], tv_show_response['id'])
         # print(movie_overview)
         # print(movie_vote_average)
         # print(movie_release_year)
@@ -88,6 +90,19 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
 
         self.poster_label.setPixmap(QPixmap(tv_show_image))
         self.poster_label.setScaledContents(True)
+
+    def add_series_dictionary(self, number_of_episodes, vote_average, overview, id):
+        # Shallow copies (meaning nested entries are not read) the first season of the show
+        series_dictionary = dict(self.seasons[0])
+
+        series_dictionary['name'] = 'Series'
+
+        series_dictionary['episode_count'] = number_of_episodes
+        series_dictionary['vote_average'] = vote_average
+        series_dictionary['overview'] = overview
+        series_dictionary['id'] = id
+
+        self.seasons.insert(0, series_dictionary)
 
     def set_liked_button_state(self):
         connection = sqlite3.connect('database\\accounts.db')
@@ -257,7 +272,8 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
             self.season_button.setFont(font)
 
             self.season_button.setText(season['name'])
-            self.season_button.setObjectName(f'{(season['name']).lower()}_button')
+            self.season_button.setObjectName(f'{(season['name'].replace(" ", "_")).lower()}_button')
+            print(f'{(season['name'].replace(" ", "_")).lower()}_button')
 
             self.seasons_buttons_grid.addWidget(self.season_button, 0, self.seasons.index(season), 1, 1)
 
@@ -293,8 +309,8 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
             self.year_label.setText(get_air_date)
 
         # Overwrite self.clicked_season in __init__
-        self.clicked_season = season_index
-        print(self.clicked_season + 1)
+        self.clicked_season = self.seasons[season_index]['name']
+        print(self.clicked_season)
 
         # print(self.seasons[season_index])
         #
@@ -307,7 +323,7 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
 
     def add_review_season(self):
         self.tv_show_review = TvShowReview(self.account_id, self.media_id, self.clicked_season)
-        self.tv_show_review.title_label.setText(f"{self.media_title} | Season {self.clicked_season + 1}")
+        self.tv_show_review.title_label.setText(f"{self.media_title} | {self.clicked_season}")
 
         self.tv_show_review.show()
     def split_title(self):

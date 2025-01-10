@@ -24,16 +24,13 @@ class TvShowReview(QMainWindow, MediaReviewUI):
         connection = sqlite3.connect('database\\accounts.db')
         cursor = connection.cursor()
 
-        current_season = f'Season {self.clicked_season + 1}'
+        current_season = self.clicked_season
 
         tv_show_reviews = json.loads(
             cursor.execute("""SELECT tv_show_reviews FROM reviews WHERE account_id=(:account_id)""",
                            {"account_id": self.account_id}).fetchone()[0])
 
         tv_show_ids = tv_show_reviews.keys()
-
-        # if self.media_id in movie_ids:
-        #     self.review_plain_text.setPlainText(movie_reviews[self.media_id])
 
         if self.media_id in tv_show_ids:
             tv_show_season_reviews = tv_show_reviews[self.media_id]
@@ -50,7 +47,7 @@ class TvShowReview(QMainWindow, MediaReviewUI):
         connection = sqlite3.connect('database\\accounts.db')
         cursor = connection.cursor()
 
-        current_season = f'Season {self.clicked_season + 1}'
+        current_season = self.clicked_season
 
         tv_show_reviews = json.loads(cursor.execute("""SELECT tv_show_reviews FROM reviews WHERE account_id=(:account_id)""",
                                               {"account_id": self.account_id}).fetchone()[0])
