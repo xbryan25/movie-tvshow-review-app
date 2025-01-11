@@ -42,86 +42,6 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
-     <widget class="QLabel" name="title_label">
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>125</height>
-       </size>
-      </property>
-      <property name="font">
-       <font>
-        <family>Oswald SemiBold</family>
-        <pointsize>22</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>Movie and TV Show Review App</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="0">
-     <widget class="QWidget" name="username_container" native="true">
-      <property name="maximumSize">
-       <size>
-        <width>500</width>
-        <height>50</height>
-       </size>
-      </property>
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <item>
-        <widget class="QLabel" name="username_label">
-         <property name="maximumSize">
-          <size>
-           <width>100</width>
-           <height>20</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Oswald Medium</family>
-           <pointsize>14</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>Username</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLineEdit" name="username_lineedit">
-         <property name="maximumSize">
-          <size>
-           <width>210</width>
-           <height>25</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Oswald</family>
-           <pointsize>10</pointsize>
-          </font>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
     <item row="6" column="0">
      <widget class="QWidget" name="buttons_container" native="true">
       <property name="maximumSize">
@@ -210,6 +130,62 @@ background-color: rgb(145, 145, 145);
       </layout>
      </widget>
     </item>
+    <item row="3" column="0">
+     <widget class="QWidget" name="username_container" native="true">
+      <property name="maximumSize">
+       <size>
+        <width>500</width>
+        <height>50</height>
+       </size>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QLabel" name="username_label">
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Oswald Medium</family>
+           <pointsize>14</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Username</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="username_lineedit">
+         <property name="maximumSize">
+          <size>
+           <width>210</width>
+           <height>25</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Oswald</family>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255);</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
     <item row="4" column="0">
      <widget class="QWidget" name="password_container" native="true">
       <property name="maximumSize">
@@ -269,6 +245,30 @@ background-color: rgb(145, 145, 145);
       </layout>
      </widget>
     </item>
+    <item row="0" column="0">
+     <widget class="QLabel" name="title_label">
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>125</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Oswald SemiBold</family>
+        <pointsize>22</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Movie and TV Show Review App</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
     <item row="5" column="0">
      <widget class="QWidget" name="show_password_container" native="true">
       <property name="maximumSize">
@@ -303,7 +303,7 @@ background-color: rgb(145, 145, 145);
          </property>
          <property name="maximumSize">
           <size>
-           <width>125</width>
+           <width>100</width>
            <height>25</height>
           </size>
          </property>

@@ -2,6 +2,9 @@ from main.login.signup_fail_dialog_design import Ui_Dialog as SignupFailDialogUI
 from PyQt6.QtWidgets import QDialog
 from PyQt6.QtCore import Qt
 
+from PyQt6.QtGui import QCursor
+from PyQt6.QtCore import Qt
+
 
 class SignupFailDialog(QDialog, SignupFailDialogUI):
     def __init__(self, issues_found):
@@ -12,6 +15,11 @@ class SignupFailDialog(QDialog, SignupFailDialogUI):
         self.setupUi(self)
 
         self.add_issues()
+
+        self.set_pointing_hand_cursor_to_interactables()
+
+    def set_pointing_hand_cursor_to_interactables(self):
+        self.proceed_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
 
     def add_issues(self):
         extra_space = (len(self.issues_found) - 1) * 12

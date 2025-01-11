@@ -7,6 +7,9 @@ from PyQt6.QtCore import QSize, Qt
 from main.about_title.about_title_tv_show_design import Ui_MainWindow as AboutTitleTvShowDesignUI
 from main.about_title.tv_show_review import TvShowReview
 
+from PyQt6.QtGui import QCursor
+from PyQt6.QtCore import Qt
+
 import requests
 import sqlite3
 import json
@@ -55,6 +58,20 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
         self.add_to_watchlist_button.clicked.connect(self.add_to_watchlist)
 
         self.add_review_button.clicked.connect(self.add_review_season)
+
+        self.set_pointing_hand_cursor_to_interactables()
+
+    def set_pointing_hand_cursor_to_interactables(self):
+        self.add_to_liked_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.add_to_watchlist_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.star_slider.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.add_review_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.season_buttons_scroll_area.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+
+        season_buttons = self.season_buttons_scroll_area_widget_contents.findChildren(QPushButton)
+
+        for season_button in season_buttons:
+            season_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
 
     def load_contents(self):
         tv_show_url = f"https://api.themoviedb.org/3/tv/{self.media_id}"

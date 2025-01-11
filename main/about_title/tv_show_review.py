@@ -5,6 +5,9 @@ import json
 
 from PyQt6.QtWidgets import QMainWindow
 
+from PyQt6.QtGui import QCursor
+from PyQt6.QtCore import Qt
+
 
 class TvShowReview(QMainWindow, MediaReviewUI):
     def __init__(self, account_id, media_id, clicked_season):
@@ -19,6 +22,11 @@ class TvShowReview(QMainWindow, MediaReviewUI):
         self.show_old_review()
 
         self.save_button.clicked.connect(self.add_review)
+
+        self.set_pointing_hand_cursor_to_interactables()
+
+    def set_pointing_hand_cursor_to_interactables(self):
+        self.save_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
 
     def show_old_review(self):
         connection = sqlite3.connect('database\\accounts.db')

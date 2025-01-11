@@ -6,6 +6,9 @@ from PyQt6.QtGui import QImage, QPixmap
 from main.about_title.about_title_movie_design import Ui_MainWindow as AboutTitleMovieDesignUI
 from main.about_title.movie_review import MovieReview
 
+from PyQt6.QtGui import QCursor
+from PyQt6.QtCore import Qt
+
 import requests
 import sqlite3
 import json
@@ -50,6 +53,14 @@ class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
         self.add_to_watchlist_button.clicked.connect(self.add_to_watchlist)
 
         self.add_review_button.clicked.connect(self.add_review_movie)
+
+        self.set_pointing_hand_cursor_to_interactables()
+
+    def set_pointing_hand_cursor_to_interactables(self):
+        self.add_to_liked_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.add_to_watchlist_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.star_slider.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.add_review_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
 
     def load_contents(self):
         if self.media_type == "movie":

@@ -257,7 +257,7 @@ class Ui_Dialog(object):
         self.show_password_checkbox = QtWidgets.QCheckBox(parent=self.show_password_container)
         self.show_password_checkbox.setEnabled(True)
         self.show_password_checkbox.setMinimumSize(QtCore.QSize(20, 25))
-        self.show_password_checkbox.setMaximumSize(QtCore.QSize(125, 25))
+        self.show_password_checkbox.setMaximumSize(QtCore.QSize(100, 25))
         font = QtGui.QFont()
         font.setFamily("Oswald")
         font.setPointSize(10)

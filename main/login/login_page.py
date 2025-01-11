@@ -12,6 +12,9 @@ from main.login.initialize_account import InitializeAccount
 from main.login.signup_fail_dialog import SignupFailDialog
 
 from PyQt6.QtWidgets import QMainWindow, QLineEdit
+from PyQt6.QtGui import QCursor
+from PyQt6.QtCore import Qt
+
 import sqlite3
 import re
 
@@ -30,6 +33,13 @@ class LoginPage(QMainWindow, LoginPageUI):
 
         # Temporary account_id; to be overwritten
         self.account_id = 0
+
+        self.set_pointing_hand_cursor_to_interactables()
+
+    def set_pointing_hand_cursor_to_interactables(self):
+        self.sign_up_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.login_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.show_password_checkbox.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
 
     def show_password_text_login(self):
         if self.show_password_checkbox.isChecked():
