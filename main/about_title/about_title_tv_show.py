@@ -32,6 +32,8 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
         self.seasons = []
         self.clicked_season = 'Series'
 
+        self.directors = {}
+
 
         self.add_to_liked_state = "not clicked"
         self.add_to_watchlist_state = "not clicked"
@@ -77,8 +79,6 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
         tv_show_url = f"https://api.themoviedb.org/3/tv/{self.media_id}"
         tv_show_response = requests.get(tv_show_url, headers=self.api_headers).json()
 
-        print(tv_show_response)
-
         # To be used in the class
         self.media_title = tv_show_response['name']
         tv_show_overview = tv_show_response['overview']
@@ -99,8 +99,10 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
         self.year_label.setText(str(tv_show_release_year))
         self.general_stars_label.setText(str(tv_show_vote_average))
         self.synopsis_label.setText(tv_show_overview)
-        self.director_label.setText("Directed by: " + self.get_directors(tv_show_url))
+        self.director_label.setText("-")
         self.genres_label.setText("Genres: " + tv_show_genres)
+
+        self.get_directors()
 
         tv_show_image = QImage()
         tv_show_image.loadFromData(requests.get(tv_show_img_url).content)
@@ -167,17 +169,33 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
         # connection.commit()
         # connection.close()
 
-    def get_directors(self, media_url):
-        media_credits_url = media_url + "/credits?language=en-US"
-        media_credits_response = requests.get(media_credits_url, headers=self.api_headers).json()
+    def get_directors(self):
+        # Make a copy of self.seasons but without the series, which is the first element
 
-        directors = []
+        seasons_without_series = list(self.seasons[1:])
+        print("\n---------START----------\n")
+        for season in seasons_without_series:
+            season_directors = []
 
-        for crew_member in media_credits_response['crew']:
-            if crew_member['job'] == 'Director':
-                directors.append(crew_member['name'])
+            tv_show_season_credit_url = f"https://api.themoviedb.org/3/tv/{self.media_id}/season/{season['season_number']}"
+            tv_credit_response = requests.get(tv_show_season_credit_url, headers=self.api_headers).json()
 
-        return ', '.join(directors)
+            for episode_credits in tv_credit_response['episodes']:
+
+                # Check if episode_credits['crew'] (a list) is empty or not
+                if episode_credits['crew']:
+                    for crew in episode_credits['crew']:
+
+                        if crew['job'] == 'Director':
+                            episode_director_name = crew['name']
+
+                            if episode_director_name not in season_directors:
+                                season_directors.append(episode_director_name)
+
+            self.directors.update({season['name']: season_directors})
+
+        print(self.directors)
+
 
     def get_genres(self, genres_list):
         genres = []
@@ -324,6 +342,14 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
         if get_air_date:
             get_air_date = (get_air_date.split('-'))[0]
             self.year_label.setText(get_air_date)
+
+        if season_index == 0:
+            self.director_label.setText("-")
+        elif not self.directors[self.seasons[season_index]['name']]:
+            # If director list is empty
+            self.director_label.setText("Unknown")
+        else:
+            self.director_label.setText(f"Directed by: {", ".join(self.directors[self.seasons[season_index]['name']])}")
 
         # Overwrite self.clicked_season in __init__
         self.clicked_season = self.seasons[season_index]['name']
