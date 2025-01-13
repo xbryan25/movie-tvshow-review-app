@@ -74,7 +74,7 @@ class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
             movie_overview = movie_response['overview']
             movie_vote_average = movie_response['vote_average']
             movie_release_year = (movie_response['release_date'].split('-'))[0]
-            movie_img_url = 'https://image.tmdb.org/t/p/original' + movie_response['poster_path']
+            movie_img_url = 'https://image.tmdb.org/t/p/w342' + movie_response['poster_path']
             movie_genres = self.get_genres(movie_response['genres'])
 
             print(movie_overview)

@@ -84,7 +84,7 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
         tv_show_overview = tv_show_response['overview']
         tv_show_vote_average = tv_show_response['vote_average']
         tv_show_release_year = (tv_show_response['first_air_date'].split('-'))[0]
-        tv_show_img_url = 'https://image.tmdb.org/t/p/original' + tv_show_response['poster_path']
+        tv_show_img_url = 'https://image.tmdb.org/t/p/w342' + tv_show_response['poster_path']
         tv_show_genres = self.get_genres(tv_show_response['genres'])
 
         self.seasons = tv_show_response['seasons']
@@ -173,7 +173,6 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
         # Make a copy of self.seasons but without the series, which is the first element
 
         seasons_without_series = list(self.seasons[1:])
-        print("\n---------START----------\n")
         for season in seasons_without_series:
             season_directors = []
 
@@ -193,9 +192,7 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
                                 season_directors.append(episode_director_name)
 
             self.directors.update({season['name']: season_directors})
-
-        print(self.directors)
-
+            print("director traversal")
 
     def get_genres(self, genres_list):
         genres = []

@@ -54,7 +54,7 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
 
         self.account_id = account_id
 
-        for i in range(2):
+        for i in range(15):
             self.make_more_movie_posters(i)
             self.make_more_tv_show_posters(i)
 
@@ -64,6 +64,8 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
         self.threadpool = QThreadPool()
         self.start_load_pictures_thread()
 
+        print("Yo")
+
     def start_load_pictures_thread(self):
         load_pictures_worker = LoadPicturesWorker(self.load_pictures)
 
@@ -72,7 +74,6 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
         self.threadpool.start(load_pictures_worker)
 
     def load_pictures(self):
-        print("reach here111")
 
         popular_movies_api_url = "https://api.themoviedb.org/3/movie/popular?language=en-US&page=1"
         popular_movies_api_response = requests.get(popular_movies_api_url, headers=self.api_headers)
@@ -86,8 +87,8 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
 
         # TODO: Add loading screen
 
-        for i in range(2):
-            movie_img_url = 'https://image.tmdb.org/t/p/original/' + popular_movies_api_response.json()['results'][i][
+        for i in range(15):
+            movie_img_url = 'https://image.tmdb.org/t/p/w342/' + popular_movies_api_response.json()['results'][i][
                 'poster_path']
 
             movie_id = popular_movies_api_response.json()['results'][i][
@@ -100,7 +101,10 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
             movie_poster_containers[i].setPixmap(QPixmap(movie_image))
             movie_poster_containers[i].show()
 
-            tv_show_img_url = 'https://image.tmdb.org/t/p/original/' + \
+            # TMDB poster download sizes
+            # https://www.themoviedb.org/talk/5ee4ba52a217c0001fd0cb83
+
+            tv_show_img_url = 'https://image.tmdb.org/t/p/w342/' + \
                               popular_tv_shows_api_response.json()['results'][i]['poster_path']
 
             tv_show_id = popular_tv_shows_api_response.json()['results'][i]['id']
@@ -115,9 +119,12 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
             print(f"{((i + 1) / 15) * 100:.2f}")
             self.loading_screen.loading_progress_bar.setValue(int(((i + 1) / 15) * 100))
 
+        print("Done!")
+
     def show_choose_titles_page(self):
         self.loading_screen.hide()
         self.show()
+
 
     def make_more_movie_posters(self, column):
         frame_name = "movie_frame_" + str(column + 1)
