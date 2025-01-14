@@ -84,7 +84,7 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
         tv_show_overview = tv_show_response['overview']
         tv_show_vote_average = tv_show_response['vote_average']
         tv_show_release_year = (tv_show_response['first_air_date'].split('-'))[0]
-        tv_show_img_url = 'https://image.tmdb.org/t/p/w342' + tv_show_response['poster_path']
+        tv_show_img_url = 'https://image.tmdb.org/t/p/w500' + tv_show_response['poster_path']
         tv_show_genres = self.get_genres(tv_show_response['genres'])
 
         self.seasons = tv_show_response['seasons']
