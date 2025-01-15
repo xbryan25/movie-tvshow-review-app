@@ -35,6 +35,8 @@ class Ui_MainWindow(object):
         self.search_movie_tv_show_label.setFont(font)
         self.search_movie_tv_show_label.setObjectName("search_movie_tv_show_label")
         self.horizontalLayout_3.addWidget(self.search_movie_tv_show_label)
+
+        # Changed from QLineEdit to SearchTitleLineEdit
         self.input_name_line_edit = QtWidgets.QLineEdit(parent=self.header_frame)
         font = QtGui.QFont()
         font.setFamily("Oswald")
@@ -43,6 +45,7 @@ class Ui_MainWindow(object):
         self.input_name_line_edit.setText("")
         self.input_name_line_edit.setObjectName("input_name_line_edit")
         self.horizontalLayout_3.addWidget(self.input_name_line_edit)
+
         spacerItem1 = QtWidgets.QSpacerItem(75, 20, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Minimum)
         self.horizontalLayout_3.addItem(spacerItem1)
         self.view_media_label = QtWidgets.QPushButton(parent=self.header_frame)
@@ -262,7 +265,7 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Choose a Movie or a TV Show"))
         self.search_movie_tv_show_label.setText(_translate("MainWindow", "Search Movie/TV Show by name"))
-        self.input_name_line_edit.setPlaceholderText(_translate("MainWindow", "Input name..."))
+        # self.input_name_line_edit.setPlaceholderText(_translate("MainWindow", "Input name..."))
         self.view_media_label.setText(_translate("MainWindow", "View Reviewed Media"))
         self.members_label.setText(_translate("MainWindow", "Members"))
         self.logout_label.setText(_translate("MainWindow", "Logout?"))

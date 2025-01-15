@@ -19,7 +19,7 @@
   <property name="maximumSize">
    <size>
     <width>800</width>
-    <height>775</height>
+    <height>769</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -385,7 +385,7 @@ border-radius: 1px;
      </widget>
     </item>
     <item>
-     <widget class="QFrame" name="popular_tv_show_week_fram">
+     <widget class="QFrame" name="popular_tv_show_week_frame">
       <property name="maximumSize">
        <size>
         <width>16777215</width>

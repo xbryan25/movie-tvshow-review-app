@@ -3,10 +3,14 @@ from main.choose_title.choose_titles_page_design import Ui_MainWindow as ChooseT
 from main.choose_title.posters import Poster
 
 from PyQt6.QtWidgets import QMainWindow, QLabel, QFrame
-from PyQt6.QtGui import QPixmap, QImage
+from PyQt6.QtGui import QPixmap, QImage, QFont
 from PyQt6.QtCore import (QSize, Qt, QPropertyAnimation, QRect, QEvent, QThread, QObject, pyqtSignal, QRunnable,
                           pyqtSlot, QThreadPool)
+
 from main.loading_screen.loading_screen import LoadingScreen
+
+from main.search_results.search_results_page import SearchResultsPage
+
 import requests
 import sqlite3
 import re
@@ -47,6 +51,7 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
         super().__init__()
 
         self.setupUi(self)
+
         self.api_headers = {
             "accept": "application/json",
             "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3N2Y0OWMyYmEyNmUxN2ZjMDkyY2VkYmQ2M2ZiZWIzNiIsIm5iZiI6MTczMjE2NjEzOS4wNDMzNTc0LCJzdWIiOiI2NzNlYzE5NzQ2NTQxYmJjZDM3OWNmZTYiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.j9GlO1y5TXH6iexR69tp03m39ScK9-CoKdjbkfVBqJY"
@@ -54,7 +59,9 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
 
         self.account_id = account_id
 
-        for i in range(12):
+        self.input_name_line_edit.returnPressed.connect(self.open_search_results_page)
+
+        for i in range(4):
             self.make_more_movie_posters(i)
             self.make_more_tv_show_posters(i)
 
@@ -64,7 +71,13 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
         self.threadpool = QThreadPool()
         self.start_load_pictures_thread()
 
-        print("Yo")
+        # self.input_name_line_edit.returnPressed.connect(self.print_hello)
+
+    def open_search_results_page(self):
+        self.search_results_page = SearchResultsPage()
+        self.search_results_page.show()
+
+        self.input_name_line_edit.setText("")
 
     def start_load_pictures_thread(self):
         load_pictures_worker = LoadPicturesWorker(self.load_pictures)
@@ -87,7 +100,7 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
 
         # TODO: Add loading screen
 
-        for i in range(12):
+        for i in range(4):
             movie_img_url = 'https://image.tmdb.org/t/p/w342/' + popular_movies_api_response.json()['results'][i][
                 'poster_path']
 
@@ -116,8 +129,8 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
             tv_show_poster_containers[i].setPixmap(QPixmap(tv_show_image))
             tv_show_poster_containers[i].show()
 
-            print(f"{((i + 1) / 12) * 100:.2f}")
-            self.loading_screen.loading_progress_bar.setValue(int(((i + 1) / 12) * 100))
+            print(f"{((i + 1) / 4) * 100:.2f}")
+            self.loading_screen.loading_progress_bar.setValue(int(((i + 1) / 4) * 100))
 
         print("Done!")
 
