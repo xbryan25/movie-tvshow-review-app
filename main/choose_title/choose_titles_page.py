@@ -59,7 +59,7 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
 
         self.account_id = account_id
 
-        self.input_name_line_edit.returnPressed.connect(self.open_search_results_page)
+        self.input_name_line_edit.returnPressed.connect(lambda: self.open_search_results_page(self.input_name_line_edit.text()))
 
         for i in range(4):
             self.make_more_movie_posters(i)
@@ -73,8 +73,8 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
 
         # self.input_name_line_edit.returnPressed.connect(self.print_hello)
 
-    def open_search_results_page(self):
-        self.search_results_page = SearchResultsPage()
+    def open_search_results_page(self, media_title):
+        self.search_results_page = SearchResultsPage(media_title)
         self.search_results_page.show()
 
         self.input_name_line_edit.setText("")
