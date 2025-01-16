@@ -74,7 +74,7 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
         # self.input_name_line_edit.returnPressed.connect(self.print_hello)
 
     def open_search_results_page(self, media_title):
-        self.search_results_page = SearchResultsPage(media_title)
+        self.search_results_page = SearchResultsPage(media_title, self.account_id)
         self.search_results_page.show()
 
         self.input_name_line_edit.setText("")

@@ -7,17 +7,13 @@ from main.about_title.about_title_movie import AboutTitleMoviePage
 from main.about_title.about_title_tv_show import AboutTitleTvShowPage
 
 
-
-
-# TODO: Finish pulsing animation whenever a poster gets hovered by the mouse
-
 class MediaResult(QFrame):
-    def __init__(self, parent, media_type, account_id):
+    def __init__(self, parent, media_id, media_type, account_id):
         super().__init__()
         self.parent = parent
         self.setMouseTracking(True)
         self.title = ""
-        self.media_id = ""
+        self.media_id = media_id
         self.media_type = media_type
         self.account_id = account_id
 
@@ -81,7 +77,6 @@ class MediaResult(QFrame):
         self.media_title.setFont(font)
         self.media_title.setObjectName("media_title")
         self.gridLayout.addWidget(self.media_title, 0, 3, 1, 2)
-
 
     def setTitle(self, title):
         self.title = title

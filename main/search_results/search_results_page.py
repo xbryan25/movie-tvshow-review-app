@@ -8,7 +8,7 @@ import requests
 
 
 class SearchResultsPage(QMainWindow, SearchResultsPageUI):
-    def __init__(self, media_title):
+    def __init__(self, media_title, account_id):
         super().__init__()
 
         self.setupUi(self)
@@ -19,22 +19,23 @@ class SearchResultsPage(QMainWindow, SearchResultsPageUI):
         }
 
         self.media_title = media_title
-        self.account_id = 1
+        self.media_title_for_url = (self.media_title.lower()).replace(" ", "+")
+        self.account_id = account_id
 
         self.show_search_results()
 
     def show_search_results(self):
-        self.show_results_label.setText(f"Showing results for {self.media_title}")
+        self.show_results_label.setText(f"Showing results for '{self.media_title}'")
 
-        tv_show_search_url = f"https://api.themoviedb.org/3/search/tv?query={self.media_title}"
-
+        tv_show_search_url = f"https://api.themoviedb.org/3/search/tv?query={self.media_title_for_url}"
+        print(tv_show_search_url)
 
         tv_show_search_results = requests.get(tv_show_search_url, headers=self.api_headers).json()
 
         print(tv_show_search_results)
 
         for tv_show in tv_show_search_results['results']:
-            self.media_result_frame = MediaResult(self.results_scroll_area_contents, "tv", self.account_id)
+            self.media_result_frame = MediaResult(self.results_scroll_area_contents, tv_show['id'], "tv", self.account_id)
 
             media_img_url = f'https://image.tmdb.org/t/p/w92/{tv_show['poster_path']}'
 
