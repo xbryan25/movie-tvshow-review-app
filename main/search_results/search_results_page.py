@@ -56,18 +56,35 @@ class SearchResultsPage(QMainWindow, SearchResultsPageUI):
         tv_show_search_url = f"https://api.themoviedb.org/3/search/tv?query={self.media_title_for_url}"
         tv_show_search_results = requests.get(tv_show_search_url, headers=self.api_headers).json()
 
+        # print(tv_show_search_results)
+
         # Only the top 5 tv shows will be shown as search results
         for count, tv_show in enumerate(tv_show_search_results['results']):
             self.media_result_frame = MediaResult(self.results_scroll_area_contents, tv_show['id'], "tv", self.account_id)
 
-            media_img_url = f'https://image.tmdb.org/t/p/w92/{tv_show['poster_path']}'
-
-            media_image = QImage()
-            media_image.loadFromData(requests.get(media_img_url, headers=self.api_headers).content)
-
-            self.media_result_frame.media_poster.setPixmap(QPixmap(media_image))
             self.media_result_frame.media_title.setText(tv_show['name'])
-            self.media_result_frame.media_release_year.setText((tv_show['first_air_date'].split('-'))[0])
+
+            if not tv_show['poster_path']:
+                print("No poster")
+                # Crab and Squid Save the Ocean
+
+                # question_mark_image = QPixmap(u"question_mark.jpg")
+                #
+                # self.media_result_frame.media_poster.setPixmap(question_mark_image)
+                # self.media_result_frame.media_title.setText(tv_show['name'])
+            else:
+                media_img_url = f'https://image.tmdb.org/t/p/w92/{tv_show['poster_path']}'
+
+                media_image = QImage()
+                media_image.loadFromData(requests.get(media_img_url, headers=self.api_headers).content)
+
+                self.media_result_frame.media_poster.setPixmap(QPixmap(media_image))
+                # self.media_result_frame.media_title.setText(tv_show['name'])
+
+            if tv_show['first_air_date'] == '':
+                self.media_result_frame.media_release_year.setText("Unknown")
+            else:
+                self.media_result_frame.media_release_year.setText((tv_show['first_air_date'].split('-'))[0])
 
             self.media_result_frame.media_type.setText("TV Show")
             self.media_result_frame.media_short_info.setText("???")
