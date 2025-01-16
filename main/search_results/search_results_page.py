@@ -1,7 +1,7 @@
 from main.search_results.search_results_design import Ui_MainWindow as SearchResultsPageUI
 from main.search_results.media_result import MediaResult
 
-from PyQt6.QtWidgets import QMainWindow
+from PyQt6.QtWidgets import QMainWindow, QSpacerItem, QSizePolicy
 from PyQt6.QtGui import QImage, QPixmap
 
 import requests
@@ -50,3 +50,5 @@ class SearchResultsPage(QMainWindow, SearchResultsPageUI):
 
             self.verticalLayout_2.addWidget(self.media_result_frame)
 
+        vertical_spacer_for_search_results = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.verticalLayout_2.addItem(vertical_spacer_for_search_results)

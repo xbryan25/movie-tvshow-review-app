@@ -65,8 +65,10 @@ class Ui_MainWindow(object):
         # self.temp_media_type.setFont(font)
         # self.temp_media_type.setObjectName("temp_media_type")
         # self.gridLayout.addWidget(self.temp_media_type, 2, 3, 1, 1)
+
         # spacerItem = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         # self.gridLayout.addItem(spacerItem, 0, 0, 1, 1)
+
         # self.temp_media_poster = QtWidgets.QLabel(parent=self.temp_frame)
         # self.temp_media_poster.setMinimumSize(QtCore.QSize(90, 140))
         # self.temp_media_poster.setMaximumSize(QtCore.QSize(90, 140))
@@ -74,8 +76,10 @@ class Ui_MainWindow(object):
         # self.temp_media_poster.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         # self.temp_media_poster.setObjectName("temp_media_poster")
         # self.gridLayout.addWidget(self.temp_media_poster, 0, 1, 3, 1)
+
         # spacerItem1 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
         # self.gridLayout.addItem(spacerItem1, 0, 2, 1, 1)
+
         # self.temp_media_short_info = QtWidgets.QLabel(parent=self.temp_frame)
         # font = QtGui.QFont()
         # font.setFamily("Oswald")
@@ -99,9 +103,11 @@ class Ui_MainWindow(object):
         # self.gridLayout.addWidget(self.temp_media_title, 0, 3, 1, 2)
         # self.verticalLayout_2.addWidget(self.temp_frame)
 
+        # NOTE: Only add vertical spacer after all the serach results have been loaded
+        # spacerItem2 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
+        # self.verticalLayout_2.addItem(spacerItem2)
 
-        spacerItem2 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
-        self.verticalLayout_2.addItem(spacerItem2)
+
         self.results_scroll_area.setWidget(self.results_scroll_area_contents)
         self.verticalLayout.addWidget(self.results_scroll_area)
         MainWindow.setCentralWidget(self.centralwidget)
