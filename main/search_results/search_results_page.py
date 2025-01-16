@@ -27,14 +27,37 @@ class SearchResultsPage(QMainWindow, SearchResultsPageUI):
     def show_search_results(self):
         self.show_results_label.setText(f"Showing results for '{self.media_title}'")
 
-        tv_show_search_url = f"https://api.themoviedb.org/3/search/tv?query={self.media_title_for_url}"
-        print(tv_show_search_url)
+        movie_search_url = f"https://api.themoviedb.org/3/search/movie?query={self.media_title_for_url}"
+        movie_search_results = requests.get(movie_search_url, headers=self.api_headers).json()
 
+        # Only the top 5 movies will be shown as search results
+        for count, movie in enumerate(movie_search_results['results']):
+            self.media_result_frame = MediaResult(self.results_scroll_area_contents, movie['id'], "movie",
+                                                  self.account_id)
+
+            media_img_url = f'https://image.tmdb.org/t/p/w92/{movie['poster_path']}'
+
+            media_image = QImage()
+            media_image.loadFromData(requests.get(media_img_url, headers=self.api_headers).content)
+
+            self.media_result_frame.media_poster.setPixmap(QPixmap(media_image))
+            self.media_result_frame.media_title.setText(movie['title'])
+            self.media_result_frame.media_release_year.setText((movie['release_date'].split('-'))[0])
+
+            self.media_result_frame.media_type.setText("Movie")
+            self.media_result_frame.media_short_info.setText("???")
+
+            self.verticalLayout_2.addWidget(self.media_result_frame)
+
+            if count + 1 == 5:
+                print("Broke free")
+                break
+
+        tv_show_search_url = f"https://api.themoviedb.org/3/search/tv?query={self.media_title_for_url}"
         tv_show_search_results = requests.get(tv_show_search_url, headers=self.api_headers).json()
 
-        print(tv_show_search_results)
-
-        for tv_show in tv_show_search_results['results']:
+        # Only the top 5 tv shows will be shown as search results
+        for count, tv_show in enumerate(tv_show_search_results['results']):
             self.media_result_frame = MediaResult(self.results_scroll_area_contents, tv_show['id'], "tv", self.account_id)
 
             media_img_url = f'https://image.tmdb.org/t/p/w92/{tv_show['poster_path']}'
@@ -50,6 +73,10 @@ class SearchResultsPage(QMainWindow, SearchResultsPageUI):
             self.media_result_frame.media_short_info.setText("???")
 
             self.verticalLayout_2.addWidget(self.media_result_frame)
+
+            if count + 1 == 5:
+                print("Broke free")
+                break
 
         vertical_spacer_for_search_results = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
         self.verticalLayout_2.addItem(vertical_spacer_for_search_results)
