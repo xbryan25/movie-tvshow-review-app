@@ -1,3 +1,5 @@
+from PyQt6.QtCore import QFileInfo
+
 from main.search_results.search_results_design import Ui_MainWindow as SearchResultsPageUI
 from main.search_results.media_result import MediaResult
 
@@ -35,14 +37,26 @@ class SearchResultsPage(QMainWindow, SearchResultsPageUI):
             self.media_result_frame = MediaResult(self.results_scroll_area_contents, movie['id'], "movie",
                                                   self.account_id)
 
-            media_img_url = f'https://image.tmdb.org/t/p/w92/{movie['poster_path']}'
-
-            media_image = QImage()
-            media_image.loadFromData(requests.get(media_img_url, headers=self.api_headers).content)
-
-            self.media_result_frame.media_poster.setPixmap(QPixmap(media_image))
             self.media_result_frame.media_title.setText(movie['title'])
-            self.media_result_frame.media_release_year.setText((movie['release_date'].split('-'))[0])
+
+            if not movie['poster_path']:
+                # Crab and Squid Save the Ocean
+
+                question_mark_image = QPixmap("../images/question_mark.jpg")
+                self.media_result_frame.media_poster.setPixmap(question_mark_image)
+
+            else:
+                media_img_url = f'https://image.tmdb.org/t/p/w92/{movie['poster_path']}'
+
+                media_image = QImage()
+                media_image.loadFromData(requests.get(media_img_url, headers=self.api_headers).content)
+
+                self.media_result_frame.media_poster.setPixmap(QPixmap(media_image))
+
+            if movie['release_date'] == '':
+                self.media_result_frame.media_release_year.setText("Unknown")
+            else:
+                self.media_result_frame.media_release_year.setText((movie['release_date'].split('-'))[0])
 
             self.media_result_frame.media_type.setText("Movie")
             self.media_result_frame.media_short_info.setText("???")
@@ -65,12 +79,13 @@ class SearchResultsPage(QMainWindow, SearchResultsPageUI):
             self.media_result_frame.media_title.setText(tv_show['name'])
 
             if not tv_show['poster_path']:
-                print("No poster")
                 # Crab and Squid Save the Ocean
 
-                # question_mark_image = QPixmap(u"question_mark.jpg")
+                # print(QPixmap("../../images/question_mark.jpg"))
+
+                question_mark_image = QPixmap("../images/question_mark.jpg")
                 #
-                # self.media_result_frame.media_poster.setPixmap(question_mark_image)
+                self.media_result_frame.media_poster.setPixmap(question_mark_image)
                 # self.media_result_frame.media_title.setText(tv_show['name'])
             else:
                 media_img_url = f'https://image.tmdb.org/t/p/w92/{tv_show['poster_path']}'

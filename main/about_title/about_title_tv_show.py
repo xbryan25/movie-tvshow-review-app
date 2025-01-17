@@ -84,7 +84,6 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
         tv_show_overview = tv_show_response['overview']
         tv_show_vote_average = tv_show_response['vote_average']
         tv_show_release_year = (tv_show_response['first_air_date'].split('-'))[0]
-        tv_show_img_url = 'https://image.tmdb.org/t/p/w500' + tv_show_response['poster_path']
         tv_show_genres = self.get_genres(tv_show_response['genres'])
 
         self.seasons = tv_show_response['seasons']
@@ -104,11 +103,20 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
 
         self.get_directors()
 
-        tv_show_image = QImage()
-        tv_show_image.loadFromData(requests.get(tv_show_img_url).content)
+        if not tv_show_response['poster_path']:
 
-        self.poster_label.setPixmap(QPixmap(tv_show_image))
-        self.poster_label.setScaledContents(True)
+            question_mark_image = QPixmap("../images/question_mark.jpg")
+            #
+            self.poster_label.setPixmap(question_mark_image)
+            self.poster_label.setScaledContents(True)
+        else:
+            tv_show_img_url = 'https://image.tmdb.org/t/p/w500' + tv_show_response['poster_path']
+
+            tv_show_image = QImage()
+            tv_show_image.loadFromData(requests.get(tv_show_img_url).content)
+
+            self.poster_label.setPixmap(QPixmap(tv_show_image))
+            self.poster_label.setScaledContents(True)
 
     def add_series_dictionary(self, number_of_episodes, vote_average, overview, id):
         # Shallow copies (meaning nested entries are not read) the first season of the show
