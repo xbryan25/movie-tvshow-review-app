@@ -46,7 +46,7 @@ class SearchResultsPage(QMainWindow, SearchResultsPageUI):
                 self.media_result_frame.media_poster.setPixmap(question_mark_image)
 
             else:
-                media_img_url = f'https://image.tmdb.org/t/p/w92/{movie['poster_path']}'
+                media_img_url = f'https://image.tmdb.org/t/p/w154/{movie['poster_path']}'
 
                 media_image = QImage()
                 media_image.loadFromData(requests.get(media_img_url, headers=self.api_headers).content)
@@ -58,7 +58,7 @@ class SearchResultsPage(QMainWindow, SearchResultsPageUI):
             else:
                 self.media_result_frame.media_release_year.setText((movie['release_date'].split('-'))[0])
 
-            self.media_result_frame.media_type.setText("Movie")
+            self.media_result_frame.media_type_label.setText("Movie")
             self.media_result_frame.media_short_info.setText("???")
 
             self.verticalLayout_2.addWidget(self.media_result_frame)
@@ -88,7 +88,7 @@ class SearchResultsPage(QMainWindow, SearchResultsPageUI):
                 self.media_result_frame.media_poster.setPixmap(question_mark_image)
                 # self.media_result_frame.media_title.setText(tv_show['name'])
             else:
-                media_img_url = f'https://image.tmdb.org/t/p/w92/{tv_show['poster_path']}'
+                media_img_url = f'https://image.tmdb.org/t/p/w154/{tv_show['poster_path']}'
 
                 media_image = QImage()
                 media_image.loadFromData(requests.get(media_img_url, headers=self.api_headers).content)
@@ -101,7 +101,7 @@ class SearchResultsPage(QMainWindow, SearchResultsPageUI):
             else:
                 self.media_result_frame.media_release_year.setText((tv_show['first_air_date'].split('-'))[0])
 
-            self.media_result_frame.media_type.setText("TV Show")
+            self.media_result_frame.media_type_label.setText("TV Show")
             self.media_result_frame.media_short_info.setText("???")
 
             self.verticalLayout_2.addWidget(self.media_result_frame)

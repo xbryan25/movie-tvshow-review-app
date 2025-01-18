@@ -15,7 +15,7 @@ import json
 
 
 class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
-    def __init__(self, media_id, media_type, account_id):
+    def __init__(self, media_id, account_id):
         super().__init__()
 
         self.api_headers = {
@@ -24,7 +24,6 @@ class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
         }
 
         self.media_id = media_id
-        self.media_type = media_type
         self.account_id = account_id
 
         # To be overwritten later
@@ -87,7 +86,7 @@ class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
         self.director_label.setText("Directed by: " + self.get_directors(movie_url))
         self.genres_label.setText("Genres: " + movie_genres)
 
-        if not movie['poster_path']:
+        if not movie_response['poster_path']:
             question_mark_image = QPixmap("../images/question_mark.jpg")
             #
             self.poster_label.setPixmap(question_mark_image)
@@ -106,48 +105,27 @@ class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
         connection = sqlite3.connect('database\\accounts.db')
         cursor = connection.cursor()
 
-        if self.media_type == "movie":
-            liked_movies = json.loads(
-                cursor.execute("""SELECT liked_movies FROM liked_media WHERE account_id=(:account_id)""",
-                               {"account_id": self.account_id}).fetchone()[0])
-            if self.media_id in liked_movies:
-                self.add_to_liked_button.setText("Remove from Liked")
+        liked_movies = json.loads(
+            cursor.execute("""SELECT liked_movies FROM liked_media WHERE account_id=(:account_id)""",
+                           {"account_id": self.account_id}).fetchone()[0])
+        if self.media_id in liked_movies:
+            self.add_to_liked_button.setText("Remove from Liked")
 
-                self.add_to_liked_state = "clicked"
-
-        else:
-            liked_tv_shows = json.loads(
-                cursor.execute("""SELECT liked_tv_shows FROM liked_media WHERE account_id=(:account_id)""",
-                               {"account_id": self.account_id}).fetchone()[0])
-
-            if self.media_id in liked_tv_shows:
-                self.add_to_liked_button.setText("Remove from Liked")
-
-                self.add_to_liked_state = "clicked"
+            self.add_to_liked_state = "clicked"
 
     def set_watchlist_button_state(self):
         connection = sqlite3.connect('database\\accounts.db')
         cursor = connection.cursor()
 
-        if self.media_type == "movie":
-            movies_to_watch = json.loads(
-                cursor.execute("""SELECT movies_to_watch FROM media_to_watch WHERE account_id=(:account_id)""",
-                               {"account_id": self.account_id}).fetchone()[0])
+        movies_to_watch = json.loads(
+            cursor.execute("""SELECT movies_to_watch FROM media_to_watch WHERE account_id=(:account_id)""",
+                           {"account_id": self.account_id}).fetchone()[0])
 
-            if self.media_id in movies_to_watch:
-                self.add_to_watchlist_button.setText("Remove from Watchlist")
+        if self.media_id in movies_to_watch:
+            self.add_to_watchlist_button.setText("Remove from Watchlist")
 
-                self.add_to_watchlist_state = "clicked"
+            self.add_to_watchlist_state = "clicked"
 
-        else:
-            tv_shows_to_watch = json.loads(
-                cursor.execute("""SELECT tv_shows_to_watch FROM media_to_watch WHERE account_id=(:account_id)""",
-                               {"account_id": self.account_id}).fetchone()[0])
-
-            if self.media_id in tv_shows_to_watch:
-                self.add_to_watchlist_button.setText("Remove from Watchlist")
-
-                self.add_to_watchlist_state = "clicked"
 
     def set_review_button_state(self):
         connection = sqlite3.connect('database\\accounts.db')
@@ -222,7 +200,7 @@ class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
         if self.add_to_liked_state == "not clicked":
             self.add_to_liked_button.setText("Remove from Liked")
 
-            if self.media_type == "movie" and self.media_id not in liked_movies:
+            if self.media_id not in liked_movies:
                 liked_movies.append(self.media_id)
 
                 # Converts the list into a json
@@ -231,20 +209,11 @@ class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
                 cursor.execute("""UPDATE liked_media SET liked_movies=(:liked_movies) WHERE account_id=(:account_id)""",
                                {"liked_movies": liked_movies_json, "account_id": self.account_id})
 
-            if self.media_type == "tv" and self.media_id not in liked_tv_shows:
-                liked_tv_shows.append(self.media_id)
-
-                # Converts the list into a json
-                liked_tv_shows_json = json.dumps(liked_tv_shows)
-
-                cursor.execute("""UPDATE liked_media SET liked_tv_shows=(:liked_tv_shows) WHERE account_id=(:account_id)""",
-                               {"liked_tv_shows": liked_tv_shows_json, "account_id": self.account_id})
-
             self.add_to_liked_state = "clicked"
         else:
             self.add_to_liked_button.setText("Add to Liked")
 
-            if self.media_type == "movie" and self.media_id in liked_movies:
+            if self.media_id in liked_movies:
                 liked_movies.pop(liked_movies.index(self.media_id))
 
                 # Converts the list into a json
@@ -252,15 +221,6 @@ class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
 
                 cursor.execute("""UPDATE liked_media SET liked_movies=(:liked_movies) WHERE account_id=(:account_id)""",
                                {"liked_movies": liked_movies_json, "account_id": self.account_id})
-
-            if self.media_type == "tv" and self.media_id in liked_tv_shows:
-                liked_tv_shows.pop(liked_tv_shows.index(self.media_id))
-
-                # Converts the list into a json
-                liked_tv_shows_json = json.dumps(liked_tv_shows)
-
-                cursor.execute("""UPDATE liked_media SET liked_tv_shows=(:liked_tv_shows) WHERE account_id=(:account_id)""",
-                               {"liked_tv_shows": liked_tv_shows_json, "account_id": self.account_id})
 
             self.add_to_liked_state = "not clicked"
 
@@ -282,7 +242,7 @@ class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
         if self.add_to_watchlist_state == "not clicked":
             self.add_to_watchlist_button.setText("Remove from Watchlist")
 
-            if self.media_type == "movie" and self.media_id not in movies_to_watch:
+            if self.media_id not in movies_to_watch:
                 movies_to_watch.append(self.media_id)
 
                 # Converts the list into a json
@@ -291,21 +251,11 @@ class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
                 cursor.execute("""UPDATE media_to_watch SET movies_to_watch=(:movies_to_watch) WHERE account_id=(:account_id)""",
                                {"movies_to_watch": movies_to_watch_json, "account_id": self.account_id})
 
-            if self.media_type == "tv" and self.media_id not in tv_shows_to_watch:
-                tv_shows_to_watch.append(self.media_id)
-
-                # Converts the list into a json
-                tv_shows_to_watch_json = json.dumps(tv_shows_to_watch)
-
-                cursor.execute(
-                    """UPDATE media_to_watch SET tv_shows_to_watch=(:tv_shows_to_watch) WHERE account_id=(:account_id)""",
-                    {"tv_shows_to_watch": tv_shows_to_watch_json, "account_id": self.account_id})
-
             self.add_to_watchlist_state = "clicked"
         else:
             self.add_to_watchlist_button.setText("Add to Watchlist")
 
-            if self.media_type == "movie" and self.media_id in movies_to_watch:
+            if self.media_id in movies_to_watch:
                 movies_to_watch.pop(movies_to_watch.index(self.media_id))
 
                 # Converts the list into a json
@@ -313,16 +263,6 @@ class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
 
                 cursor.execute("""UPDATE media_to_watch SET movies_to_watch=(:movies_to_watch) WHERE account_id=(:account_id)""",
                                {"movies_to_watch": movies_to_watch_json, "account_id": self.account_id})
-
-            if self.media_type == "tv" and self.media_id in tv_shows_to_watch:
-                tv_shows_to_watch.pop(tv_shows_to_watch.index(self.media_id))
-
-                # Converts the list into a json
-                tv_shows_to_watch_json = json.dumps(tv_shows_to_watch)
-
-                cursor.execute(
-                    """UPDATE media_to_watch SET tv_shows_to_watch=(:tv_shows_to_watch) WHERE account_id=(:account_id)""",
-                    {"tv_shows_to_watch": tv_shows_to_watch_json, "account_id": self.account_id})
 
             self.add_to_watchlist_state = "not clicked"
 

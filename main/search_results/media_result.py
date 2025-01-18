@@ -30,14 +30,14 @@ class MediaResult(QFrame):
         self.gridLayout = QGridLayout(self)
         self.gridLayout.setObjectName("gridLayout")
 
-        self.media_type = QLabel(parent=self)
-        self.media_type.setMaximumSize(QSize(100, 16777215))
+        self.media_type_label = QLabel(parent=self)
+        self.media_type_label.setMaximumSize(QSize(100, 16777215))
         font = QFont()
         font.setFamily("Oswald")
         font.setPointSize(10)
-        self.media_type.setFont(font)
-        self.media_type.setObjectName("media_type")
-        self.gridLayout.addWidget(self.media_type, 2, 3, 1, 1)
+        self.media_type_label.setFont(font)
+        self.media_type_label.setObjectName("media_type")
+        self.gridLayout.addWidget(self.media_type_label, 2, 3, 1, 1)
 
         spacerItem = QSpacerItem(10, 20, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum)
         self.gridLayout.addItem(spacerItem, 0, 0, 1, 1)
@@ -88,7 +88,7 @@ class MediaResult(QFrame):
         # print(self.title)
 
         if self.media_type == "movie":
-            self.about_title_movie_page = AboutTitleMoviePage(self.media_id, self.media_type, self.account_id)
+            self.about_title_movie_page = AboutTitleMoviePage(self.media_id, self.account_id)
             self.about_title_movie_page.show()
         else:
             self.about_title_tv_show_page = AboutTitleTvShowPage(self.media_id, self.account_id)
