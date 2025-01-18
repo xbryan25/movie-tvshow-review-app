@@ -83,8 +83,16 @@ class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
         self.year_label.setText(str(movie_release_year))
         self.general_stars_label.setText(str(movie_vote_average))
         self.synopsis_label.setText(movie_overview)
-        self.director_label.setText("Directed by: " + self.get_directors(movie_url))
         self.genres_label.setText("Genres: " + movie_genres)
+
+        movie_directors = self.get_directors(movie_url)
+
+        if len(movie_directors) >= 3:
+            # Only get the two first directors then add ", etc."
+            self.director_label.setText(
+                    f"Directed by: {", ".join(movie_directors[:2])}, etc.")
+        else:
+            self.director_label.setText(f"Directed by: {", ".join(movie_directors)}")
 
         if not movie_response['poster_path']:
             question_mark_image = QPixmap("../images/question_mark.jpg")
@@ -147,13 +155,13 @@ class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
         movie_credits_url = movie_url + "/credits?language=en-US"
         movie_credits_response = requests.get(movie_credits_url, headers=self.api_headers).json()
 
-        directors = []
+        movie_directors = []
 
         for crew_member in movie_credits_response['crew']:
             if crew_member['job'] == 'Director':
-                directors.append(crew_member['name'])
+                movie_directors.append(crew_member['name'])
 
-        return ', '.join(directors)
+        return movie_directors
 
     def get_genres(self, genres_list):
         genres = []
