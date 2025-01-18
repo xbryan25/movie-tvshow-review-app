@@ -132,7 +132,7 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
         self.seasons.insert(0, series_dictionary)
 
     def set_liked_button_state(self):
-        connection = sqlite3.connect('database\\accounts.db')
+        connection = sqlite3.connect('../database\\accounts.db')
         cursor = connection.cursor()
 
         liked_tv_shows = json.loads(
@@ -145,7 +145,7 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
             self.add_to_liked_state = "clicked"
 
     def set_watchlist_button_state(self):
-        connection = sqlite3.connect('database\\accounts.db')
+        connection = sqlite3.connect('../database\\accounts.db')
         cursor = connection.cursor()
 
         tv_shows_to_watch = json.loads(
@@ -222,7 +222,7 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
             self.star_label.setText(f"Own rating: {star_slider_value: .0f} stars")
 
     def add_to_liked(self):
-        connection = sqlite3.connect('database\\accounts.db')
+        connection = sqlite3.connect('../database\\accounts.db')
         cursor = connection.cursor()
 
         # Same thing with the liked_tv_shows_column
@@ -260,7 +260,7 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
         connection.close()
 
     def add_to_watchlist(self):
-        connection = sqlite3.connect('database\\accounts.db')
+        connection = sqlite3.connect('../database\\accounts.db')
         cursor = connection.cursor()
 
         tv_shows_to_watch = json.loads(

@@ -55,7 +55,7 @@ class LoginPage(QMainWindow, LoginPageUI):
         signup_dialog.exec()
 
     def make_new_account(self, signup_dialog):
-        connection = sqlite3.connect('database\\accounts.db')
+        connection = sqlite3.connect('../database\\accounts.db')
         cursor = connection.cursor()
 
         # TODO: Trim the leading and trailing spaces before checking each field
@@ -172,7 +172,7 @@ class LoginPage(QMainWindow, LoginPageUI):
 
     # TODO: Rename this function
     def check_if_account_exists(self):
-        connection = sqlite3.connect('database\\accounts.db')
+        connection = sqlite3.connect('../database\\accounts.db')
         cursor = connection.cursor()
 
         all_accounts_username_password = cursor.execute("SELECT username, password FROM accounts").fetchall()

@@ -29,7 +29,7 @@ class TvShowReview(QMainWindow, MediaReviewUI):
         self.save_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
 
     def show_old_review(self):
-        connection = sqlite3.connect('database\\accounts.db')
+        connection = sqlite3.connect('../database\\accounts.db')
         cursor = connection.cursor()
 
         current_season = self.clicked_season
@@ -52,7 +52,7 @@ class TvShowReview(QMainWindow, MediaReviewUI):
         connection.close()
 
     def add_review(self):
-        connection = sqlite3.connect('database\\accounts.db')
+        connection = sqlite3.connect('../database\\accounts.db')
         cursor = connection.cursor()
 
         current_season = self.clicked_season

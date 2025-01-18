@@ -28,7 +28,7 @@ class MovieReview(QMainWindow, MediaReviewUI):
         self.save_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
 
     def show_old_review(self):
-        connection = sqlite3.connect('database\\accounts.db')
+        connection = sqlite3.connect('../database\\accounts.db')
         cursor = connection.cursor()
 
         movie_reviews = json.loads(
@@ -41,7 +41,7 @@ class MovieReview(QMainWindow, MediaReviewUI):
             self.review_plain_text.setPlainText(movie_reviews[self.media_id])
 
     def add_review(self):
-        connection = sqlite3.connect('database\\accounts.db')
+        connection = sqlite3.connect('../database\\accounts.db')
         cursor = connection.cursor()
 
         movie_reviews = json.loads(cursor.execute("""SELECT movie_reviews FROM reviews WHERE account_id=(:account_id)""",

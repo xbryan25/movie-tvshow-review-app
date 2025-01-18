@@ -5,7 +5,7 @@ import sqlite3
 # TODO: Add pointing hand cursor to every interactable
 
 def main():
-    connection = sqlite3.connect('database\\accounts.db')
+    connection = sqlite3.connect('../database\\accounts.db')
     cursor = connection.cursor()
 
     cursor.execute("""SELECT name FROM sqlite_master WHERE type='table' AND name='accounts'""")
@@ -44,6 +44,13 @@ def main():
                                             tv_show_reviews TEXT,
                                             FOREIGN KEY(account_id) REFERENCES accounts(account_id)
                                         )""")
+
+        cursor.execute("""CREATE TABLE own_ratings_for_media (
+                                                    account_id INTEGER,
+                                                    movie_own_ratings TEXT,
+                                                    tv_show_own_ratings TEXT,
+                                                    FOREIGN KEY(account_id) REFERENCES accounts(account_id)
+                                                )""")
 
     # cursor.execute("INSERT INTO accounts VALUES ('admin','123')")
 

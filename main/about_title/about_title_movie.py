@@ -23,7 +23,7 @@ class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
             "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3N2Y0OWMyYmEyNmUxN2ZjMDkyY2VkYmQ2M2ZiZWIzNiIsIm5iZiI6MTczMjE2NjEzOS4wNDMzNTc0LCJzdWIiOiI2NzNlYzE5NzQ2NTQxYmJjZDM3OWNmZTYiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.j9GlO1y5TXH6iexR69tp03m39ScK9-CoKdjbkfVBqJY"
         }
 
-        self.media_id = media_id
+        self.media_id = str(media_id)
         self.account_id = account_id
 
         # To be overwritten later
@@ -53,13 +53,7 @@ class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
 
         self.add_review_button.clicked.connect(self.add_review_movie)
 
-        self.set_pointing_hand_cursor_to_interactables()
-
-    def set_pointing_hand_cursor_to_interactables(self):
-        self.add_to_liked_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        self.add_to_watchlist_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        self.star_slider.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        self.add_review_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.save_rating_button.clicked.connect(self.save_rating)
 
     def load_contents(self):
         movie_url = f"https://api.themoviedb.org/3/movie/{self.media_id}"
@@ -110,7 +104,7 @@ class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
 
 
     def set_liked_button_state(self):
-        connection = sqlite3.connect('database\\accounts.db')
+        connection = sqlite3.connect('../database\\accounts.db')
         cursor = connection.cursor()
 
         liked_movies = json.loads(
@@ -122,7 +116,7 @@ class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
             self.add_to_liked_state = "clicked"
 
     def set_watchlist_button_state(self):
-        connection = sqlite3.connect('database\\accounts.db')
+        connection = sqlite3.connect('../database\\accounts.db')
         cursor = connection.cursor()
 
         movies_to_watch = json.loads(
@@ -136,7 +130,7 @@ class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
 
 
     def set_review_button_state(self):
-        connection = sqlite3.connect('database\\accounts.db')
+        connection = sqlite3.connect('../database\\accounts.db')
         cursor = connection.cursor()
 
         movie_reviews = json.loads(
@@ -182,7 +176,7 @@ class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
             self.star_label.setText(f"Own rating: {star_slider_value: .0f} stars")
 
     def add_to_liked(self):
-        connection = sqlite3.connect('database\\accounts.db')
+        connection = sqlite3.connect('../database\\accounts.db')
         cursor = connection.cursor()
 
         # # Check if row with account_id exists in liked_media table
@@ -199,10 +193,6 @@ class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
 
         # Reads the json in liked_movies column, converts it into a list
         liked_movies = json.loads(cursor.execute("""SELECT liked_movies FROM liked_media WHERE account_id=(:account_id)""",
-                                      {"account_id": self.account_id}).fetchone()[0])
-
-        # Same thing with the liked_tv_shows_column
-        liked_tv_shows = json.loads(cursor.execute("""SELECT liked_tv_shows FROM liked_media WHERE account_id=(:account_id)""",
                                       {"account_id": self.account_id}).fetchone()[0])
 
         if self.add_to_liked_state == "not clicked":
@@ -236,15 +226,11 @@ class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
         connection.close()
 
     def add_to_watchlist(self):
-        connection = sqlite3.connect('database\\accounts.db')
+        connection = sqlite3.connect('../database\\accounts.db')
         cursor = connection.cursor()
 
         movies_to_watch = json.loads(
             cursor.execute("""SELECT movies_to_watch FROM media_to_watch WHERE account_id=(:account_id)""",
-                           {"account_id": self.account_id}).fetchone()[0])
-
-        tv_shows_to_watch = json.loads(
-            cursor.execute("""SELECT tv_shows_to_watch FROM media_to_watch WHERE account_id=(:account_id)""",
                            {"account_id": self.account_id}).fetchone()[0])
 
         if self.add_to_watchlist_state == "not clicked":
@@ -283,5 +269,32 @@ class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
         self.movie_review.title_label.setText(self.media_title)
 
         self.movie_review.show()
+
+    def save_rating(self):
+        connection = sqlite3.connect('../database\\accounts.db')
+        cursor = connection.cursor()
+
+        movies_and_ratings = json.loads(cursor.execute("""SELECT movie_own_ratings FROM own_ratings_for_media 
+                                        WHERE account_id=(:account_id)""",
+                                      {"account_id": self.account_id}).fetchone()[0])
+
+        rated_movies = movies_and_ratings.keys()
+
+        if self.media_id not in rated_movies:
+            movies_and_ratings.update({self.media_id: round(self.star_slider.value()/2, 1)})
+        else:
+            movies_and_ratings[self.media_id] = round(self.star_slider.value()/2, 1)
+
+        movies_and_ratings_json = json.dumps(movies_and_ratings)
+        cursor.execute("""UPDATE own_ratings_for_media SET movie_own_ratings=(:movie_own_ratings) WHERE
+                                      account_id=(:account_id)""",
+                       {"movie_own_ratings": movies_and_ratings_json, "account_id": self.account_id})
+
+        print("Rating saved successfully!")
+
+        connection.commit()
+        connection.close()
+
+
     # def split_title(self):
     #     return '+'.join(self.title.split())

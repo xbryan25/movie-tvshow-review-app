@@ -6,12 +6,13 @@ class InitializeAccount:
         self.account_id = account_id
 
     def initialize(self):
+        self.initialize_liked_media_table()
         self.initialize_to_watch_media_table()
         self.initialize_reviews_table()
-        self.initialize_liked_media_table()
+        self.initialize_own_ratings_for_media_table()
 
     def initialize_liked_media_table(self):
-        connection = sqlite3.connect('database\\accounts.db')
+        connection = sqlite3.connect('../database\\accounts.db')
         cursor = connection.cursor()
 
         # Check if row with account_id exists in liked_media table
@@ -30,7 +31,7 @@ class InitializeAccount:
         connection.close()
 
     def initialize_to_watch_media_table(self):
-        connection = sqlite3.connect('database\\accounts.db')
+        connection = sqlite3.connect('../database\\accounts.db')
         cursor = connection.cursor()
 
         # Check if row with account_id exists in liked_media table
@@ -49,7 +50,7 @@ class InitializeAccount:
         connection.close()
 
     def initialize_reviews_table(self):
-        connection = sqlite3.connect('database\\accounts.db')
+        connection = sqlite3.connect('../database\\accounts.db')
         cursor = connection.cursor()
 
         # Check if row with account_id exists in liked_media table
@@ -71,6 +72,29 @@ class InitializeAccount:
             cursor.execute("""INSERT INTO reviews VALUES (:account_id, :movie_reviews, :tv_show_reviews)""",
                            {"account_id": self.account_id, "movie_reviews": movie_reviews_json_placeholder,
                             "tv_show_reviews": tv_show_reviews_json_placeholder})
+
+        connection.commit()
+        connection.close()
+
+    def initialize_own_ratings_for_media_table(self):
+        connection = sqlite3.connect('../database\\accounts.db')
+        cursor = connection.cursor()
+
+        # Check if row with account_id exists in own_ratings_for_media table
+        does_row_with_account_id_exist = cursor.execute(
+            """SELECT * FROM own_ratings_for_media WHERE account_id=(:account_id)""",
+            {"account_id": self.account_id}).fetchone()
+
+        if not does_row_with_account_id_exist:
+            movie_own_ratings_json_placeholder = json.dumps({})
+
+            tv_show_own_ratings_json_placeholder = json.dumps({})
+
+            cursor.execute("""INSERT INTO own_ratings_for_media VALUES (:account_id, :movie_own_ratings, 
+                            :tv_show_own_ratings)""",
+                           {"account_id": self.account_id,
+                            "movie_own_ratings": movie_own_ratings_json_placeholder,
+                            "tv_show_own_ratings": tv_show_own_ratings_json_placeholder})
 
         connection.commit()
         connection.close()
