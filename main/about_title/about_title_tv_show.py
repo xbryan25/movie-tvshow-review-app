@@ -101,7 +101,7 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
         self.director_label.setText("-")
         self.genres_label.setText("Genres: " + tv_show_genres)
 
-        self.get_directors()
+        self.get_directors(type_of_get_directors="preview")
 
         if not tv_show_response['poster_path']:
 
@@ -177,7 +177,7 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
         # connection.commit()
         # connection.close()
 
-    def get_directors(self):
+    def get_directors(self, type_of_get_directors):
         # Make a copy of self.seasons but without the series, which is the first element
 
         seasons_without_series = list(self.seasons[1:])
@@ -201,6 +201,7 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
 
             self.directors.update({season['name']: season_directors})
             print("director traversal")
+
 
     def get_genres(self, genres_list):
         genres = []
@@ -353,6 +354,10 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
         elif not self.directors[self.seasons[season_index]['name']]:
             # If director list is empty
             self.director_label.setText("Unknown")
+        elif len(self.directors[self.seasons[season_index]['name']]) >= 3:
+            # Only get the two first directors then add ", etc."
+            self.director_label.setText(
+                    f"Directed by: {", ".join(self.directors[self.seasons[season_index]['name']][:2])}, etc.")
         else:
             self.director_label.setText(f"Directed by: {", ".join(self.directors[self.seasons[season_index]['name']])}")
 
