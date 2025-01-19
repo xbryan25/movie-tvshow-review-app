@@ -45,7 +45,9 @@ class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
         self.set_watchlist_button_state()
         self.set_review_button_state()
 
-        self.star_slider.valueChanged.connect(self.change_own_rating_slider)
+        self.load_old_rating()
+
+        self.star_slider.valueChanged.connect(lambda: self.change_own_rating_slider())
 
         self.add_to_liked_button.clicked.connect(self.add_to_liked)
 
@@ -165,15 +167,28 @@ class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
 
         return ', '.join(genres)
 
-    def change_own_rating_slider(self):
-        star_slider_value = round(self.star_slider.value()/2, 1)
+    def change_own_rating_slider(self, old_rating=None):
+        if not old_rating:
+            star_slider_value = round(self.star_slider.value()/2, 1)
 
-        temp = list(str(star_slider_value))
+            temp = list(str(star_slider_value))
 
-        if temp[2] == '5':
-            self.star_label.setText(f"Own rating: {star_slider_value: .1f} stars")
-        else:
-            self.star_label.setText(f"Own rating: {star_slider_value: .0f} stars")
+            if temp[2] == '5':
+                self.star_label.setText(f"Own rating: {star_slider_value: .1f} stars")
+            else:
+                self.star_label.setText(f"Own rating: {star_slider_value: .0f} stars")
+
+        elif old_rating:
+            self.star_slider.setSliderPosition(int(old_rating * 2))
+
+            temp = list(str(old_rating))
+
+            if temp[2] == '5':
+                self.star_label.setText(f"Own rating: {old_rating: .1f} stars")
+            else:
+                self.star_label.setText(f"Own rating: {old_rating: .0f} stars")
+
+
 
     def add_to_liked(self):
         connection = sqlite3.connect('../database\\accounts.db')
@@ -294,6 +309,23 @@ class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
 
         connection.commit()
         connection.close()
+
+    def load_old_rating(self):
+        connection = sqlite3.connect('../database\\accounts.db')
+        cursor = connection.cursor()
+
+        movies_and_ratings = json.loads(cursor.execute("""SELECT movie_own_ratings FROM own_ratings_for_media 
+                                                WHERE account_id=(:account_id)""",
+                                                       {"account_id": self.account_id}).fetchone()[0])
+
+        rated_movies = movies_and_ratings.keys()
+
+        if self.media_id in rated_movies:
+            self.change_own_rating_slider(old_rating=movies_and_ratings[self.media_id])
+
+        connection.commit()
+        connection.close()
+
 
 
     # def split_title(self):
