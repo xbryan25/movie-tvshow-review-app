@@ -197,6 +197,12 @@ padding: 10px;</string>
        </item>
        <item row="6" column="1" colspan="2">
         <widget class="QScrollArea" name="season_buttons_scroll_area">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>50</height>
+          </size>
+         </property>
          <property name="maximumSize">
           <size>
            <width>16777215</width>
@@ -240,18 +246,24 @@ QScrollBar::handle:horizontal:pressed{
          <widget class="QWidget" name="season_buttons_scroll_area_widget_contents">
           <property name="geometry">
            <rect>
-            <x>0</x>
+            <x>-441</x>
             <y>0</y>
-            <width>577</width>
-            <height>50</height>
+            <width>1018</width>
+            <height>45</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="seasons_buttons_grid">
            <item row="0" column="0">
             <widget class="QPushButton" name="temp_button">
+             <property name="minimumSize">
+              <size>
+               <width>1000</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="maximumSize">
               <size>
-               <width>150</width>
+               <width>5000</width>
                <height>27</height>
               </size>
              </property>
@@ -260,6 +272,9 @@ QScrollBar::handle:horizontal:pressed{
                <family>Oswald</family>
                <pointsize>10</pointsize>
               </font>
+             </property>
+             <property name="cursor">
+              <cursorShape>PointingHandCursor</cursorShape>
              </property>
              <property name="text">
               <string>Season 1</string>
@@ -325,6 +340,12 @@ QScrollBar::handle:horizontal:pressed{
     </item>
     <item row="1" column="0">
      <widget class="QWidget" name="user_input_widget" native="true">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>100</height>
+       </size>
+      </property>
       <property name="maximumSize">
        <size>
         <width>16777215</width>
@@ -348,6 +369,9 @@ QScrollBar::handle:horizontal:pressed{
            <family>Oswald</family>
            <pointsize>10</pointsize>
           </font>
+         </property>
+         <property name="cursor">
+          <cursorShape>PointingHandCursor</cursorShape>
          </property>
          <property name="text">
           <string>Add to Liked</string>
@@ -374,6 +398,9 @@ QScrollBar::handle:horizontal:pressed{
            <pointsize>10</pointsize>
           </font>
          </property>
+         <property name="cursor">
+          <cursorShape>PointingHandCursor</cursorShape>
+         </property>
          <property name="text">
           <string>Add to Watchlist</string>
          </property>
@@ -381,11 +408,20 @@ QScrollBar::handle:horizontal:pressed{
        </item>
        <item>
         <widget class="QWidget" name="give_rating" native="true">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>90</height>
+          </size>
+         </property>
          <property name="maximumSize">
           <size>
            <width>250</width>
-           <height>16777215</height>
+           <height>90</height>
           </size>
+         </property>
+         <property name="cursor">
+          <cursorShape>ArrowCursor</cursorShape>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <property name="spacing">
@@ -394,15 +430,27 @@ QScrollBar::handle:horizontal:pressed{
           <property name="leftMargin">
            <number>20</number>
           </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
           <property name="rightMargin">
            <number>20</number>
           </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
           <item>
            <widget class="QLabel" name="star_label">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>20</height>
+             </size>
+            </property>
             <property name="maximumSize">
              <size>
               <width>16777215</width>
-              <height>50</height>
+              <height>20</height>
              </size>
             </property>
             <property name="font">
@@ -424,11 +472,20 @@ QScrollBar::handle:horizontal:pressed{
           </item>
           <item>
            <widget class="QSlider" name="star_slider">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>15</height>
+             </size>
+            </property>
             <property name="maximumSize">
              <size>
               <width>16777215</width>
-              <height>16777215</height>
+              <height>15</height>
              </size>
+            </property>
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
             </property>
             <property name="maximum">
              <number>10</number>
@@ -459,6 +516,34 @@ QScrollBar::handle:horizontal:pressed{
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QPushButton" name="save_rating_button">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>25</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>25</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <family>Oswald</family>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="text">
+             <string>Save Rating</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
@@ -481,6 +566,9 @@ QScrollBar::handle:horizontal:pressed{
            <family>Oswald</family>
            <pointsize>10</pointsize>
           </font>
+         </property>
+         <property name="cursor">
+          <cursorShape>PointingHandCursor</cursorShape>
          </property>
          <property name="text">
           <string>Review</string>

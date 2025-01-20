@@ -24,7 +24,7 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
             "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3N2Y0OWMyYmEyNmUxN2ZjMDkyY2VkYmQ2M2ZiZWIzNiIsIm5iZiI6MTczMjE2NjEzOS4wNDMzNTc0LCJzdWIiOiI2NzNlYzE5NzQ2NTQxYmJjZDM3OWNmZTYiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.j9GlO1y5TXH6iexR69tp03m39ScK9-CoKdjbkfVBqJY"
         }
 
-        self.media_id = media_id
+        self.media_id = str(media_id)
         self.account_id = account_id
 
         # To be overwritten later
@@ -47,13 +47,15 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
 
         self.load_contents()
 
+        self.load_old_rating()
+
         self.set_liked_button_state()
         self.set_watchlist_button_state()
         self.set_review_button_state()
 
         self.load_season_buttons()
 
-        self.star_slider.valueChanged.connect(self.change_own_rating_slider)
+        self.star_slider.valueChanged.connect(lambda: self.change_own_rating_slider())
 
         self.add_to_liked_button.clicked.connect(self.add_to_liked)
 
@@ -61,19 +63,21 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
 
         self.add_review_button.clicked.connect(self.add_review_season)
 
-        self.set_pointing_hand_cursor_to_interactables()
+        self.save_rating_button.clicked.connect(self.save_rating)
 
-    def set_pointing_hand_cursor_to_interactables(self):
-        self.add_to_liked_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        self.add_to_watchlist_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        self.star_slider.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        self.add_review_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        self.season_buttons_scroll_area.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-
-        season_buttons = self.season_buttons_scroll_area_widget_contents.findChildren(QPushButton)
-
-        for season_button in season_buttons:
-            season_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+    #     self.set_pointing_hand_cursor_to_interactables()
+    #
+    # def set_pointing_hand_cursor_to_interactables(self):
+    #     self.add_to_liked_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+    #     self.add_to_watchlist_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+    #     self.star_slider.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+    #     self.add_review_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+    #     self.season_buttons_scroll_area.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+    #
+    #     season_buttons = self.season_buttons_scroll_area_widget_contents.findChildren(QPushButton)
+    #
+    #     for season_button in season_buttons:
+    #         season_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
 
     def load_contents(self):
         tv_show_url = f"https://api.themoviedb.org/3/tv/{self.media_id}"
@@ -211,15 +215,26 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
 
         return ', '.join(genres)
 
-    def change_own_rating_slider(self):
-        star_slider_value = round(self.star_slider.value()/2, 1)
+    def change_own_rating_slider(self, old_rating=None):
+        if not old_rating:
+            star_slider_value = round(self.star_slider.value() / 2, 1)
 
-        temp = list(str(star_slider_value))
+            temp = list(str(star_slider_value))
 
-        if temp[2] == '5':
-            self.star_label.setText(f"Own rating: {star_slider_value: .1f} stars")
-        else:
-            self.star_label.setText(f"Own rating: {star_slider_value: .0f} stars")
+            if temp[2] == '5':
+                self.star_label.setText(f"Own rating: {star_slider_value: .1f} stars")
+            else:
+                self.star_label.setText(f"Own rating: {star_slider_value: .0f} stars")
+
+        elif old_rating:
+            self.star_slider.setSliderPosition(int(old_rating * 2))
+
+            temp = list(str(old_rating))
+
+            if temp[2] == '5':
+                self.star_label.setText(f"Own rating: {old_rating: .1f} stars")
+            else:
+                self.star_label.setText(f"Own rating: {old_rating: .0f} stars")
 
     def add_to_liked(self):
         connection = sqlite3.connect('../database\\accounts.db')
@@ -307,6 +322,8 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
             self.season_button.setMinimumSize(QSize(250, 25))
             self.season_button.setMaximumSize(QSize(250, 25))
 
+            self.season_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+
             font = QFont()
             font.setFamily("Oswald")
             font.setPointSize(10)
@@ -363,6 +380,8 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
 
         # Overwrite self.clicked_season in __init__
         self.clicked_season = self.seasons[season_index]['name']
+
+        self.load_old_rating()
         print(self.clicked_season)
 
         # print(self.seasons[season_index])
@@ -379,5 +398,56 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
         self.tv_show_review.title_label.setText(f"{self.media_title} | {self.clicked_season}")
 
         self.tv_show_review.show()
+
+    def save_rating(self):
+        connection = sqlite3.connect('../database\\accounts.db')
+        cursor = connection.cursor()
+
+        tv_shows_and_ratings = json.loads(cursor.execute("""SELECT tv_show_own_ratings FROM own_ratings_for_media 
+                                        WHERE account_id=(:account_id)""",
+                                      {"account_id": self.account_id}).fetchone()[0])
+
+        rated_tv_shows = tv_shows_and_ratings.keys()
+
+        if self.media_id not in rated_tv_shows:
+            tv_shows_and_ratings.update({self.media_id: {self.clicked_season: round(self.star_slider.value()/2, 1)}})
+        else:
+            rated_seasons = tv_shows_and_ratings[self.media_id].keys()
+
+            if self.clicked_season not in rated_seasons:
+                tv_shows_and_ratings[self.media_id].update({self.clicked_season: round(self.star_slider.value()/2, 1)})
+            else:
+                tv_shows_and_ratings[self.media_id][self.clicked_season] = round(self.star_slider.value()/2, 1)
+
+        tv_shows_and_ratings_json = json.dumps(tv_shows_and_ratings)
+        cursor.execute("""UPDATE own_ratings_for_media SET tv_show_own_ratings=(:tv_show_own_ratings) WHERE
+                                      account_id=(:account_id)""",
+                       {"tv_show_own_ratings":  tv_shows_and_ratings_json, "account_id": self.account_id})
+
+        print(tv_shows_and_ratings)
+
+        connection.commit()
+        connection.close()
+
+    def load_old_rating(self):
+        connection = sqlite3.connect('../database\\accounts.db')
+        cursor = connection.cursor()
+
+        tv_shows_and_ratings = json.loads(cursor.execute("""SELECT tv_show_own_ratings FROM own_ratings_for_media 
+                                                        WHERE account_id=(:account_id)""",
+                                                         {"account_id": self.account_id}).fetchone()[0])
+
+        rated_tv_shows = tv_shows_and_ratings.keys()
+
+        if self.media_id in rated_tv_shows:
+
+            rated_seasons = tv_shows_and_ratings[self.media_id].keys()
+
+            if self.clicked_season in rated_seasons:
+                self.change_own_rating_slider(old_rating=tv_shows_and_ratings[self.media_id][self.clicked_season])
+
+        connection.commit()
+        connection.close()
+
     def split_title(self):
         return '+'.join(self.title.split())
