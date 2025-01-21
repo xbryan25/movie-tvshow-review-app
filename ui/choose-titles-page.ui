@@ -43,7 +43,7 @@
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
-        <spacer name="horizontal_spacer_1">
+        <spacer name="h_spacer_1">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -52,7 +52,7 @@
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>30</width>
+           <width>20</width>
            <height>20</height>
           </size>
          </property>
@@ -67,12 +67,24 @@
           </font>
          </property>
          <property name="text">
-          <string>Search Movie/TV Show by name</string>
+          <string>Search Movie/TV Show </string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QLineEdit" name="search_title_line_edit">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>25</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>25</height>
+          </size>
+         </property>
          <property name="font">
           <font>
            <family>Oswald</family>
@@ -88,7 +100,7 @@
         </widget>
        </item>
        <item>
-        <spacer name="horizontal_spacer_2">
+        <spacer name="h_spacer_2">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -97,14 +109,116 @@
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>75</width>
+           <width>35</width>
            <height>20</height>
           </size>
          </property>
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="view_media_label">
+        <widget class="QPushButton" name="liked_button">
+         <property name="minimumSize">
+          <size>
+           <width>40</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>40</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Oswald</family>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="cursor">
+          <cursorShape>PointingHandCursor</cursorShape>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QPushButton{color: black; border: none; background-color: transparent;}
+QPushButton:hover{color:green}</string>
+         </property>
+         <property name="text">
+          <string>Liked</string>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="h_spacer_3">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="to_watch_button">
+         <property name="minimumSize">
+          <size>
+           <width>60</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>60</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Oswald</family>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="cursor">
+          <cursorShape>PointingHandCursor</cursorShape>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QPushButton{color: black; border: none; background-color: transparent;}
+QPushButton:hover{color:green}</string>
+         </property>
+         <property name="text">
+          <string>To Watch</string>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="h_spacer_4">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="reviewed_button">
          <property name="minimumSize">
           <size>
            <width>0</width>
@@ -125,7 +239,7 @@
 QPushButton:hover{color:green}</string>
          </property>
          <property name="text">
-          <string>View Reviewed Media</string>
+          <string>Reviewed</string>
          </property>
          <property name="default">
           <bool>false</bool>
@@ -136,7 +250,7 @@ QPushButton:hover{color:green}</string>
         </widget>
        </item>
        <item>
-        <spacer name="horizontal_spacer_3">
+        <spacer name="h_spacer_5">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -152,7 +266,7 @@ QPushButton:hover{color:green}</string>
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="members_label">
+        <widget class="QPushButton" name="members_button">
          <property name="minimumSize">
           <size>
            <width>0</width>
@@ -181,7 +295,7 @@ QPushButton:hover{color:green}</string>
         </widget>
        </item>
        <item>
-        <spacer name="horizontal_spacer_4">
+        <spacer name="h_spacer_6">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -197,7 +311,7 @@ QPushButton:hover{color:green}</string>
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="logout_label">
+        <widget class="QPushButton" name="logout_button">
          <property name="minimumSize">
           <size>
            <width>0</width>
@@ -224,6 +338,22 @@ QPushButton:hover{color:green}</string>
           <bool>true</bool>
          </property>
         </widget>
+       </item>
+       <item>
+        <spacer name="h_spacer_7">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </widget>

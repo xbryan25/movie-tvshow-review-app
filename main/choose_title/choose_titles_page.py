@@ -1,4 +1,5 @@
 from main.choose_title.choose_titles_page_design import Ui_MainWindow as ChooseTitlesPageUI
+from main.choose_title.header_buttons.liked_media import LikedMediaPage
 
 from main.choose_title.posters import Poster
 
@@ -59,9 +60,10 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
 
         self.account_id = account_id
 
-        self.input_name_line_edit.returnPressed.connect(lambda: self.open_search_results_page(self.input_name_line_edit.text()))
+        self.search_title_line_edit.returnPressed.connect(lambda: self.open_search_results_page(self.search_title_line_edit.text()))
+        self.liked_button.clicked.connect(self.open_liked_media_page)
 
-        for i in range(4):
+        for i in range(3):
             self.make_more_movie_posters(i)
             self.make_more_tv_show_posters(i)
 
@@ -73,14 +75,18 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
 
         # self.input_name_line_edit.returnPressed.connect(self.print_hello)
 
+    def open_liked_media_page(self):
+        self.liked_media_page = LikedMediaPage(self.account_id)
+        self.liked_media_page.show()
+
     def open_search_results_page(self, media_title):
-        if self.input_name_line_edit.text().strip() == "":
+        if self.search_title_line_edit.text().strip() == "":
             print("The search bar is empty.")
         else:
             self.search_results_page = SearchResultsPage(media_title, self.account_id)
             self.search_results_page.show()
 
-        self.input_name_line_edit.setText("")
+        self.search_title_line_edit.setText("")
 
     def start_load_pictures_thread(self):
         load_pictures_worker = LoadPicturesWorker(self.load_pictures)
@@ -94,6 +100,8 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
         popular_movies_api_url = "https://api.themoviedb.org/3/movie/popular?language=en-US&page=1"
         popular_movies_api_response = requests.get(popular_movies_api_url, headers=self.api_headers)
 
+
+
         popular_tv_shows_api_url = "https://api.themoviedb.org/3/tv/popular?language=en-US&page=1"
         popular_tv_shows_api_response = requests.get(popular_tv_shows_api_url, headers=self.api_headers)
 
@@ -103,7 +111,7 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
 
         # TODO: Add loading screen
 
-        for i in range(4):
+        for i in range(3):
             movie_img_url = 'https://image.tmdb.org/t/p/w342/' + popular_movies_api_response.json()['results'][i][
                 'poster_path']
 
@@ -112,6 +120,7 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
 
             movie_image = QImage()
             movie_image.loadFromData(requests.get(movie_img_url).content)
+            # print("load movie image"/7)
 
             movie_poster_containers[i].setMediaId(movie_id)
             movie_poster_containers[i].setPixmap(QPixmap(movie_image))
@@ -132,8 +141,8 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
             tv_show_poster_containers[i].setPixmap(QPixmap(tv_show_image))
             tv_show_poster_containers[i].show()
 
-            print(f"{((i + 1) / 4) * 100:.2f}")
-            self.loading_screen.loading_progress_bar.setValue(int(((i + 1) / 4) * 100))
+            print(f"{((i + 1) / 3) * 100:.2f}")
+            self.loading_screen.loading_progress_bar.setValue(int(((i + 1) / 3) * 100))
 
         print("Done!")
 

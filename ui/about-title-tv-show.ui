@@ -246,7 +246,7 @@ QScrollBar::handle:horizontal:pressed{
          <widget class="QWidget" name="season_buttons_scroll_area_widget_contents">
           <property name="geometry">
            <rect>
-            <x>-441</x>
+            <x>0</x>
             <y>0</y>
             <width>1018</width>
             <height>45</height>
