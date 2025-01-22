@@ -1,5 +1,6 @@
 from main.choose_title.choose_titles_page_design import Ui_MainWindow as ChooseTitlesPageUI
 from main.choose_title.header_buttons.liked_media import LikedMediaPage
+from main.choose_title.header_buttons.media_to_watch import MediaToWatchPage
 
 from main.choose_title.posters import Poster
 
@@ -62,6 +63,7 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
 
         self.search_title_line_edit.returnPressed.connect(lambda: self.open_search_results_page(self.search_title_line_edit.text()))
         self.liked_button.clicked.connect(self.open_liked_media_page)
+        self.to_watch_button.clicked.connect(self.open_media_to_watch_page)
 
         for i in range(3):
             self.make_more_movie_posters(i)
@@ -78,6 +80,10 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
     def open_liked_media_page(self):
         self.liked_media_page = LikedMediaPage(self.account_id)
         self.liked_media_page.show()
+
+    def open_media_to_watch_page(self):
+        self.media_to_watch_page = MediaToWatchPage(self.account_id)
+        self.media_to_watch_page.show()
 
     def open_search_results_page(self, media_title):
         if self.search_title_line_edit.text().strip() == "":

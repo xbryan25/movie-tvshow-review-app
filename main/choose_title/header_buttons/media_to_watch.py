@@ -1,4 +1,4 @@
-from main.choose_title.header_buttons.lm_and_mtw_design import Ui_MainWindow as LikedMediaUI
+from main.choose_title.header_buttons.lm_and_mtw_design import Ui_MainWindow as MediaToWatchUI
 
 from PyQt6.QtWidgets import QLabel, QFrame, QGridLayout, QSizePolicy, QSpacerItem, QMainWindow
 from PyQt6.QtCore import QRect, QPropertyAnimation
@@ -10,7 +10,7 @@ import json
 import requests
 
 
-class LikedMediaPage(QMainWindow, LikedMediaUI):
+class MediaToWatchPage(QMainWindow, MediaToWatchUI):
     def __init__(self, account_id):
         super().__init__()
 
@@ -27,7 +27,7 @@ class LikedMediaPage(QMainWindow, LikedMediaUI):
         self.get_first_name()
         self.edit_window_title()
 
-        self.load_liked_media()
+        self.load_media_to_watch()
 
     def get_first_name(self):
         connection = sqlite3.connect('../database\\accounts.db')
@@ -40,41 +40,41 @@ class LikedMediaPage(QMainWindow, LikedMediaUI):
         connection.close()
 
     def edit_window_title(self):
-        self.setWindowTitle(f"{self.first_name}'s Liked Media")
-        self.header_label.setText(f"{self.first_name}'s Liked Media")
+        self.setWindowTitle(f"{self.first_name}'s Media to Watch")
+        self.header_label.setText(f"{self.first_name}'s Media to Watch")
 
-    def load_liked_media(self):
+    def load_media_to_watch(self):
         connection = sqlite3.connect('../database\\accounts.db')
         cursor = connection.cursor()
 
-        liked_movies = json.loads(
-            cursor.execute("""SELECT liked_movies FROM liked_media WHERE account_id=(:account_id)""",
+        movies_to_watch = json.loads(
+            cursor.execute("""SELECT movies_to_watch FROM media_to_watch WHERE account_id=(:account_id)""",
                                          {'account_id': self.account_id}).fetchone()[0])
 
-        liked_tv_shows = json.loads(
-            cursor.execute("""SELECT liked_tv_shows FROM liked_media WHERE account_id=(:account_id)""",
+        tv_shows_to_watch = json.loads(
+            cursor.execute("""SELECT tv_shows_to_watch FROM media_to_watch WHERE account_id=(:account_id)""",
                            {'account_id': self.account_id}).fetchone()[0])
 
-        for liked_movie in liked_movies:
-            movie_url = f"https://api.themoviedb.org/3/movie/{liked_movie}"
+        for movie_to_watch in movies_to_watch:
+            movie_url = f"https://api.themoviedb.org/3/movie/{movie_to_watch}"
             movie_response = requests.get(movie_url, headers=self.api_headers).json()
 
             movie_title = movie_response['title']
             movie_release_year = (movie_response['release_date'].split('-'))[0]
             movie_poster_path = movie_response['poster_path']
 
-            self.liked_movie_frame = QFrame(parent=self.movie_scroll_area_contents)
-            self.liked_movie_frame.setMinimumSize(QSize(0, 160))
-            self.liked_movie_frame.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-            self.liked_movie_frame.setStyleSheet("background-color: rgb(13, 249, 249);")
-            self.liked_movie_frame.setFrameShape(QFrame.Shape.StyledPanel)
-            self.liked_movie_frame.setFrameShadow(QFrame.Shadow.Raised)
-            self.liked_movie_frame.setObjectName("liked_movie_frame")
+            self.movie_to_watch_frame = QFrame(parent=self.movie_scroll_area_contents)
+            self.movie_to_watch_frame.setMinimumSize(QSize(0, 160))
+            self.movie_to_watch_frame.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+            self.movie_to_watch_frame.setStyleSheet("background-color: rgb(13, 249, 249);")
+            self.movie_to_watch_frame.setFrameShape(QFrame.Shape.StyledPanel)
+            self.movie_to_watch_frame.setFrameShadow(QFrame.Shadow.Raised)
+            self.movie_to_watch_frame.setObjectName("movie_to_watch_frame")
 
-            self.gridLayout = QGridLayout(self.liked_movie_frame)
+            self.gridLayout = QGridLayout(self.movie_to_watch_frame)
             self.gridLayout.setObjectName("gridLayout")
 
-            self.movie_title = QLabel(parent=self.liked_movie_frame)
+            self.movie_title = QLabel(parent=self.movie_to_watch_frame)
             font = QFont()
             font.setFamily("Oswald")
             font.setPointSize(10)
@@ -83,7 +83,7 @@ class LikedMediaPage(QMainWindow, LikedMediaUI):
             self.movie_title.setText(movie_title)
             self.gridLayout.addWidget(self.movie_title, 0, 2, 1, 1)
 
-            self.movie_poster = QLabel(parent=self.liked_movie_frame)
+            self.movie_poster = QLabel(parent=self.movie_to_watch_frame)
             self.movie_poster.setMinimumSize(QSize(0, 138))
             self.movie_poster.setMaximumSize(QSize(92, 138))
             self.movie_poster.setText("")
@@ -107,7 +107,7 @@ class LikedMediaPage(QMainWindow, LikedMediaUI):
             self.movie_poster.setScaledContents(True)
             self.gridLayout.addWidget(self.movie_poster, 0, 0, 3, 1)
 
-            self.movie_runtime = QLabel(parent=self.liked_movie_frame)
+            self.movie_runtime = QLabel(parent=self.movie_to_watch_frame)
             font = QFont()
             font.setFamily("Oswald")
             font.setPointSize(10)
@@ -115,7 +115,7 @@ class LikedMediaPage(QMainWindow, LikedMediaUI):
             self.movie_runtime.setObjectName("movie_runtime")
             self.gridLayout.addWidget(self.movie_runtime, 2, 2, 1, 1)
 
-            self.movie_year = QLabel(parent=self.liked_movie_frame)
+            self.movie_year = QLabel(parent=self.movie_to_watch_frame)
             font = QFont()
             font.setFamily("Oswald")
             font.setPointSize(10)
@@ -128,14 +128,14 @@ class LikedMediaPage(QMainWindow, LikedMediaUI):
                                                QSizePolicy.Policy.Minimum)
             self.gridLayout.addItem(poster_spacer, 1, 1, 1, 1)
 
-            self.verticalLayout_4.addWidget(self.liked_movie_frame)
+            self.verticalLayout_4.addWidget(self.movie_to_watch_frame)
 
         spacerItem1 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum,
                                             QSizePolicy.Policy.Expanding)
         self.verticalLayout_4.addItem(spacerItem1)
 
-        for liked_tv_show in liked_tv_shows:
-            tv_show_url = f"https://api.themoviedb.org/3/tv/{liked_tv_show}"
+        for tv_show_to_watch in tv_shows_to_watch:
+            tv_show_url = f"https://api.themoviedb.org/3/tv/{tv_show_to_watch}"
             tv_show_response = requests.get(tv_show_url, headers=self.api_headers).json()
 
             # print(tv_show_response)
@@ -144,18 +144,18 @@ class LikedMediaPage(QMainWindow, LikedMediaUI):
             tv_show_release_year = (tv_show_response['first_air_date'].split('-'))[0]
             tv_show_poster = tv_show_response['poster_path']
 
-            self.liked_tv_show_frame = QFrame(parent=self.tv_show_scroll_area_contents)
-            self.liked_tv_show_frame.setMinimumSize(QSize(0, 160))
-            self.liked_tv_show_frame.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-            self.liked_tv_show_frame.setStyleSheet("background-color: rgb(13, 249, 249);")
-            self.liked_tv_show_frame.setFrameShape(QFrame.Shape.StyledPanel)
-            self.liked_tv_show_frame.setFrameShadow(QFrame.Shadow.Raised)
-            self.liked_tv_show_frame.setObjectName("liked_tv_show_frame")
+            self.tv_show_to_watch_frame = QFrame(parent=self.tv_show_scroll_area_contents)
+            self.tv_show_to_watch_frame.setMinimumSize(QSize(0, 160))
+            self.tv_show_to_watch_frame.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+            self.tv_show_to_watch_frame.setStyleSheet("background-color: rgb(13, 249, 249);")
+            self.tv_show_to_watch_frame.setFrameShape(QFrame.Shape.StyledPanel)
+            self.tv_show_to_watch_frame.setFrameShadow(QFrame.Shadow.Raised)
+            self.tv_show_to_watch_frame.setObjectName("tv_show_to_watch_frame")
 
-            self.gridLayout2 = QGridLayout(self.liked_tv_show_frame)
+            self.gridLayout2 = QGridLayout(self.tv_show_to_watch_frame)
             self.gridLayout2.setObjectName("gridLayout2")
 
-            self.tv_show_title = QLabel(parent=self.liked_tv_show_frame)
+            self.tv_show_title = QLabel(parent=self.tv_show_to_watch_frame)
             font = QFont()
             font.setFamily("Oswald")
             font.setPointSize(10)
@@ -164,7 +164,7 @@ class LikedMediaPage(QMainWindow, LikedMediaUI):
             self.tv_show_title.setText(tv_show_title)
             self.gridLayout2.addWidget(self.tv_show_title, 0, 2, 1, 1)
 
-            self.tv_show_poster = QLabel(parent=self.liked_tv_show_frame)
+            self.tv_show_poster = QLabel(parent=self.tv_show_to_watch_frame)
             self.tv_show_poster.setMinimumSize(QSize(0, 138))
             self.tv_show_poster.setMaximumSize(QSize(92, 138))
             self.tv_show_poster.setText("")
@@ -188,7 +188,7 @@ class LikedMediaPage(QMainWindow, LikedMediaUI):
             self.tv_show_poster.setScaledContents(True)
             self.gridLayout2.addWidget(self.tv_show_poster, 0, 0, 3, 1)
 
-            self.tv_show_seasons = QLabel(parent=self.liked_tv_show_frame)
+            self.tv_show_seasons = QLabel(parent=self.tv_show_to_watch_frame)
             font = QFont()
             font.setFamily("Oswald")
             font.setPointSize(10)
@@ -196,7 +196,7 @@ class LikedMediaPage(QMainWindow, LikedMediaUI):
             self.tv_show_seasons.setObjectName("tv_show_seasons")
             self.gridLayout2.addWidget(self.tv_show_seasons, 2, 2, 1, 1)
 
-            self.tv_show_year = QLabel(parent=self.liked_tv_show_frame)
+            self.tv_show_year = QLabel(parent=self.tv_show_to_watch_frame)
             font = QFont()
             font.setFamily("Oswald")
             font.setPointSize(10)
@@ -210,7 +210,7 @@ class LikedMediaPage(QMainWindow, LikedMediaUI):
 
             self.gridLayout2.addItem(poster_spacer2, 1, 1, 1, 1)
 
-            self.verticalLayout_5.addWidget(self.liked_tv_show_frame)
+            self.verticalLayout_5.addWidget(self.tv_show_to_watch_frame)
 
         spacerItem3 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum,
                                             QSizePolicy.Policy.Expanding)
