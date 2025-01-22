@@ -2,7 +2,7 @@ from main.choose_title.header_buttons.liked_media_design import Ui_MainWindow as
 
 from PyQt6.QtWidgets import QLabel, QFrame, QGridLayout, QSizePolicy, QSpacerItem, QMainWindow
 from PyQt6.QtCore import QRect, QPropertyAnimation
-from PyQt6.QtGui import QCursor, QFont
+from PyQt6.QtGui import QCursor, QFont, QImage, QPixmap
 from PyQt6.QtCore import Qt, QSize
 
 import sqlite3
@@ -41,6 +41,7 @@ class LikedMediaPage(QMainWindow, LikedMediaUI):
 
     def edit_window_title(self):
         self.setWindowTitle(f"{self.first_name}'s Liked Media")
+        self.header_label.setText(f"{self.first_name}'s Liked Media")
 
     def load_liked_media(self):
         connection = sqlite3.connect('../database\\accounts.db')
@@ -54,17 +55,13 @@ class LikedMediaPage(QMainWindow, LikedMediaUI):
             cursor.execute("""SELECT liked_tv_shows FROM liked_media WHERE account_id=(:account_id)""",
                            {'account_id': self.account_id}).fetchone()[0])
 
-        print(liked_movies)
-        print(liked_tv_shows)
-
         for liked_movie in liked_movies:
             movie_url = f"https://api.themoviedb.org/3/movie/{liked_movie}"
             movie_response = requests.get(movie_url, headers=self.api_headers).json()
 
-            print(movie_response)
-
             movie_title = movie_response['title']
             movie_release_year = (movie_response['release_date'].split('-'))[0]
+            movie_poster_path = movie_response['poster_path']
 
             self.liked_movie_frame = QFrame(parent=self.movie_scroll_area_contents)
             self.liked_movie_frame.setMinimumSize(QSize(0, 160))
@@ -93,6 +90,21 @@ class LikedMediaPage(QMainWindow, LikedMediaUI):
             self.movie_poster.setScaledContents(True)
             self.movie_poster.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.movie_poster.setObjectName("movie_poster")
+            self.movie_poster.setScaledContents(True)
+
+            if not movie_poster_path:
+                question_mark_image = QPixmap("../images/question_mark.jpg")
+                #
+                self.movie_poster.setPixmap(question_mark_image)
+            else:
+                movie_img_url = 'https://image.tmdb.org/t/p/w92/' + movie_poster_path
+
+                movie_image = QImage()
+                movie_image.loadFromData(requests.get(movie_img_url).content)
+
+                self.movie_poster.setPixmap(QPixmap(movie_image))
+
+            self.movie_poster.setScaledContents(True)
             self.gridLayout.addWidget(self.movie_poster, 0, 0, 3, 1)
 
             self.movie_runtime = QLabel(parent=self.liked_movie_frame)
@@ -126,10 +138,11 @@ class LikedMediaPage(QMainWindow, LikedMediaUI):
             tv_show_url = f"https://api.themoviedb.org/3/tv/{liked_tv_show}"
             tv_show_response = requests.get(tv_show_url, headers=self.api_headers).json()
 
-            print(tv_show_response)
+            # print(tv_show_response)
 
             tv_show_title = tv_show_response['name']
             tv_show_release_year = (tv_show_response['first_air_date'].split('-'))[0]
+            tv_show_poster = tv_show_response['poster_path']
 
             self.liked_tv_show_frame = QFrame(parent=self.tv_show_scroll_area_contents)
             self.liked_tv_show_frame.setMinimumSize(QSize(0, 160))
@@ -158,6 +171,21 @@ class LikedMediaPage(QMainWindow, LikedMediaUI):
             self.tv_show_poster.setScaledContents(True)
             self.tv_show_poster.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.tv_show_poster.setObjectName("tv_show_poster")
+
+            if not tv_show_poster:
+                question_mark_image = QPixmap("../images/question_mark.jpg")
+                self.tv_show_poster.setPixmap(question_mark_image)
+
+            else:
+                tv_show_img_url = 'https://image.tmdb.org/t/p/w92' + tv_show_poster
+
+                tv_show_image = QImage()
+                tv_show_image.loadFromData(requests.get(tv_show_img_url).content)
+
+                self.tv_show_poster.setPixmap(QPixmap(tv_show_image))
+                self.tv_show_poster.setScaledContents(True)
+
+            self.tv_show_poster.setScaledContents(True)
             self.gridLayout2.addWidget(self.tv_show_poster, 0, 0, 3, 1)
 
             self.tv_show_seasons = QLabel(parent=self.liked_tv_show_frame)
@@ -187,7 +215,6 @@ class LikedMediaPage(QMainWindow, LikedMediaUI):
         spacerItem3 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum,
                                             QSizePolicy.Policy.Expanding)
         self.verticalLayout_5.addItem(spacerItem3)
-
 
         connection.commit()
         connection.close()

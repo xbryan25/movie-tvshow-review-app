@@ -206,10 +206,11 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "[name]\'s Liked Media"))
         self.header_label.setText(_translate("MainWindow", "[name]\'s Liked Media"))
         self.movie_label.setText(_translate("MainWindow", "Movies"))
+        self.tv_show_label.setText(_translate("MainWindow", "TV Shows"))
+
         # self.temp_movie_title.setText(_translate("MainWindow", "Title"))
         # self.temp_movie_runtime.setText(_translate("MainWindow", "Runtime"))
         # self.temp_movie_year.setText(_translate("MainWindow", "Year"))
-        # self.tv_show_label.setText(_translate("MainWindow", "TV Shows"))
         # self.temp_tv_show_title.setText(_translate("MainWindow", "Title"))
         # self.temp_tv_show_year.setText(_translate("MainWindow", "Year"))
         # self.temp_tv_show_seasons.setText(_translate("MainWindow", "Number of Seasons"))
