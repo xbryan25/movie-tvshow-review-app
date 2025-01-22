@@ -188,8 +188,6 @@ class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
             else:
                 self.star_label.setText(f"Own rating: {old_rating: .0f} stars")
 
-
-
     def add_to_liked(self):
         connection = sqlite3.connect('../database\\accounts.db')
         cursor = connection.cursor()

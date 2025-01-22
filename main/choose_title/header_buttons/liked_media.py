@@ -1,6 +1,6 @@
 from main.choose_title.header_buttons.lm_and_mtw_design import Ui_MainWindow as LikedMediaUI
 
-from PyQt6.QtWidgets import QLabel, QFrame, QGridLayout, QSizePolicy, QSpacerItem, QMainWindow
+from PyQt6.QtWidgets import QLabel, QFrame, QGridLayout, QSizePolicy, QSpacerItem, QMainWindow, QPushButton
 from PyQt6.QtCore import QRect, QPropertyAnimation
 from PyQt6.QtGui import QCursor, QFont, QImage, QPixmap
 from PyQt6.QtCore import Qt, QSize
@@ -75,13 +75,15 @@ class LikedMediaPage(QMainWindow, LikedMediaUI):
             self.gridLayout.setObjectName("gridLayout")
 
             self.movie_title = QLabel(parent=self.liked_movie_frame)
+            self.movie_title.setMinimumSize(QSize(0, 30))
+            self.movie_title.setMaximumSize(QSize(200, 50))
             font = QFont()
             font.setFamily("Oswald")
             font.setPointSize(10)
             self.movie_title.setFont(font)
             self.movie_title.setObjectName("movie_title")
             self.movie_title.setText(movie_title)
-            self.gridLayout.addWidget(self.movie_title, 0, 2, 1, 1)
+            self.gridLayout.addWidget(self.movie_title, 0, 2, 1, 2)
 
             self.movie_poster = QLabel(parent=self.liked_movie_frame)
             self.movie_poster.setMinimumSize(QSize(0, 138))
@@ -105,24 +107,44 @@ class LikedMediaPage(QMainWindow, LikedMediaUI):
                 self.movie_poster.setPixmap(QPixmap(movie_image))
 
             self.movie_poster.setScaledContents(True)
-            self.gridLayout.addWidget(self.movie_poster, 0, 0, 3, 1)
+            self.gridLayout.addWidget(self.movie_poster, 0, 0, 5, 1)
 
             self.movie_runtime = QLabel(parent=self.liked_movie_frame)
+            self.movie_runtime.setMinimumSize(QSize(0, 30))
+            self.movie_runtime.setMaximumSize(QSize(16777215, 30))
             font = QFont()
             font.setFamily("Oswald")
             font.setPointSize(10)
             self.movie_runtime.setFont(font)
             self.movie_runtime.setObjectName("movie_runtime")
-            self.gridLayout.addWidget(self.movie_runtime, 2, 2, 1, 1)
+            self.gridLayout.addWidget(self.movie_runtime, 2, 2, 1, 2)
 
             self.movie_year = QLabel(parent=self.liked_movie_frame)
+            self.movie_year.setMinimumSize(QSize(0, 30))
+            self.movie_year.setMaximumSize(QSize(16777215, 50))
             font = QFont()
             font.setFamily("Oswald")
             font.setPointSize(10)
             self.movie_year.setFont(font)
             self.movie_year.setObjectName("movie_year")
             self.movie_year.setText(movie_release_year)
-            self.gridLayout.addWidget(self.movie_year, 1, 2, 1, 1)
+            self.gridLayout.addWidget(self.movie_year, 1, 2, 1, 2)
+
+            self.remove_from_liked_movie = QPushButton(parent=self.liked_movie_frame)
+
+            font = QFont()
+            font.setFamily("Oswald Medium")
+            font.setPointSize(10)
+            font.setBold(False)
+            font.setWeight(50)
+            self.remove_from_liked_movie.setFont(font)
+            self.remove_from_liked_movie.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+            self.remove_from_liked_movie.setObjectName("remove_from_liked_movie")
+            self.remove_from_liked_movie.setText("Remove")
+            self.remove_from_liked_movie.clicked.connect(lambda state, frame=self.liked_movie_frame,
+                                                         movie=liked_movie, _liked_movies=liked_movies, media_type="movie":
+                                                         self.remove_liked_media(frame, movie, _liked_movies, media_type))
+            self.gridLayout.addWidget(self.remove_from_liked_movie, 3, 2, 1, 2)
 
             poster_spacer = QSpacerItem(10, 20, QSizePolicy.Policy.Fixed,
                                                QSizePolicy.Policy.Minimum)
@@ -156,13 +178,15 @@ class LikedMediaPage(QMainWindow, LikedMediaUI):
             self.gridLayout2.setObjectName("gridLayout2")
 
             self.tv_show_title = QLabel(parent=self.liked_tv_show_frame)
+            self.tv_show_title.setMinimumSize(QSize(0, 30))
+            self.tv_show_title.setMaximumSize(QSize(200, 50))
             font = QFont()
             font.setFamily("Oswald")
             font.setPointSize(10)
             self.tv_show_title.setFont(font)
             self.tv_show_title.setObjectName("tv_show_title")
             self.tv_show_title.setText(tv_show_title)
-            self.gridLayout2.addWidget(self.tv_show_title, 0, 2, 1, 1)
+            self.gridLayout2.addWidget(self.tv_show_title, 0, 2, 1, 2)
 
             self.tv_show_poster = QLabel(parent=self.liked_tv_show_frame)
             self.tv_show_poster.setMinimumSize(QSize(0, 138))
@@ -186,24 +210,45 @@ class LikedMediaPage(QMainWindow, LikedMediaUI):
                 self.tv_show_poster.setScaledContents(True)
 
             self.tv_show_poster.setScaledContents(True)
-            self.gridLayout2.addWidget(self.tv_show_poster, 0, 0, 3, 1)
+            self.gridLayout2.addWidget(self.tv_show_poster, 0, 0, 5, 1)
 
             self.tv_show_seasons = QLabel(parent=self.liked_tv_show_frame)
+            self.tv_show_seasons.setMinimumSize(QSize(0, 30))
+            self.tv_show_seasons.setMaximumSize(QSize(200, 50))
             font = QFont()
             font.setFamily("Oswald")
             font.setPointSize(10)
             self.tv_show_seasons.setFont(font)
             self.tv_show_seasons.setObjectName("tv_show_seasons")
-            self.gridLayout2.addWidget(self.tv_show_seasons, 2, 2, 1, 1)
+            self.gridLayout2.addWidget(self.tv_show_seasons, 2, 2, 1, 2)
 
             self.tv_show_year = QLabel(parent=self.liked_tv_show_frame)
+            self.tv_show_year.setMinimumSize(QSize(0, 30))
+            self.tv_show_year.setMaximumSize(QSize(200, 50))
             font = QFont()
             font.setFamily("Oswald")
             font.setPointSize(10)
             self.tv_show_year.setFont(font)
             self.tv_show_year.setObjectName("tv_show_year")
             self.tv_show_year.setText(tv_show_release_year)
-            self.gridLayout2.addWidget(self.tv_show_year, 1, 2, 1, 1)
+            self.gridLayout2.addWidget(self.tv_show_year, 1, 2, 1, 2)
+
+            self.remove_from_liked_tv_show = QPushButton(parent=self.liked_tv_show_frame)
+            font = QFont()
+            font.setFamily("Oswald Medium")
+            font.setPointSize(10)
+            self.remove_from_liked_tv_show.setFont(font)
+            self.remove_from_liked_tv_show.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+            self.remove_from_liked_tv_show.setObjectName("remove_from_liked_tv_show")
+            self.remove_from_liked_tv_show.setText("Remove")
+            self.remove_from_liked_tv_show.clicked.connect(lambda state, frame=self.liked_tv_show_frame,
+                                                           tv_show=liked_tv_show, _liked_tv_shows=liked_tv_shows,
+                                                           media_type="tv":
+                                                           self.remove_liked_media(frame, tv_show, _liked_tv_shows,
+                                                                                   media_type))
+
+            self.remove_from_liked_tv_show.clicked.connect(self.liked_tv_show_frame.close)
+            self.gridLayout2.addWidget(self.remove_from_liked_tv_show, 3, 2, 1, 2)
 
             poster_spacer2 = QSpacerItem(10, 20, QSizePolicy.Policy.Fixed,
                                                QSizePolicy.Policy.Minimum)
@@ -218,3 +263,24 @@ class LikedMediaPage(QMainWindow, LikedMediaUI):
 
         connection.commit()
         connection.close()
+
+
+    def remove_liked_media(self, frame, media, liked_media_list, media_type):
+        connection = sqlite3.connect('../database\\accounts.db')
+        cursor = connection.cursor()
+
+        frame.close()
+
+        liked_media_list.remove(media)
+        liked_media_json = json.dumps(liked_media_list)
+
+        if media_type == "movie":
+            cursor.execute("""UPDATE liked_media SET liked_movies=(:liked_movies) WHERE account_id=(:account_id)""",
+                       {"liked_movies": liked_media_json, "account_id": self.account_id})
+        else:
+            cursor.execute("""UPDATE liked_media SET liked_tv_shows=(:liked_tv_shows) WHERE account_id=(:account_id)""",
+                           {"liked_tv_shows": liked_media_json, "account_id": self.account_id})
+
+        connection.commit()
+        connection.close()
+
