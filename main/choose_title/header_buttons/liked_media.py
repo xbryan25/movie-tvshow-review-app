@@ -1,4 +1,4 @@
-from main.choose_title.header_buttons.lm_and_mtw_design import Ui_MainWindow as LikedMediaUI
+from main.choose_title.header_buttons.lm_mtw_design import Ui_MainWindow as LikedMediaUI
 
 from PyQt6.QtWidgets import QLabel, QFrame, QGridLayout, QSizePolicy, QSpacerItem, QMainWindow, QPushButton
 from PyQt6.QtCore import QRect, QPropertyAnimation
@@ -131,7 +131,6 @@ class LikedMediaPage(QMainWindow, LikedMediaUI):
             self.gridLayout.addWidget(self.movie_year, 1, 2, 1, 2)
 
             self.remove_from_liked_movie = QPushButton(parent=self.liked_movie_frame)
-
             font = QFont()
             font.setFamily("Oswald Medium")
             font.setPointSize(10)
@@ -159,8 +158,6 @@ class LikedMediaPage(QMainWindow, LikedMediaUI):
         for liked_tv_show in liked_tv_shows:
             tv_show_url = f"https://api.themoviedb.org/3/tv/{liked_tv_show}"
             tv_show_response = requests.get(tv_show_url, headers=self.api_headers).json()
-
-            # print(tv_show_response)
 
             tv_show_title = tv_show_response['name']
             tv_show_release_year = (tv_show_response['first_air_date'].split('-'))[0]
@@ -247,7 +244,7 @@ class LikedMediaPage(QMainWindow, LikedMediaUI):
                                                            self.remove_liked_media(frame, tv_show, _liked_tv_shows,
                                                                                    media_type))
 
-            self.remove_from_liked_tv_show.clicked.connect(self.liked_tv_show_frame.close)
+            # self.remove_from_liked_tv_show.clicked.connect(self.liked_tv_show_frame.close)
             self.gridLayout2.addWidget(self.remove_from_liked_tv_show, 3, 2, 1, 2)
 
             poster_spacer2 = QSpacerItem(10, 20, QSizePolicy.Policy.Fixed,
