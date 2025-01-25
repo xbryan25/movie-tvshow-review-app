@@ -34,6 +34,8 @@ class LoginPage(QMainWindow, LoginPageUI):
         # Temporary account_id; to be overwritten
         self.account_id = 0
 
+        self.choose_titles_page = None
+
         self.set_pointing_hand_cursor_to_interactables()
 
     def set_pointing_hand_cursor_to_interactables(self):
@@ -237,10 +239,13 @@ class LoginPage(QMainWindow, LoginPageUI):
         login_successful_dialog.exec()
 
     def change_to_choose_title_page(self, account_id, login_successful_dialog):
+        self.username_lineedit.setText("")
+        self.password_lineedit.setText("")
+
         login_successful_dialog.close()
 
         self.hide()
 
-        self.choose_titles_page = ChooseTitlesPage(account_id)
+        self.choose_titles_page = ChooseTitlesPage(account_id, self)
 
         # self.choose_titles_page.show()

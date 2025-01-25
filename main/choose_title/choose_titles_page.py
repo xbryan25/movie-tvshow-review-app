@@ -1,18 +1,21 @@
 from main.choose_title.choose_titles_page_design import Ui_MainWindow as ChooseTitlesPageUI
+
 from main.choose_title.header_buttons.liked_media_page import LikedMediaPage
 from main.choose_title.header_buttons.media_to_watch_page import MediaToWatchPage
 from main.choose_title.header_buttons.members_page import MembersPage
 
-from main.choose_title.posters import Poster
+from choose_title.logout_confirmation_dialog import LogoutConfirmationDialog
 
-from PyQt6.QtWidgets import QMainWindow, QLabel, QFrame
+from choose_title.posters import Poster
+
+from PyQt6.QtWidgets import QMainWindow, QLabel, QFrame, QDialogButtonBox
 from PyQt6.QtGui import QPixmap, QImage, QFont
 from PyQt6.QtCore import (QSize, Qt, QPropertyAnimation, QRect, QEvent, QThread, QObject, pyqtSignal, QRunnable,
                           pyqtSlot, QThreadPool)
 
-from main.loading_screen.loading_screen import LoadingScreen
+from loading_screen.loading_screen import LoadingScreen
 
-from main.search_results.search_results_page import SearchResultsPage
+from search_results.search_results_page import SearchResultsPage
 
 import requests
 import sqlite3
@@ -50,7 +53,7 @@ class LoadPicturesWorker(QRunnable):
 
 
 class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
-    def __init__(self, account_id):
+    def __init__(self, account_id, login_page):
         super().__init__()
 
         self.setupUi(self)
@@ -61,11 +64,13 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
         }
 
         self.account_id = account_id
+        self.login_page = login_page
 
         self.search_title_line_edit.returnPressed.connect(lambda: self.open_search_results_page(self.search_title_line_edit.text()))
         self.liked_button.clicked.connect(self.open_liked_media_page)
         self.to_watch_button.clicked.connect(self.open_media_to_watch_page)
         self.members_button.clicked.connect(self.open_members_page)
+        self.logout_button.clicked.connect(self.logout_account)
 
         for i in range(3):
             self.make_more_movie_posters(i)
@@ -99,6 +104,20 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
             self.search_results_page.show()
 
         self.search_title_line_edit.setText("")
+
+    def logout_account(self):
+        self.logout_confirmation_dialog = LogoutConfirmationDialog()
+        self.logout_confirmation_dialog.show()
+
+        yes_button = self.logout_confirmation_dialog.buttonBox.button(QDialogButtonBox.StandardButton.Yes)
+        # no_button = self.logout_confirmation_dialog.buttonBox.button(QDialogButtonBox.StandardButton.No)
+
+        yes_button.clicked.connect(lambda: [self.close(), self.login_page.show()])
+
+
+
+        # self.close()
+        # self.login_page.show()
 
     def start_load_pictures_thread(self):
         load_pictures_worker = LoadPicturesWorker(self.load_pictures)
