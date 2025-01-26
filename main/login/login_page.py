@@ -5,11 +5,11 @@ from main.login.login_page_design import Ui_MainWindow as LoginPageUI
 from main.login.signup_dialog import SignupDialog
 
 from main.login.login_status_dialog import LoginStatusDialog
+
+from main.login.signup_fail_dialog import SignupFailDialog
 from main.login.signup_successful_dialog import SignupSuccessfulDialog
 
 from main.login.initialize_account import InitializeAccount
-
-from main.login.signup_fail_dialog import SignupFailDialog
 
 from PyQt6.QtWidgets import QMainWindow, QLineEdit
 from PyQt6.QtGui import QCursor
@@ -30,6 +30,9 @@ class LoginPage(QMainWindow, LoginPageUI):
         self.sign_up_button.clicked.connect(self.signup_clicked)
         self.login_button.clicked.connect(self.check_if_account_exists)
         self.show_password_checkbox.stateChanged.connect(self.show_password_text_login)
+
+        self.username_lineedit.returnPressed.connect(self.check_if_account_exists)
+        self.password_lineedit.returnPressed.connect(self.check_if_account_exists)
 
         # Temporary account_id; to be overwritten
         self.account_id = 0
@@ -249,3 +252,4 @@ class LoginPage(QMainWindow, LoginPageUI):
         self.choose_titles_page = ChooseTitlesPage(account_id, self)
 
         # self.choose_titles_page.show()
+
