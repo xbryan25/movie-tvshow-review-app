@@ -7,11 +7,12 @@ from main.about_title.about_title_tv_show import AboutTitleTvShowPage
 from PyQt6.QtGui import QCursor
 from PyQt6.QtCore import Qt
 
+import requests
 
 # TODO: Finish pulsing animation whenever a poster gets hovered by the mouse
 
 class Poster(QLabel):
-    def __init__(self, parent, media_type, account_id):
+    def __init__(self, parent, media_type, account_id, requests_session_tmdb, requests_session_images):
         super().__init__()
         self.parent = parent
         self.setMouseTracking(True)
@@ -19,6 +20,9 @@ class Poster(QLabel):
         self.media_id = ""
         self.media_type = media_type
         self.account_id = account_id
+
+        self.requests_session_tmdb = requests_session_tmdb
+        self.requests_session_images = requests_session_images
 
         self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
 
@@ -32,10 +36,14 @@ class Poster(QLabel):
         # print(self.title)
 
         if self.media_type == "movie":
-            self.about_title_movie_page = AboutTitleMoviePage(self.media_id, self.account_id)
+            self.about_title_movie_page = AboutTitleMoviePage(self.media_id, self.account_id,
+                                                              self.requests_session_tmdb,
+                                                              self.requests_session_images)
             self.about_title_movie_page.show()
         else:
-            self.about_title_tv_show_page = AboutTitleTvShowPage(self.media_id, self.account_id)
+            self.about_title_tv_show_page = AboutTitleTvShowPage(self.media_id, self.account_id,
+                                                                 self.requests_session_tmdb,
+                                                                 self.requests_session_images)
             self.about_title_tv_show_page.show()
 
     def mouseMoveEvent(self, ev):

@@ -10,7 +10,7 @@ import requests
 
 
 class SearchResultsPage(QMainWindow, SearchResultsPageUI):
-    def __init__(self, media_title, account_id):
+    def __init__(self, media_title, account_id, requests_session_tmdb, requests_session_images):
         super().__init__()
 
         self.setupUi(self)
@@ -19,6 +19,9 @@ class SearchResultsPage(QMainWindow, SearchResultsPageUI):
             "accept": "application/json",
             "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3N2Y0OWMyYmEyNmUxN2ZjMDkyY2VkYmQ2M2ZiZWIzNiIsIm5iZiI6MTczMjE2NjEzOS4wNDMzNTc0LCJzdWIiOiI2NzNlYzE5NzQ2NTQxYmJjZDM3OWNmZTYiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.j9GlO1y5TXH6iexR69tp03m39ScK9-CoKdjbkfVBqJY"
         }
+
+        self.requests_session_tmdb = requests_session_tmdb
+        self.requests_session_images = requests_session_images
 
         self.media_title = media_title
         self.media_title_for_url = (self.media_title.lower()).replace(" ", "+")
@@ -30,12 +33,13 @@ class SearchResultsPage(QMainWindow, SearchResultsPageUI):
         self.show_results_label.setText(f"Showing results for '{self.media_title}'")
 
         movie_search_url = f"https://api.themoviedb.org/3/search/movie?query={self.media_title_for_url}"
-        movie_search_results = requests.get(movie_search_url, headers=self.api_headers).json()
+        movie_search_results = self.requests_session_tmdb.get(movie_search_url, headers=self.api_headers).json()
 
         # Only the top 5 movies will be shown as search results
         for count, movie in enumerate(movie_search_results['results']):
             self.media_result_frame = MediaResult(self.results_scroll_area_contents, movie['id'], "movie",
-                                                  self.account_id)
+                                                  self.account_id, self.requests_session_tmdb,
+                                                  self.requests_session_tmdb)
 
             self.media_result_frame.media_title.setText(movie['title'])
 
@@ -49,7 +53,8 @@ class SearchResultsPage(QMainWindow, SearchResultsPageUI):
                 media_img_url = f'https://image.tmdb.org/t/p/w154/{movie['poster_path']}'
 
                 media_image = QImage()
-                media_image.loadFromData(requests.get(media_img_url, headers=self.api_headers).content)
+                media_image.loadFromData(self.requests_session_images.get(media_img_url,
+                                                                          headers=self.api_headers).content)
 
                 self.media_result_frame.media_poster.setPixmap(QPixmap(media_image))
 
@@ -63,18 +68,22 @@ class SearchResultsPage(QMainWindow, SearchResultsPageUI):
 
             self.verticalLayout_2.addWidget(self.media_result_frame)
 
+            print(f"{((count + 1) / 10) * 100:.2f}")
+
             if count + 1 == 5:
                 print("Broke free")
                 break
 
         tv_show_search_url = f"https://api.themoviedb.org/3/search/tv?query={self.media_title_for_url}"
-        tv_show_search_results = requests.get(tv_show_search_url, headers=self.api_headers).json()
+        tv_show_search_results = self.requests_session_tmdb.get(tv_show_search_url, headers=self.api_headers).json()
 
         # print(tv_show_search_results)
 
         # Only the top 5 tv shows will be shown as search results
         for count, tv_show in enumerate(tv_show_search_results['results']):
-            self.media_result_frame = MediaResult(self.results_scroll_area_contents, tv_show['id'], "tv", self.account_id)
+            self.media_result_frame = MediaResult(self.results_scroll_area_contents, tv_show['id'], "tv",
+                                                  self.account_id, self.requests_session_tmdb,
+                                                  self.requests_session_images)
 
             self.media_result_frame.media_title.setText(tv_show['name'])
 
@@ -91,7 +100,8 @@ class SearchResultsPage(QMainWindow, SearchResultsPageUI):
                 media_img_url = f'https://image.tmdb.org/t/p/w154/{tv_show['poster_path']}'
 
                 media_image = QImage()
-                media_image.loadFromData(requests.get(media_img_url, headers=self.api_headers).content)
+                media_image.loadFromData(self.requests_session_images.get(media_img_url,
+                                                                          headers=self.api_headers).content)
 
                 self.media_result_frame.media_poster.setPixmap(QPixmap(media_image))
                 # self.media_result_frame.media_title.setText(tv_show['name'])
@@ -105,6 +115,8 @@ class SearchResultsPage(QMainWindow, SearchResultsPageUI):
             self.media_result_frame.media_short_info.setText("???")
 
             self.verticalLayout_2.addWidget(self.media_result_frame)
+
+            print(f"{((count + 6) / 10) * 100:.2f}")
 
             if count + 1 == 5:
                 print("Broke free")

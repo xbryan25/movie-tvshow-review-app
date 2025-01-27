@@ -15,7 +15,7 @@ import json
 
 
 class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
-    def __init__(self, media_id, account_id):
+    def __init__(self, media_id, account_id, requests_session_tmdb, requests_session_images):
         super().__init__()
 
         self.api_headers = {
@@ -25,6 +25,9 @@ class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
 
         self.media_id = str(media_id)
         self.account_id = account_id
+
+        self.requests_session_tmdb = requests_session_tmdb
+        self.requests_session_images = requests_session_images
 
         # To be overwritten later
         self.media_title = ""
@@ -59,7 +62,7 @@ class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
 
     def load_contents(self):
         movie_url = f"https://api.themoviedb.org/3/movie/{self.media_id}"
-        movie_response = requests.get(movie_url, headers=self.api_headers).json()
+        movie_response = self.requests_session_tmdb.get(movie_url, headers=self.api_headers).json()
 
         print(movie_response)
 
@@ -99,7 +102,7 @@ class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
             movie_img_url = 'https://image.tmdb.org/t/p/w500/' + movie_response['poster_path']
 
             movie_image = QImage()
-            movie_image.loadFromData(requests.get(movie_img_url).content)
+            movie_image.loadFromData(self.requests_session_images.get(movie_img_url).content)
 
             self.poster_label.setPixmap(QPixmap(movie_image))
             self.poster_label.setScaledContents(True)
@@ -130,7 +133,6 @@ class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
 
             self.add_to_watchlist_state = "clicked"
 
-
     def set_review_button_state(self):
         connection = sqlite3.connect('../database\\accounts.db')
         cursor = connection.cursor()
@@ -149,7 +151,7 @@ class AboutTitleMoviePage(QMainWindow, AboutTitleMovieDesignUI):
 
     def get_directors(self, movie_url):
         movie_credits_url = movie_url + "/credits?language=en-US"
-        movie_credits_response = requests.get(movie_credits_url, headers=self.api_headers).json()
+        movie_credits_response = self.requests_session_tmdb.get(movie_credits_url, headers=self.api_headers).json()
 
         movie_directors = []
 

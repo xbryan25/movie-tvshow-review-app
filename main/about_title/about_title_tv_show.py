@@ -16,7 +16,7 @@ import json
 
 
 class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
-    def __init__(self, media_id, account_id):
+    def __init__(self, media_id, account_id, requests_session_tmdb, requests_session_images):
         super().__init__()
 
         self.api_headers = {
@@ -27,13 +27,15 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
         self.media_id = str(media_id)
         self.account_id = account_id
 
+        self.requests_session_tmdb = requests_session_tmdb
+        self.requests_session_images = requests_session_images
+
         # To be overwritten later
         self.media_title = ""
         self.seasons = []
         self.clicked_season = 'Series'
 
         self.directors = {}
-
 
         self.add_to_liked_state = "not clicked"
         self.add_to_watchlist_state = "not clicked"
@@ -81,7 +83,7 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
 
     def load_contents(self):
         tv_show_url = f"https://api.themoviedb.org/3/tv/{self.media_id}"
-        tv_show_response = requests.get(tv_show_url, headers=self.api_headers).json()
+        tv_show_response = self.requests_session_tmdb.get(tv_show_url, headers=self.api_headers).json()
 
         # To be used in the class
         self.media_title = tv_show_response['name']
@@ -105,7 +107,7 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
         self.director_label.setText("-")
         self.genres_label.setText("Genres: " + tv_show_genres)
 
-        self.get_directors(type_of_get_directors="preview")
+        self.get_directors()
 
         if not tv_show_response['poster_path']:
 
@@ -117,7 +119,7 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
             tv_show_img_url = 'https://image.tmdb.org/t/p/w500' + tv_show_response['poster_path']
 
             tv_show_image = QImage()
-            tv_show_image.loadFromData(requests.get(tv_show_img_url).content)
+            tv_show_image.loadFromData(self.requests_session_images.get(tv_show_img_url).content)
 
             self.poster_label.setPixmap(QPixmap(tv_show_image))
             self.poster_label.setScaledContents(True)
@@ -181,7 +183,7 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
         # connection.commit()
         # connection.close()
 
-    def get_directors(self, type_of_get_directors):
+    def get_directors(self):
         # Make a copy of self.seasons but without the series, which is the first element
 
         seasons_without_series = list(self.seasons[1:])
@@ -189,7 +191,8 @@ class AboutTitleTvShowPage(QMainWindow, AboutTitleTvShowDesignUI):
             season_directors = []
 
             tv_show_season_credit_url = f"https://api.themoviedb.org/3/tv/{self.media_id}/season/{season['season_number']}"
-            tv_credit_response = requests.get(tv_show_season_credit_url, headers=self.api_headers).json()
+            tv_credit_response = self.requests_session_tmdb.get(tv_show_season_credit_url,
+                                                                   headers=self.api_headers).json()
 
             for episode_credits in tv_credit_response['episodes']:
 

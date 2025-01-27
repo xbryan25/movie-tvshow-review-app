@@ -6,9 +6,11 @@ from PyQt6.QtCore import Qt, QSize
 from main.about_title.about_title_movie import AboutTitleMoviePage
 from main.about_title.about_title_tv_show import AboutTitleTvShowPage
 
+import requests
+
 
 class MediaResult(QFrame):
-    def __init__(self, parent, media_id, media_type, account_id):
+    def __init__(self, parent, media_id, media_type, account_id, requests_session_tmdb, requests_session_images):
         super().__init__()
         self.parent = parent
         self.setMouseTracking(True)
@@ -16,6 +18,9 @@ class MediaResult(QFrame):
         self.media_id = media_id
         self.media_type = media_type
         self.account_id = account_id
+
+        self.requests_session_tmdb = requests_session_tmdb
+        self.requests_session_images = requests_session_images
 
         self.setup_elements()
 
@@ -88,10 +93,13 @@ class MediaResult(QFrame):
         # print(self.title)
 
         if self.media_type == "movie":
-            self.about_title_movie_page = AboutTitleMoviePage(self.media_id, self.account_id)
+            self.about_title_movie_page = AboutTitleMoviePage(self.media_id, self.account_id,
+                                                              self.requests_session_tmdb, self.requests_session_images)
             self.about_title_movie_page.show()
         else:
-            self.about_title_tv_show_page = AboutTitleTvShowPage(self.media_id, self.account_id)
+            self.about_title_tv_show_page = AboutTitleTvShowPage(self.media_id, self.account_id,
+                                                                 self.requests_session_tmdb,
+                                                                 self.requests_session_images)
             self.about_title_tv_show_page.show()
 
     def mouseMoveEvent(self, ev):

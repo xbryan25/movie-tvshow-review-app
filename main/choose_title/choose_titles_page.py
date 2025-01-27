@@ -60,7 +60,7 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
 
         self.api_headers = {
             "accept": "application/json",
-            "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3N2Y0OWMyYmEyNmUxN2ZjMDkyY2VkYmQ2M2ZiZWIzNiIsIm5iZiI6MTczMjE2NjEzOS4wNDMzNTc0LCJzdWIiOiI2NzNlYzE5NzQ2NTQxYmJjZDM3OWNmZTYiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.j9GlO1y5TXH6iexR69tp03m39ScK9-CoKdjbkfVBqJY"
+            "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3N2Y0OWMyYmEyNmUxN2ZjMDkyY2VkYmQ2M2ZiZWIzNiIsIm5iZiI6MTczMjE2NjEzOS4wNDMzNTc0LCJzdWIiOiI2NzNlYzE5NzQ2NTQxYmJjZDM3OWNmZTYiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.j9GlO1y5TXH6iexR69tp03m39ScK9-CoKdjbkfVBqJY",
         }
 
         self.account_id = account_id
@@ -72,7 +72,10 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
         self.members_button.clicked.connect(self.open_members_page)
         self.logout_button.clicked.connect(self.logout_account)
 
-        for i in range(3):
+        self.requests_session_tmdb = requests.Session()
+        self.requests_session_images = requests.Session()
+
+        for i in range(8):
             self.make_more_movie_posters(i)
             self.make_more_tv_show_posters(i)
 
@@ -100,7 +103,8 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
         if self.search_title_line_edit.text().strip() == "":
             print("The search bar is empty.")
         else:
-            self.search_results_page = SearchResultsPage(media_title, self.account_id)
+            self.search_results_page = SearchResultsPage(media_title, self.account_id,
+                                                         self.requests_session_tmdb, self.requests_session_images)
             self.search_results_page.show()
 
         self.search_title_line_edit.setText("")
@@ -129,12 +133,13 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
     def load_pictures(self):
 
         popular_movies_api_url = "https://api.themoviedb.org/3/movie/popular?language=en-US&page=1"
-        popular_movies_api_response = requests.get(popular_movies_api_url, headers=self.api_headers)
-
+        # popular_movies_api_response = requests.get(popular_movies_api_url, headers=self.api_headers)
+        popular_movies_api_response = self.requests_session_tmdb.get(popular_movies_api_url, headers=self.api_headers)
 
 
         popular_tv_shows_api_url = "https://api.themoviedb.org/3/tv/popular?language=en-US&page=1"
-        popular_tv_shows_api_response = requests.get(popular_tv_shows_api_url, headers=self.api_headers)
+        # popular_tv_shows_api_response = requests.get(popular_tv_shows_api_url, headers=self.api_headers)
+        popular_tv_shows_api_response = self.requests_session_tmdb.get(popular_tv_shows_api_url, headers=self.api_headers)
 
         # Find the children of the Poster class
         movie_poster_containers = self.popular_movies_scroll_area_contents.findChildren(Poster)
@@ -142,7 +147,7 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
 
         # TODO: Add loading screen
 
-        for i in range(3):
+        for i in range(8):
             movie_img_url = 'https://image.tmdb.org/t/p/w342/' + popular_movies_api_response.json()['results'][i][
                 'poster_path']
 
@@ -150,7 +155,7 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
                 'id']
 
             movie_image = QImage()
-            movie_image.loadFromData(requests.get(movie_img_url).content)
+            movie_image.loadFromData(self.requests_session_images.get(movie_img_url).content)
             # print("load movie image"/7)
 
             movie_poster_containers[i].setMediaId(movie_id)
@@ -166,14 +171,14 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
             tv_show_id = popular_tv_shows_api_response.json()['results'][i]['id']
 
             tv_show_image = QImage()
-            tv_show_image.loadFromData(requests.get(tv_show_img_url).content)
+            tv_show_image.loadFromData(self.requests_session_images.get(tv_show_img_url).content)
 
             tv_show_poster_containers[i].setMediaId(tv_show_id)
             tv_show_poster_containers[i].setPixmap(QPixmap(tv_show_image))
             tv_show_poster_containers[i].show()
 
-            print(f"{((i + 1) / 3) * 100:.2f}")
-            self.loading_screen.loading_progress_bar.setValue(int(((i + 1) / 3) * 100))
+            print(f"{((i + 1) / 8) * 100:.2f}")
+            self.loading_screen.loading_progress_bar.setValue(int(((i + 1) / 8) * 100))
 
         print("Done!")
 
@@ -187,7 +192,9 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
 
         # Don't forget to change QLabel to Poster
 
-        self.label = Poster(parent=self.popular_movies_scroll_area_contents, media_type="movie", account_id=self.account_id)
+        self.label = Poster(parent=self.popular_movies_scroll_area_contents, media_type="movie",
+                            account_id=self.account_id, requests_session_tmdb=self.requests_session_tmdb,
+                            requests_session_images=self.requests_session_images)
         self.label.setMinimumSize(QSize(165, 250))
         self.label.setMaximumSize(QSize(165, 250))
 
@@ -216,7 +223,9 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
 
         # Don't forget to change QLabel to Poster
 
-        self.label_2 = Poster(parent=self.popular_tv_shows_scroll_area_contents, media_type="tv", account_id=self.account_id)
+        self.label_2 = Poster(parent=self.popular_tv_shows_scroll_area_contents, media_type="tv",
+                              account_id=self.account_id, requests_session_tmdb=self.requests_session_tmdb,
+                              requests_session_images=self.requests_session_images)
         self.label_2.setMinimumSize(QSize(165, 250))
         self.label_2.setMaximumSize(QSize(165, 250))
 
