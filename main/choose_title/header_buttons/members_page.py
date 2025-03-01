@@ -1,4 +1,4 @@
-from main.choose_title.header_buttons.members_design import Ui_MainWindow as MembersPageUI
+from choose_title.header_buttons.members_design import Ui_MainWindow as MembersPageUI
 
 from PyQt6.QtWidgets import QLabel, QFrame, QGridLayout, QSizePolicy, QSpacerItem, QMainWindow, QPushButton
 from PyQt6.QtCore import QRect, QPropertyAnimation

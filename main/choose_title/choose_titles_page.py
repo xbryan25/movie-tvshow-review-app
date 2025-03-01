@@ -1,8 +1,8 @@
-from main.choose_title.choose_titles_page_design import Ui_MainWindow as ChooseTitlesPageUI
+from choose_title.choose_titles_page_design import Ui_MainWindow as ChooseTitlesPageUI
 
-from main.choose_title.header_buttons.liked_media_page import LikedMediaPage
-from main.choose_title.header_buttons.media_to_watch_page import MediaToWatchPage
-from main.choose_title.header_buttons.members_page import MembersPage
+from choose_title.header_buttons.liked_media_page import LikedMediaPage
+from choose_title.header_buttons.media_to_watch_page import MediaToWatchPage
+from choose_title.header_buttons.members_page import MembersPage
 
 from choose_title.logout_confirmation_dialog import LogoutConfirmationDialog
 
@@ -195,8 +195,8 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
         self.label = Poster(parent=self.popular_movies_scroll_area_contents, media_type="movie",
                             account_id=self.account_id, requests_session_tmdb=self.requests_session_tmdb,
                             requests_session_images=self.requests_session_images)
-        self.label.setMinimumSize(QSize(165, 250))
-        self.label.setMaximumSize(QSize(165, 250))
+        self.label.setMinimumSize(QSize(175, 270))
+        self.label.setMaximumSize(QSize(175, 270))
 
         self.label.setText("")
         self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -226,8 +226,8 @@ class ChooseTitlesPage(QMainWindow, ChooseTitlesPageUI):
         self.label_2 = Poster(parent=self.popular_tv_shows_scroll_area_contents, media_type="tv",
                               account_id=self.account_id, requests_session_tmdb=self.requests_session_tmdb,
                               requests_session_images=self.requests_session_images)
-        self.label_2.setMinimumSize(QSize(165, 250))
-        self.label_2.setMaximumSize(QSize(165, 250))
+        self.label_2.setMinimumSize(QSize(175, 270))
+        self.label_2.setMaximumSize(QSize(175, 270))
 
         self.label_2.setText("")
         self.label_2.setAlignment(Qt.AlignmentFlag.AlignCenter)

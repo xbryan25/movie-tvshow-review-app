@@ -1,8 +1,8 @@
 from PyQt6.QtWidgets import QLabel
 from PyQt6.QtCore import QRect, QPropertyAnimation
 
-from main.about_title.about_title_movie import AboutTitleMoviePage
-from main.about_title.about_title_tv_show import AboutTitleTvShowPage
+from about_title.about_title_movie import AboutTitleMoviePage
+from about_title.about_title_tv_show import AboutTitleTvShowPage
 
 from PyQt6.QtGui import QCursor
 from PyQt6.QtCore import Qt

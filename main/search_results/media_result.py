@@ -3,8 +3,8 @@ from PyQt6.QtCore import QRect, QPropertyAnimation
 from PyQt6.QtGui import QCursor, QFont
 from PyQt6.QtCore import Qt, QSize
 
-from main.about_title.about_title_movie import AboutTitleMoviePage
-from main.about_title.about_title_tv_show import AboutTitleTvShowPage
+from about_title.about_title_movie import AboutTitleMoviePage
+from about_title.about_title_tv_show import AboutTitleTvShowPage
 
 import requests
 

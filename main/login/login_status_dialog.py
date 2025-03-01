@@ -1,4 +1,4 @@
-from main.login.login_status_dialog_design import Ui_Dialog as LoginStatusDialogUI
+from login.login_status_dialog_design import Ui_Dialog as LoginStatusDialogUI
 from PyQt6.QtWidgets import QDialog
 
 from PyQt6.QtGui import QCursor

@@ -1,15 +1,15 @@
-from main.choose_title.choose_titles_page_design import Ui_MainWindow as ChooseTitlesPageUI
-from main.choose_title.choose_titles_page import ChooseTitlesPage
+from choose_title.choose_titles_page_design import Ui_MainWindow as ChooseTitlesPageUI
+from choose_title.choose_titles_page import ChooseTitlesPage
 
-from main.login.login_page_design import Ui_MainWindow as LoginPageUI
-from main.login.signup_dialog import SignupDialog
+from login.login_page_design import Ui_MainWindow as LoginPageUI
+from login.signup_dialog import SignupDialog
 
-from main.login.login_status_dialog import LoginStatusDialog
+from login.login_status_dialog import LoginStatusDialog
 
-from main.login.signup_fail_dialog import SignupFailDialog
-from main.login.signup_successful_dialog import SignupSuccessfulDialog
+from login.signup_fail_dialog import SignupFailDialog
+from login.signup_successful_dialog import SignupSuccessfulDialog
 
-from main.login.initialize_account import InitializeAccount
+from login.initialize_account import InitializeAccount
 
 from PyQt6.QtWidgets import QMainWindow, QLineEdit
 from PyQt6.QtGui import QCursor

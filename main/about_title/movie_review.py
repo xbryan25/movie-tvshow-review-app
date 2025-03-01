@@ -1,4 +1,4 @@
-from main.about_title.media_review_design import Ui_MainWindow as MediaReviewUI
+from about_title.media_review_design import Ui_MainWindow as MediaReviewUI
 
 import sqlite3
 import json

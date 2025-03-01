@@ -1,4 +1,4 @@
-from main.login.signup_fail_dialog_design import Ui_Dialog as SignupFailDialogUI
+from login.signup_fail_dialog_design import Ui_Dialog as SignupFailDialogUI
 from PyQt6.QtWidgets import QDialog
 from PyQt6.QtCore import Qt
 

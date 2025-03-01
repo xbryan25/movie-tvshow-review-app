@@ -1,4 +1,4 @@
-from main.login.signup_successful_dialog_design import Ui_Dialog as SignupSuccessfulDialogUI
+from login.signup_successful_dialog_design import Ui_Dialog as SignupSuccessfulDialogUI
 from PyQt6.QtWidgets import QDialog
 
 from PyQt6.QtGui import QCursor

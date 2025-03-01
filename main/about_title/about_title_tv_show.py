@@ -4,8 +4,8 @@ from PyQt6.QtWidgets import QMainWindow, QPushButton
 from PyQt6.QtGui import QImage, QPixmap, QFont
 from PyQt6.QtCore import QSize, Qt
 
-from main.about_title.about_title_tv_show_design import Ui_MainWindow as AboutTitleTvShowDesignUI
-from main.about_title.tv_show_review import TvShowReview
+from about_title.about_title_tv_show_design import Ui_MainWindow as AboutTitleTvShowDesignUI
+from about_title.tv_show_review import TvShowReview
 
 from PyQt6.QtGui import QCursor
 from PyQt6.QtCore import Qt

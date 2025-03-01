@@ -1,7 +1,7 @@
 from PyQt6.QtCore import QFileInfo
 
-from main.search_results.search_results_design import Ui_MainWindow as SearchResultsPageUI
-from main.search_results.media_result import MediaResult
+from search_results.search_results_design import Ui_MainWindow as SearchResultsPageUI
+from search_results.media_result import MediaResult
 
 from PyQt6.QtWidgets import QMainWindow, QSpacerItem, QSizePolicy
 from PyQt6.QtGui import QImage, QPixmap

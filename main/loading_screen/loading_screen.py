@@ -2,7 +2,7 @@ from os import supports_effective_ids
 
 from PyQt6.QtWidgets import QDialog, QMainWindow
 from PyQt6.QtCore import Qt
-from main.loading_screen.loading_screen_design import Ui_MainWindow as LoadingScreenUI
+from loading_screen.loading_screen_design import Ui_MainWindow as LoadingScreenUI
 
 
 class LoadingScreen(QMainWindow, LoadingScreenUI):
