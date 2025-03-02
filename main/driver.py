@@ -1,8 +1,6 @@
-from login import login_page
+from application.application_window import ApplicationWindow
 from PyQt6.QtWidgets import QApplication
 import sqlite3
-
-# TODO: Add pointing hand cursor to every interactable
 
 def main():
     connection = sqlite3.connect('../database\\accounts.db')
@@ -55,12 +53,12 @@ def main():
     # cursor.execute("INSERT INTO accounts VALUES ('admin','123')")
 
     app = QApplication([])
-    login = login_page.LoginPage()
+    app_window = ApplicationWindow()
 
     connection.commit()
     connection.close()
 
-    login.show()
+    app_window.show()
     app.exec()
 
 

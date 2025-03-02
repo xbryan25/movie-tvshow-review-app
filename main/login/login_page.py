@@ -39,12 +39,12 @@ class LoginPage(QMainWindow, LoginPageUI):
 
         self.choose_titles_page = None
 
-        self.set_pointing_hand_cursor_to_interactables()
+        # self.set_pointing_hand_cursor_to_interactables()
 
-    def set_pointing_hand_cursor_to_interactables(self):
-        self.sign_up_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        self.login_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        self.show_password_checkbox.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+    # def set_pointing_hand_cursor_to_interactables(self):
+    #     self.sign_up_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+    #     self.login_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+    #     self.show_password_checkbox.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
 
     def show_password_text_login(self):
         if self.show_password_checkbox.isChecked():
