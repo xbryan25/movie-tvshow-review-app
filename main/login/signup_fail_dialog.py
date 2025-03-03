@@ -7,16 +7,18 @@ from PyQt6.QtCore import Qt
 
 
 class SignupFailDialog(QDialog, SignupFailDialogUI):
-    def __init__(self, issues_found):
+    def __init__(self, issues_found, signup_dialog):
         super().__init__()
 
         self.issues_found = issues_found
+        self.signup_dialog = signup_dialog
 
         self.setupUi(self)
 
         self.add_issues()
 
         self.set_pointing_hand_cursor_to_interactables()
+        self.proceed_button.clicked.connect(self.close)
 
     def set_pointing_hand_cursor_to_interactables(self):
         self.proceed_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
@@ -34,7 +36,7 @@ class SignupFailDialog(QDialog, SignupFailDialogUI):
         self.issues_list_label.setText(text_to_add)
         self.setMinimumSize(250, 150 + extra_space)
         self.setMaximumSize(250, 150 + extra_space)
-        #
+
         self.issues_list_label.setMinimumHeight(self.issues_list_label.height() + extra_space)
         self.issues_list_label.setMaximumHeight(self.issues_list_label.height() + extra_space)
 

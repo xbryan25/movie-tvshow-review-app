@@ -1,6 +1,7 @@
 import sqlite3
 import json
 
+
 class InitializeAccount:
     def __init__(self, account_id):
         self.account_id = account_id
@@ -17,7 +18,7 @@ class InitializeAccount:
 
         # Check if row with account_id exists in liked_media table
         does_row_with_account_id_exist = cursor.execute("""SELECT * FROM liked_media WHERE account_id=(:account_id)""",
-                                               {"account_id": self.account_id}).fetchone()
+                                                        {"account_id": self.account_id}).fetchone()
 
         if not does_row_with_account_id_exist:
             liked_movies_json_placeholder = json.dumps([])
@@ -35,8 +36,9 @@ class InitializeAccount:
         cursor = connection.cursor()
 
         # Check if row with account_id exists in liked_media table
-        does_row_with_account_id_exist = cursor.execute("""SELECT * FROM media_to_watch WHERE account_id=(:account_id)""",
-                                                        {"account_id": self.account_id}).fetchone()
+        does_row_with_account_id_exist = cursor.execute(
+            """SELECT * FROM media_to_watch WHERE account_id=(:account_id)""",
+            {"account_id": self.account_id}).fetchone()
 
         if not does_row_with_account_id_exist:
             movies_to_watch_json_placeholder = json.dumps([])
@@ -61,13 +63,7 @@ class InitializeAccount:
         if not does_row_with_account_id_exist:
             movie_reviews_json_placeholder = json.dumps({})
 
-            # movie_ids_json_placeholder = json.dumps([])
-            # movie_reviews_json_placeholder = json.dumps([])
-
             tv_show_reviews_json_placeholder = json.dumps({})
-
-            # tv_show_ids_json_placeholder = json.dumps([])
-            # tv_show_reviews_json_placeholder = json.dumps([])
 
             cursor.execute("""INSERT INTO reviews VALUES (:account_id, :movie_reviews, :tv_show_reviews)""",
                            {"account_id": self.account_id, "movie_reviews": movie_reviews_json_placeholder,

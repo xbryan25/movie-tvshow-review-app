@@ -13,5 +13,8 @@ class LoginStatusDialog(QDialog, LoginStatusDialogUI):
 
         self.set_pointing_hand_cursor_to_interactables()
 
+        self.proceed_button.clicked.connect(self.close)
+
     def set_pointing_hand_cursor_to_interactables(self):
         self.proceed_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+
