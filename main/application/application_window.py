@@ -4,6 +4,7 @@ from login.signup_dialog import SignupDialog
 from login.login_status_dialog import LoginStatusDialog
 
 from application.application_window_design import Ui_MainWindow as ApplicationWindowUI
+from application.choose_titles_page_controls import ChooseTitlesPageControls
 
 from utils.user_input_validators import UserInputValidators
 
@@ -17,6 +18,17 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
         self.setupUi(self)
 
         self.add_signals()
+
+        self.choose_titles_page_controls = ChooseTitlesPageControls([self.search_title_line_edit,
+                                                                     self.liked_button,
+                                                                     self.to_watch_button,
+                                                                     self.members_button,
+                                                                     self.logout_button,
+                                                                     self.popular_movies_scroll_area_contents,
+                                                                     self.gridLayout,
+                                                                     self.popular_tv_shows_scroll_area_contents,
+                                                                     self.gridLayout_2],
+                                                                    self)
 
     def add_signals(self):
         self.sign_up_button.clicked.connect(self.signup_clicked)
@@ -69,7 +81,6 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
         connection.commit()
         connection.close()
 
-
     def change_to_choose_title_page(self, account_id):
         login_successful_dialog = LoginStatusDialog()
         login_successful_dialog.setWindowTitle("Login successful.")
@@ -82,10 +93,5 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
 
         self.stackedWidget.setCurrentWidget(self.choose_titles_page)
 
-
-        # self.hide()
-        #
-        # self.choose_titles_page = ChooseTitlesPage(account_id, self)
-
-        # self.choose_titles_page.show()
-
+        self.choose_titles_page_controls.set_account_id(account_id)
+        self.choose_titles_page_controls.start_process()
