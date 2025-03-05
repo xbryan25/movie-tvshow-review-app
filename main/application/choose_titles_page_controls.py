@@ -54,7 +54,7 @@ class ChooseTitlesPageControls:
         self.account_id = account_id
 
     def start_process(self):
-        for i in range(4):
+        for i in range(12):
             self.make_more_movie_posters(i)
             self.make_more_tv_show_posters(i)
 
@@ -137,9 +137,7 @@ class ChooseTitlesPageControls:
         movie_poster_containers = self.popular_movies_scroll_area_contents.findChildren(Poster)
         tv_show_poster_containers = self.popular_tv_shows_scroll_area_contents.findChildren(Poster)
 
-        # TODO: Add loading screen
-
-        for i in range(4):
+        for i in range(12):
             movie_img_url = 'https://image.tmdb.org/t/p/w342/' + popular_movies_api_response.json()['results'][i][
                 'poster_path']
 

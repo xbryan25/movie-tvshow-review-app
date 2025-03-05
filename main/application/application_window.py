@@ -36,13 +36,13 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
                                                                      self.members_button,
                                                                      self.logout_button,
                                                                      self.popular_movies_scroll_area_contents,
-                                                                     self.gridLayout,
+                                                                     self.popular_movies_scroll_area_grid_layout,
                                                                      self.popular_tv_shows_scroll_area_contents,
-                                                                     self.gridLayout_2],
+                                                                     self.popular_tv_shows_scroll_area_grid_layout],
                                                                     self)
 
     def change_to_login_page(self):
-        self.stackedWidget.setCurrentWidget(self.login_page)
+        self.page_stacked_widget.setCurrentWidget(self.login_page)
 
     def change_to_choose_title_page(self, account_id):
         login_successful_dialog = LoginStatusDialog()
@@ -54,7 +54,7 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
         self.username_lineedit.setText("")
         self.password_lineedit.setText("")
 
-        self.stackedWidget.setCurrentWidget(self.choose_titles_page)
+        self.page_stacked_widget.setCurrentWidget(self.main_page)
 
         self.choose_titles_page_controls.set_account_id(account_id)
         self.choose_titles_page_controls.start_process()
