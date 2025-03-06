@@ -6,10 +6,12 @@ from login.login_status_dialog import LoginStatusDialog
 from application.application_window_design import Ui_MainWindow as ApplicationWindowUI
 from application.choose_titles_page_controls import ChooseTitlesPageControls
 from application.login_page_controls import LoginPageControls
+from application.about_specific_media_page_controls import AboutSpecificMediaPageControls
 
 from utils.user_input_validators import UserInputValidators
 
 import sqlite3
+import requests
 
 
 class ApplicationWindow(QMainWindow, ApplicationWindowUI):
@@ -19,8 +21,13 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
         self.setupUi(self)
 
         self.load_controls()
+        self.open_requests_session()
 
         self.change_to_login_page()
+
+    def open_requests_session(self):
+        self.requests_session_tmdb = requests.Session()
+        self.requests_session_images = requests.Session()
 
     def load_controls(self):
         self.login_page_controls = LoginPageControls([self.sign_up_button,
@@ -41,6 +48,25 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
                                                                      self.popular_tv_shows_scroll_area_grid_layout],
                                                                     self)
 
+        self.about_specific_media_page_controls = AboutSpecificMediaPageControls([self.director_label,
+                                                                                  self.general_stars_label,
+                                                                                  self.genres_label,
+                                                                                  self.media_title_label,
+                                                                                  self.poster_label,
+                                                                                  self.synopsis_label,
+                                                                                  self.year_label,
+                                                                                  self.add_review_button,
+                                                                                  self.add_to_liked_button,
+                                                                                  self.add_to_watchlist_button,
+                                                                                  self.save_rating_button,
+                                                                                  self.star_label,
+                                                                                  self.star_slider,
+                                                                                  self.season_buttons_scroll_area,
+                                                                                  self.season_buttons_scroll_area_widget_contents,
+                                                                                  self.seasons_buttons_grid_layout,
+                                                                                  self.gridLayout_2],
+                                                                                 self)
+
     def change_to_login_page(self):
         self.page_stacked_widget.setCurrentWidget(self.login_page)
 
@@ -55,6 +81,20 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
         self.password_lineedit.setText("")
 
         self.page_stacked_widget.setCurrentWidget(self.main_page)
+        self.subpage_stacked_widget.setCurrentWidget(self.popular_media_subpage)
 
         self.choose_titles_page_controls.set_account_id(account_id)
+        self.choose_titles_page_controls.set_requests_session(self.requests_session_tmdb, self.requests_session_images)
         self.choose_titles_page_controls.start_process()
+
+    def change_to_about_specific_media_page(self, account_id, media_type, media_id):
+        self.page_stacked_widget.setCurrentWidget(self.main_page)
+        self.subpage_stacked_widget.setCurrentWidget(self.about_specific_media_subpage)
+
+        self.about_specific_media_page_controls.set_account_id(account_id)
+        self.about_specific_media_page_controls.set_media_type_and_id(media_type, media_id)
+        self.about_specific_media_page_controls.set_requests_session(self.requests_session_tmdb,
+                                                                     self.requests_session_images)
+
+
+        self.about_specific_media_page_controls.start_process()

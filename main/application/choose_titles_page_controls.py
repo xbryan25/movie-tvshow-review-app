@@ -43,15 +43,21 @@ class ChooseTitlesPageControls:
         self.application_window = application_window
 
         self.account_id = None
+        self.requests_session_tmdb = None
+        self.requests_session_images = None
 
         self.load_widgets()
         self.add_signals()
 
-        self.requests_session_tmdb = requests.Session()
-        self.requests_session_images = requests.Session()
+        # self.requests_session_tmdb = requests.Session()
+        # self.requests_session_images = requests.Session()
 
     def set_account_id(self, account_id):
         self.account_id = account_id
+
+    def set_requests_session(self, requests_session_tmdb, requests_session_images):
+        self.requests_session_tmdb = requests_session_tmdb
+        self.requests_session_images = requests_session_images
 
     def start_process(self):
         for i in range(12):
@@ -176,7 +182,6 @@ class ChooseTitlesPageControls:
         self.loading_screen.close()
         self.application_window.show()
 
-
     def make_more_movie_posters(self, column):
         frame_name = "movie_frame_" + str(column + 1)
 
@@ -184,7 +189,8 @@ class ChooseTitlesPageControls:
 
         self.label = Poster(parent=self.popular_movies_scroll_area_contents, media_type="movie",
                             account_id=self.account_id, requests_session_tmdb=self.requests_session_tmdb,
-                            requests_session_images=self.requests_session_images)
+                            requests_session_images=self.requests_session_images,
+                            application_window=self.application_window)
         self.label.setMinimumSize(QSize(165, 225))
         self.label.setMaximumSize(QSize(165, 270))
 
@@ -215,7 +221,9 @@ class ChooseTitlesPageControls:
 
         self.label_2 = Poster(parent=self.popular_tv_shows_scroll_area_contents, media_type="tv",
                               account_id=self.account_id, requests_session_tmdb=self.requests_session_tmdb,
-                              requests_session_images=self.requests_session_images)
+                              requests_session_images=self.requests_session_images,
+                              application_window=self.application_window)
+
         self.label_2.setMinimumSize(QSize(165, 225))
         self.label_2.setMaximumSize(QSize(165, 270))
 
