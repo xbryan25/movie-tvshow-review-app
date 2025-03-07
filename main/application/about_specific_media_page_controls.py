@@ -5,7 +5,8 @@ from PyQt6.QtGui import QImage, QPixmap, QFont
 from PyQt6.QtCore import QSize, Qt
 
 # from about_title.about_title_tv_show_design import Ui_MainWindow as AboutTitleTvShowDesignUI
-# from about_title.tv_show_review import TvShowReview
+from about_title.tv_show_review import TvShowReview
+from about_title.movie_review import MovieReview
 
 from PyQt6.QtGui import QCursor
 from PyQt6.QtCore import Qt
@@ -21,7 +22,9 @@ class AboutSpecificMediaPageControls:
 
         self.api_headers = {
             "accept": "application/json",
-            "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3N2Y0OWMyYmEyNmUxN2ZjMDkyY2VkYmQ2M2ZiZWIzNiIsIm5iZiI6MTczMjE2NjEzOS4wNDMzNTc0LCJzdWIiOiI2NzNlYzE5NzQ2NTQxYmJjZDM3OWNmZTYiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.j9GlO1y5TXH6iexR69tp03m39ScK9-CoKdjbkfVBqJY"
+            "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3N2Y0OWMyYmEyNmUxN2ZjMDkyY2VkYmQ2M2ZiZWIzNiIsIm5iZ"
+                             "iI6MTczMjE2NjEzOS4wNDMzNTc0LCJzdWIiOiI2NzNlYzE5NzQ2NTQxYmJjZDM3OWNmZTYiLCJzY29wZXMiOlsiYX"
+                             "BpX3JlYWQiXSwidmVyc2lvbiI6MX0.j9GlO1y5TXH6iexR69tp03m39ScK9-CoKdjbkfVBqJY"
         }
 
         self.widgets = widgets
@@ -39,22 +42,20 @@ class AboutSpecificMediaPageControls:
         # For TV Shows
         self.seasons = []
         self.clicked_season = 'Series'
-
-        self.directors = {}
+        self.seasons_directors = {}
 
         self.add_to_liked_state = "not clicked"
         self.add_to_watchlist_state = "not clicked"
 
         self.load_widgets()
 
+        self.add_signals()
+
+    def add_signals(self):
         self.star_slider.valueChanged.connect(lambda: self.change_own_rating_slider())
-
         self.add_to_liked_button.clicked.connect(self.add_to_liked)
-
         self.add_to_watchlist_button.clicked.connect(self.add_to_watchlist)
-
-        self.add_review_button.clicked.connect(self.add_review_season)
-
+        self.add_review_button.clicked.connect(self.add_review_to_media)
         self.save_rating_button.clicked.connect(self.save_rating)
 
     def set_media_type_and_id(self, media_type, media_id):
@@ -67,6 +68,131 @@ class AboutSpecificMediaPageControls:
     def set_requests_session(self, requests_session_tmdb, requests_session_images):
         self.requests_session_tmdb = requests_session_tmdb
         self.requests_session_images = requests_session_images
+
+    def set_liked_button_state(self):
+        connection = sqlite3.connect('../database\\accounts.db')
+        cursor = connection.cursor()
+
+        if self.media_type == "tv":
+
+            liked_tv_shows = json.loads(
+                cursor.execute("""SELECT liked_tv_shows FROM liked_media WHERE account_id=(:account_id)""",
+                               {"account_id": self.account_id}).fetchone()[0])
+
+            if self.media_id in liked_tv_shows:
+                self.add_to_liked_button.setText("Remove from Liked")
+
+                self.add_to_liked_state = "clicked"
+
+        elif self.media_type == "movie":
+            liked_movies = json.loads(
+                cursor.execute("""SELECT liked_movies FROM liked_media WHERE account_id=(:account_id)""",
+                               {"account_id": self.account_id}).fetchone()[0])
+            if self.media_id in liked_movies:
+                self.add_to_liked_button.setText("Remove from Liked")
+
+                self.add_to_liked_state = "clicked"
+
+        connection.commit()
+        connection.close()
+
+    def set_watchlist_button_state(self):
+        connection = sqlite3.connect('../database\\accounts.db')
+        cursor = connection.cursor()
+
+        if self.media_type == "tv":
+
+            tv_shows_to_watch = json.loads(
+                cursor.execute("""SELECT tv_shows_to_watch FROM media_to_watch WHERE account_id=(:account_id)""",
+                               {"account_id": self.account_id}).fetchone()[0])
+
+            if self.media_id in tv_shows_to_watch:
+                self.add_to_watchlist_button.setText("Remove from Watchlist")
+
+                self.add_to_watchlist_state = "clicked"
+
+        elif self.media_type == "movie":
+            movies_to_watch = json.loads(
+                cursor.execute("""SELECT movies_to_watch FROM media_to_watch WHERE account_id=(:account_id)""",
+                               {"account_id": self.account_id}).fetchone()[0])
+
+            if self.media_id in movies_to_watch:
+                self.add_to_watchlist_button.setText("Remove from Watchlist")
+
+                self.add_to_watchlist_state = "clicked"
+
+        connection.commit()
+        connection.close()
+
+    def set_review_button_state(self):
+        connection = sqlite3.connect('../database\\accounts.db')
+        cursor = connection.cursor()
+
+        if self.media_type == "movie":
+            movie_reviews = json.loads(
+                cursor.execute("""SELECT movie_reviews FROM reviews WHERE account_id=(:account_id)""",
+                               {"account_id": self.account_id}).fetchone()[0])
+
+            movie_ids = movie_reviews.keys()
+
+            if str(self.media_id) in movie_ids:
+                self.add_review_button.setText("Edit Review")
+
+        connection.commit()
+        connection.close()
+
+    def get_directors(self):
+
+        if self.media_type == "tv":
+            # Make a copy of self.seasons but without the series, which is the first element
+
+            seasons_list_without_series = list(self.seasons[1:])
+            for season in seasons_list_without_series:
+                season_directors = []
+
+                tv_show_season_credit_url = f"https://api.themoviedb.org/3/tv/{self.media_id}/season/{season['season_number']}"
+                tv_credit_response = self.requests_session_tmdb.get(tv_show_season_credit_url,
+                                                                       headers=self.api_headers).json()
+
+                for episode_credits in tv_credit_response['episodes']:
+
+                    # Check if episode_credits['crew'] (a list) is empty or not
+                    if episode_credits['crew']:
+                        for crew in episode_credits['crew']:
+
+                            if crew['job'] == 'Director':
+                                episode_director_name = crew['name']
+
+                                if episode_director_name not in season_directors:
+                                    season_directors.append(episode_director_name)
+
+                self.seasons_directors.update({season['name']: season_directors})
+
+        elif self.media_type == "movie":
+            movie_credits_url = f"https://api.themoviedb.org/3/movie/{self.media_id}/credits?language=en-US"
+
+            movie_credits_response = self.requests_session_tmdb.get(movie_credits_url, headers=self.api_headers).json()
+
+            movie_directors = []
+
+            for crew_member in movie_credits_response['crew']:
+                if crew_member['job'] == 'Director':
+                    movie_directors.append(crew_member['name'])
+
+            if len(movie_directors) >= 3:
+                # Only get the two first directors then add ", etc."
+                self.director_label.setText(
+                    f"Directed by: {", ".join(movie_directors[:2])}, etc.")
+            else:
+                self.director_label.setText(f"Directed by: {", ".join(movie_directors)}")
+
+    def get_genres(self, genres_list):
+        genres = []
+
+        for genre_dictionary in genres_list:
+            genres.append(genre_dictionary['name'])
+
+        return ', '.join(genres)
 
     def load_widgets(self):
         self.director_label = self.widgets[0]
@@ -87,6 +213,7 @@ class AboutSpecificMediaPageControls:
         self.seasons_buttons_grid_layout = self.widgets[15]
         self.gridLayout_2 = self.widgets[16]
 
+    # TODO: Rename to something such as load_posters
     def start_process(self):
         self.load_contents()
 
@@ -96,16 +223,15 @@ class AboutSpecificMediaPageControls:
         self.set_watchlist_button_state()
         self.set_review_button_state()
 
-        self.load_season_buttons()
+        if self.media_type == "tv":
+            self.load_season_buttons()
+            self.attach_connection_to_change_season()
 
     def load_contents(self):
         media_url = f"https://api.themoviedb.org/3/{self.media_type}/{self.media_id}"
         media_release_year = ""
 
         media_response = self.requests_session_tmdb.get(media_url, headers=self.api_headers).json()
-
-        print(media_url)
-        print(media_response)
 
         if self.media_type == "tv":
             self.media_title = media_response['name']
@@ -134,15 +260,7 @@ class AboutSpecificMediaPageControls:
         self.director_label.setText("-")
         self.genres_label.setText("Genres: " + media_genres)
 
-        # FIXME: Configure later
-        # self.get_directors()
-        #
-        # if len(movie_directors) >= 3:
-        #     # Only get the two first directors then add ", etc."
-        #     self.director_label.setText(
-        #         f"Directed by: {", ".join(movie_directors[:2])}, etc.")
-        # else:
-        #     self.director_label.setText(f"Directed by: {", ".join(movie_directors)}")
+        self.get_directors()
 
         if not media_response['poster_path']:
             question_mark_image = QPixmap("../images/question_mark.jpg")
@@ -166,7 +284,6 @@ class AboutSpecificMediaPageControls:
             self.gridLayout_2.addWidget(self.synopsis_label, 3, 1, 3, 2)
             self.gridLayout_2.update()
 
-
     def add_series_dictionary(self, number_of_episodes, vote_average, overview, series_id):
         # Shallow copies (meaning nested entries are not read) the first season of the show
         series_dictionary = dict(self.seasons[0])
@@ -179,100 +296,6 @@ class AboutSpecificMediaPageControls:
         series_dictionary['id'] = series_id
 
         self.seasons.insert(0, series_dictionary)
-
-    def set_liked_button_state(self):
-        connection = sqlite3.connect('../database\\accounts.db')
-        cursor = connection.cursor()
-
-        liked_tv_shows = json.loads(
-            cursor.execute("""SELECT liked_tv_shows FROM liked_media WHERE account_id=(:account_id)""",
-                           {"account_id": self.account_id}).fetchone()[0])
-
-        if self.media_id in liked_tv_shows:
-            self.add_to_liked_button.setText("Remove from Liked")
-
-            self.add_to_liked_state = "clicked"
-
-    def set_watchlist_button_state(self):
-        connection = sqlite3.connect('../database\\accounts.db')
-        cursor = connection.cursor()
-
-        tv_shows_to_watch = json.loads(
-            cursor.execute("""SELECT tv_shows_to_watch FROM media_to_watch WHERE account_id=(:account_id)""",
-                           {"account_id": self.account_id}).fetchone()[0])
-
-        if self.media_id in tv_shows_to_watch:
-            self.add_to_watchlist_button.setText("Remove from Watchlist")
-
-            self.add_to_watchlist_state = "clicked"
-
-        connection.commit()
-        connection.close()
-
-    def set_review_button_state(self):
-        pass
-        # connection = sqlite3.connect('database\\accounts.db')
-        # cursor = connection.cursor()
-        #
-        # movie_reviews = json.loads(
-        #     cursor.execute("""SELECT movie_reviews FROM reviews WHERE account_id=(:account_id)""",
-        #                    {"account_id": self.account_id}).fetchone()[0])
-        #
-        # movie_ids = movie_reviews.keys()
-        #
-        # if str(self.media_id) in movie_ids:
-        #     self.add_review_button.setText("Edit Review")
-        #
-        # connection.commit()
-        # connection.close()
-
-    def get_directors(self):
-
-        if self.media_type == "tv":
-            # Make a copy of self.seasons but without the series, which is the first element
-
-            seasons_list_without_series = list(self.seasons[1:])
-            for season in seasons_list_without_series:
-                season_directors = []
-
-                tv_show_season_credit_url = f"https://api.themoviedb.org/3/tv/{self.media_id}/season/{season['season_number']}"
-                tv_credit_response = self.requests_session_tmdb.get(tv_show_season_credit_url,
-                                                                       headers=self.api_headers).json()
-
-                for episode_credits in tv_credit_response['episodes']:
-
-                    # Check if episode_credits['crew'] (a list) is empty or not
-                    if episode_credits['crew']:
-                        for crew in episode_credits['crew']:
-
-                            if crew['job'] == 'Director':
-                                episode_director_name = crew['name']
-
-                                if episode_director_name not in season_directors:
-                                    season_directors.append(episode_director_name)
-
-                self.directors.update({season['name']: season_directors})
-
-        elif self.media_type == "movie":
-            movie_credits_url = f"https://api.themoviedb.org/3/movie/{self.media_id}/credits?language=en-US"
-
-            movie_credits_response = self.requests_session_tmdb.get(movie_credits_url, headers=self.api_headers).json()
-
-            movie_directors = []
-
-            for crew_member in movie_credits_response['crew']:
-                if crew_member['job'] == 'Director':
-                    movie_directors.append(crew_member['name'])
-
-            self.directors.update({self.media_title: movie_directors})
-
-    def get_genres(self, genres_list):
-        genres = []
-
-        for genre_dictionary in genres_list:
-            genres.append(genre_dictionary['name'])
-
-        return ', '.join(genres)
 
     def change_own_rating_slider(self, old_rating=None):
         if not old_rating:
@@ -299,36 +322,49 @@ class AboutSpecificMediaPageControls:
         connection = sqlite3.connect('../database\\accounts.db')
         cursor = connection.cursor()
 
-        # Same thing with the liked_tv_shows_column
-        liked_tv_shows = json.loads(cursor.execute("""SELECT liked_tv_shows FROM liked_media WHERE account_id=(:account_id)""",
-                                      {"account_id": self.account_id}).fetchone()[0])
+        liked_media_type = []
+        liked_media_type_json = ""
 
+        # Read from database
+        if self.media_type == "tv":
+            liked_media_type = json.loads(
+                cursor.execute("""SELECT liked_tv_shows FROM liked_media WHERE account_id=(:account_id)""",
+                               {"account_id": self.account_id}).fetchone()[0])
+
+        elif self.media_type == "movie":
+            liked_media_type = json.loads(
+                cursor.execute("""SELECT liked_movies FROM liked_media WHERE account_id=(:account_id)""",
+                               {"account_id": self.account_id}).fetchone()[0])
+
+        # Manipulate values
         if self.add_to_liked_state == "not clicked":
             self.add_to_liked_button.setText("Remove from Liked")
+            liked_media_type.append(self.media_id)
 
-            if self.media_id not in liked_tv_shows:
-                liked_tv_shows.append(self.media_id)
-
-                # Converts the list into a json
-                liked_tv_shows_json = json.dumps(liked_tv_shows)
-
-                cursor.execute("""UPDATE liked_media SET liked_tv_shows=(:liked_tv_shows) WHERE account_id=(:account_id)""",
-                               {"liked_tv_shows": liked_tv_shows_json, "account_id": self.account_id})
+            # Converts the list into a json
+            liked_media_type_json = json.dumps(liked_media_type)
 
             self.add_to_liked_state = "clicked"
-        else:
+        elif self.add_to_liked_state == "clicked":
             self.add_to_liked_button.setText("Add to Liked")
 
-            if self.media_id in liked_tv_shows:
-                liked_tv_shows.pop(liked_tv_shows.index(self.media_id))
+            liked_media_type.pop(liked_media_type.index(self.media_id))
 
-                # Converts the list into a json
-                liked_tv_shows_json = json.dumps(liked_tv_shows)
-
-                cursor.execute("""UPDATE liked_media SET liked_tv_shows=(:liked_tv_shows) WHERE account_id=(:account_id)""",
-                               {"liked_tv_shows": liked_tv_shows_json, "account_id": self.account_id})
+            # Converts the list into a json
+            liked_media_type_json = json.dumps(liked_media_type)
 
             self.add_to_liked_state = "not clicked"
+
+        # Update database
+        if self.media_type == "tv":
+            cursor.execute(
+                """UPDATE liked_media SET liked_tv_shows=(:liked_tv_shows) WHERE account_id=(:account_id)""",
+                {"liked_tv_shows": liked_media_type_json, "account_id": self.account_id})
+
+        elif self.media_type == "movie":
+            cursor.execute(
+                """UPDATE liked_media SET liked_movies=(:liked_movies) WHERE account_id=(:account_id)""",
+                {"liked_movies": liked_media_type_json, "account_id": self.account_id})
 
         connection.commit()
         connection.close()
@@ -337,49 +373,74 @@ class AboutSpecificMediaPageControls:
         connection = sqlite3.connect('../database\\accounts.db')
         cursor = connection.cursor()
 
-        tv_shows_to_watch = json.loads(
-            cursor.execute("""SELECT tv_shows_to_watch FROM media_to_watch WHERE account_id=(:account_id)""",
-                           {"account_id": self.account_id}).fetchone()[0])
+        media_to_watch_type = []
+        media_to_watch_type_json = ""
 
+        # Read from database
+        if self.media_type == "tv":
+            media_to_watch_type = json.loads(
+                cursor.execute("""SELECT tv_shows_to_watch FROM media_to_watch WHERE account_id=(:account_id)""",
+                               {"account_id": self.account_id}).fetchone()[0])
+
+        elif self.media_type == "movie":
+            media_to_watch_type = json.loads(
+                cursor.execute("""SELECT movies_to_watch FROM media_to_watch WHERE account_id=(:account_id)""",
+                               {"account_id": self.account_id}).fetchone()[0])
+
+        # Manipulate values
         if self.add_to_watchlist_state == "not clicked":
             self.add_to_watchlist_button.setText("Remove from Watchlist")
+            media_to_watch_type.append(self.media_id)
 
-            if self.media_id not in tv_shows_to_watch:
-                tv_shows_to_watch.append(self.media_id)
-
-                # Converts the list into a json
-                tv_shows_to_watch_json = json.dumps(tv_shows_to_watch)
-
-                cursor.execute(
-                    """UPDATE media_to_watch SET tv_shows_to_watch=(:tv_shows_to_watch) WHERE account_id=(:account_id)""",
-                    {"tv_shows_to_watch": tv_shows_to_watch_json, "account_id": self.account_id})
+            # Converts the list into a json
+            media_to_watch_type_json = json.dumps(media_to_watch_type)
 
             self.add_to_watchlist_state = "clicked"
-        else:
+        elif self.add_to_liked_state == "clicked":
             self.add_to_watchlist_button.setText("Add to Watchlist")
 
-            if self.media_id in tv_shows_to_watch:
-                tv_shows_to_watch.pop(tv_shows_to_watch.index(self.media_id))
+            media_to_watch_type.pop(media_to_watch_type.index(self.media_id))
 
-                # Converts the list into a json
-                tv_shows_to_watch_json = json.dumps(tv_shows_to_watch)
-
-                cursor.execute(
-                    """UPDATE media_to_watch SET tv_shows_to_watch=(:tv_shows_to_watch) WHERE account_id=(:account_id)""",
-                    {"tv_shows_to_watch": tv_shows_to_watch_json, "account_id": self.account_id})
+            # Converts the list into a json
+            media_to_watch_type_json = json.dumps(media_to_watch_type)
 
             self.add_to_watchlist_state = "not clicked"
 
+        # Update database
+        if self.media_type == "tv":
+            cursor.execute(
+                """UPDATE media_to_watch SET tv_shows_to_watch=(:tv_shows_to_watch) WHERE account_id=(:account_id)""",
+                {"tv_shows_to_watch": media_to_watch_type_json, "account_id": self.account_id})
+
+        elif self.media_type == "movie":
+            cursor.execute(
+                """UPDATE media_to_watch SET movies_to_watch=(:movies_to_watch) WHERE account_id=(:account_id)""",
+                {"movies_to_watch": media_to_watch_type_json, "account_id": self.account_id})
+
         connection.commit()
         connection.close()
+
+    def add_review_to_media(self):
+
+        if self.media_type == "tv":
+            self.tv_show_review = TvShowReview(self.account_id, self.media_id, self.clicked_season)
+            self.tv_show_review.title_label.setText(f"{self.media_title} | {self.clicked_season}")
+
+            self.tv_show_review.show()
+        elif self.media_type == "movie":
+            self.movie_review = MovieReview(self.account_id, self.media_id)
+
+            self.movie_review.title_label.setText(self.media_title)
+
+            self.movie_review.show()
 
     def load_season_buttons(self):
         for season in self.seasons:
             # Don't forget to change QLabel to Poster
 
             self.season_button = QPushButton(parent=self.season_buttons_scroll_area_widget_contents)
-            self.season_button.setMinimumSize(QSize(250, 25))
-            self.season_button.setMaximumSize(QSize(250, 25))
+            self.season_button.setMinimumSize(QSize(200, 25))
+            self.season_button.setMaximumSize(QSize(200, 25))
 
             self.season_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
 
@@ -390,11 +451,8 @@ class AboutSpecificMediaPageControls:
 
             self.season_button.setText(season['name'])
             self.season_button.setObjectName(f'{(season['name'].replace(" ", "_")).lower()}_button')
-            print(f'{(season['name'].replace(" ", "_")).lower()}_button')
 
             self.seasons_buttons_grid_layout.addWidget(self.season_button, 0, self.seasons.index(season), 1, 1)
-
-        self.attach_connection_to_change_season()
 
     def attach_connection_to_change_season(self):
         season_buttons = self.season_buttons_scroll_area_widget_contents.findChildren(QPushButton)
@@ -427,15 +485,15 @@ class AboutSpecificMediaPageControls:
 
         if season_index == 0:
             self.director_label.setText("-")
-        elif not self.directors[self.seasons[season_index]['name']]:
+        elif not self.seasons_directors[self.seasons[season_index]['name']]:
             # If director list is empty
             self.director_label.setText("Unknown")
-        elif len(self.directors[self.seasons[season_index]['name']]) >= 3:
+        elif len(self.seasons_directors[self.seasons[season_index]['name']]) >= 3:
             # Only get the two first directors then add ", etc."
             self.director_label.setText(
-                    f"Directed by: {", ".join(self.directors[self.seasons[season_index]['name']][:2])}, etc.")
+                    f"Directed by: {", ".join(self.seasons_directors[self.seasons[season_index]['name']][:2])}, etc.")
         else:
-            self.director_label.setText(f"Directed by: {", ".join(self.directors[self.seasons[season_index]['name']])}")
+            self.director_label.setText(f"Directed by: {", ".join(self.seasons_directors[self.seasons[season_index]['name']])}")
 
         # Overwrite self.clicked_season in __init__
         self.clicked_season = self.seasons[season_index]['name']
@@ -452,38 +510,49 @@ class AboutSpecificMediaPageControls:
     #         # _season is just another name of season, I just can't think of any word other than season
     #         self.add_review_button.clicked.connect(lambda state, _season=season: self.add_review_season(_season))
 
-    def add_review_season(self):
-        self.tv_show_review = TvShowReview(self.account_id, self.media_id, self.clicked_season)
-        self.tv_show_review.title_label.setText(f"{self.media_title} | {self.clicked_season}")
-
-        self.tv_show_review.show()
-
     def save_rating(self):
         connection = sqlite3.connect('../database\\accounts.db')
         cursor = connection.cursor()
 
-        tv_shows_and_ratings = json.loads(cursor.execute("""SELECT tv_show_own_ratings FROM own_ratings_for_media 
-                                        WHERE account_id=(:account_id)""",
-                                      {"account_id": self.account_id}).fetchone()[0])
+        media_and_ratings = {}
 
-        rated_tv_shows = tv_shows_and_ratings.keys()
+        if self.media_type == "tv":
+            media_and_ratings = json.loads(cursor.execute("""SELECT tv_show_own_ratings FROM own_ratings_for_media 
+                                                        WHERE account_id=(:account_id)""",
+                                                             {"account_id": self.account_id}).fetchone()[0])
+        elif self.media_type == "movie":
+            media_and_ratings = json.loads(cursor.execute("""SELECT movie_own_ratings FROM own_ratings_for_media 
+                                                                WHERE account_id=(:account_id)""",
+                                                           {"account_id": self.account_id}).fetchone()[0])
 
-        if self.media_id not in rated_tv_shows:
-            tv_shows_and_ratings.update({self.media_id: {self.clicked_season: round(self.star_slider.value()/2, 1)}})
+        rated_media = media_and_ratings.keys()
+
+        if self.media_id not in rated_media and self.media_type == "movie":
+            media_and_ratings.update({self.media_id: round(self.star_slider.value() / 2, 1)})
+        elif self.media_id in rated_media and self.media_type == "movie":
+            media_and_ratings[self.media_id] = round(self.star_slider.value() / 2, 1)
+
+        elif self.media_id not in rated_media and self.media_type == "tv":
+            media_and_ratings.update({self.media_id: {self.clicked_season: round(self.star_slider.value()/2, 1)}})
         else:
-            rated_seasons = tv_shows_and_ratings[self.media_id].keys()
+            rated_seasons = media_and_ratings[self.media_id].keys()
 
             if self.clicked_season not in rated_seasons:
-                tv_shows_and_ratings[self.media_id].update({self.clicked_season: round(self.star_slider.value()/2, 1)})
+                media_and_ratings[self.media_id].update({self.clicked_season: round(self.star_slider.value()/2, 1)})
             else:
-                tv_shows_and_ratings[self.media_id][self.clicked_season] = round(self.star_slider.value()/2, 1)
+                media_and_ratings[self.media_id][self.clicked_season] = round(self.star_slider.value()/2, 1)
 
-        tv_shows_and_ratings_json = json.dumps(tv_shows_and_ratings)
-        cursor.execute("""UPDATE own_ratings_for_media SET tv_show_own_ratings=(:tv_show_own_ratings) WHERE
-                                      account_id=(:account_id)""",
-                       {"tv_show_own_ratings":  tv_shows_and_ratings_json, "account_id": self.account_id})
+        media_and_ratings_json = json.dumps(media_and_ratings)
 
-        print(tv_shows_and_ratings)
+        if self.media_type == "tv":
+            cursor.execute("""UPDATE own_ratings_for_media SET tv_show_own_ratings=(:tv_show_own_ratings) WHERE
+                                                      account_id=(:account_id)""",
+                           {"tv_show_own_ratings": media_and_ratings_json, "account_id": self.account_id})
+
+        elif self.media_type == "movie":
+            cursor.execute("""UPDATE own_ratings_for_media SET movie_own_ratings=(:movie_own_ratings) WHERE
+                                                              account_id=(:account_id)""",
+                           {"movie_own_ratings": media_and_ratings_json, "account_id": self.account_id})
 
         connection.commit()
         connection.close()
@@ -492,18 +561,28 @@ class AboutSpecificMediaPageControls:
         connection = sqlite3.connect('../database\\accounts.db')
         cursor = connection.cursor()
 
-        tv_shows_and_ratings = json.loads(cursor.execute("""SELECT tv_show_own_ratings FROM own_ratings_for_media 
-                                                        WHERE account_id=(:account_id)""",
-                                                         {"account_id": self.account_id}).fetchone()[0])
+        media_and_ratings = {}
 
-        rated_tv_shows = tv_shows_and_ratings.keys()
+        if self.media_type == "tv":
+            media_and_ratings = json.loads(cursor.execute("""SELECT tv_show_own_ratings FROM 
+                                                                    own_ratings_for_media WHERE 
+                                                                    account_id=(:account_id)""",
+                                                             {"account_id": self.account_id}).fetchone()[0])
+        elif self.media_type == "movie":
+            media_and_ratings = json.loads(cursor.execute("""SELECT movie_own_ratings FROM own_ratings_for_media 
+                                                            WHERE account_id=(:account_id)""",
+                                                           {"account_id": self.account_id}).fetchone()[0])
 
-        if self.media_id in rated_tv_shows:
+        rated_media = media_and_ratings.keys()
 
-            rated_seasons = tv_shows_and_ratings[self.media_id].keys()
+        if self.media_id in rated_media and self.media_type == "tv":
+            rated_seasons = media_and_ratings[self.media_id].keys()
 
             if self.clicked_season in rated_seasons:
-                self.change_own_rating_slider(old_rating=tv_shows_and_ratings[self.media_id][self.clicked_season])
+                self.change_own_rating_slider(old_rating=media_and_ratings[self.media_id][self.clicked_season])
+
+        if self.media_id in rated_media and self.media_type == "movie":
+            self.change_own_rating_slider(old_rating=media_and_ratings[self.media_id])
 
         connection.commit()
         connection.close()

@@ -25,6 +25,12 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
 
         self.change_to_login_page()
 
+        # self.current_account_id = 0
+
+        self.has_loaded_posters = False
+
+        self.app_title_button.clicked.connect(self.change_to_choose_title_page)
+
     def open_requests_session(self):
         self.requests_session_tmdb = requests.Session()
         self.requests_session_images = requests.Session()
@@ -70,22 +76,31 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
     def change_to_login_page(self):
         self.page_stacked_widget.setCurrentWidget(self.login_page)
 
-    def change_to_choose_title_page(self, account_id):
-        login_successful_dialog = LoginStatusDialog()
-        login_successful_dialog.setWindowTitle("Login successful.")
-        login_successful_dialog.text_label.setText("No issues logging in!")
+    def change_to_choose_title_page(self, account_id=None):
+        if not self.has_loaded_posters:
 
-        login_successful_dialog.exec()
+            login_successful_dialog = LoginStatusDialog()
+            login_successful_dialog.setWindowTitle("Login successful.")
+            login_successful_dialog.text_label.setText("No issues logging in!")
 
-        self.username_lineedit.setText("")
-        self.password_lineedit.setText("")
+            login_successful_dialog.exec()
 
-        self.page_stacked_widget.setCurrentWidget(self.main_page)
-        self.subpage_stacked_widget.setCurrentWidget(self.popular_media_subpage)
+            self.username_lineedit.setText("")
+            self.password_lineedit.setText("")
 
-        self.choose_titles_page_controls.set_account_id(account_id)
-        self.choose_titles_page_controls.set_requests_session(self.requests_session_tmdb, self.requests_session_images)
-        self.choose_titles_page_controls.start_process()
+            self.page_stacked_widget.setCurrentWidget(self.main_page)
+            self.subpage_stacked_widget.setCurrentWidget(self.popular_media_subpage)
+
+            self.choose_titles_page_controls.set_account_id(account_id)
+            self.choose_titles_page_controls.set_requests_session(self.requests_session_tmdb,
+                                                                  self.requests_session_images)
+            self.choose_titles_page_controls.start_process()
+
+            self.has_loaded_posters = True
+
+        else:
+            self.page_stacked_widget.setCurrentWidget(self.main_page)
+            self.subpage_stacked_widget.setCurrentWidget(self.popular_media_subpage)
 
     def change_to_about_specific_media_page(self, account_id, media_type, media_id):
         self.page_stacked_widget.setCurrentWidget(self.main_page)
@@ -95,6 +110,5 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
         self.about_specific_media_page_controls.set_media_type_and_id(media_type, media_id)
         self.about_specific_media_page_controls.set_requests_session(self.requests_session_tmdb,
                                                                      self.requests_session_images)
-
 
         self.about_specific_media_page_controls.start_process()

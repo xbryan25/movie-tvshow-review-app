@@ -543,7 +543,7 @@ QPushButton:pressed{
             </spacer>
            </item>
            <item>
-            <widget class="QLabel" name="app_title_label">
+            <widget class="QPushButton" name="app_title_button">
              <property name="minimumSize">
               <size>
                <width>200</width>
@@ -556,8 +556,19 @@ QPushButton:pressed{
                <pointsize>28</pointsize>
               </font>
              </property>
+             <property name="cursor">
+              <cursorShape>PointingHandCursor</cursorShape>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QPushButton:pressed{
+border: none;
+}</string>
+             </property>
              <property name="text">
-              <string>TEMP TITLE</string>
+              <string>Temp Title</string>
+             </property>
+             <property name="flat">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
