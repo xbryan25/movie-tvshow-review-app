@@ -15,7 +15,7 @@ from PyQt6.QtCore import (QSize, Qt, QPropertyAnimation, QRect, QEvent, QThread,
 
 from loading_screen.loading_screen import LoadingScreen
 
-from search_results.search_results_page import SearchResultsPage
+# from search_results.search_results_page import SearchResultsPage
 
 from utils.load_pictures_worker import LoadPicturesWorker
 
@@ -82,16 +82,6 @@ class ChooseTitlesPageControls:
         self.members_page = MembersPage()
         self.members_page.show()
 
-    def open_search_results_page(self, media_title):
-        if self.search_title_line_edit.text().strip() == "":
-            print("The search bar is empty.")
-        else:
-            self.search_results_page = SearchResultsPage(media_title, self.account_id,
-                                                         self.requests_session_tmdb, self.requests_session_images)
-            self.search_results_page.show()
-
-        self.search_title_line_edit.setText("")
-
     def load_widgets(self):
         self.search_title_line_edit = self.widgets[0]
         self.liked_button = self.widgets[1]
@@ -104,8 +94,6 @@ class ChooseTitlesPageControls:
         self.popular_tv_shows_scroll_area_grid_layout = self.widgets[8]
 
     def add_signals(self):
-        self.search_title_line_edit.returnPressed.connect(
-            lambda: self.open_search_results_page(self.search_title_line_edit.text()))
         self.liked_button.clicked.connect(self.open_liked_media_page)
         self.to_watch_button.clicked.connect(self.open_media_to_watch_page)
         self.members_button.clicked.connect(self.open_members_page)

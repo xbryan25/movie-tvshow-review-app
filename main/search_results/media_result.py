@@ -10,8 +10,11 @@ import requests
 
 
 class MediaResult(QFrame):
-    def __init__(self, parent, media_id, media_type, account_id, requests_session_tmdb, requests_session_images):
+    def __init__(self, parent, media_id, media_type, account_id, requests_session_tmdb, requests_session_images,
+                 application_window):
+
         super().__init__()
+
         self.parent = parent
         self.setMouseTracking(True)
         self.title = ""
@@ -22,11 +25,13 @@ class MediaResult(QFrame):
         self.requests_session_tmdb = requests_session_tmdb
         self.requests_session_images = requests_session_images
 
+        self.application_window = application_window
+
         self.setup_elements()
 
     def setup_elements(self):
-        self.setMinimumSize(QSize(0, 170))
-        self.setMaximumSize(QSize(16777214, 16777215))
+        self.setMinimumSize(QSize(500, 170))
+        self.setMaximumSize(QSize(500, 170))
         self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         self.setStyleSheet("background-color:rgb(199, 253, 255)")
         self.setFrameShape(QFrame.Shape.StyledPanel)
@@ -92,15 +97,7 @@ class MediaResult(QFrame):
     def mousePressEvent(self, event):
         # print(self.title)
 
-        if self.media_type == "movie":
-            self.about_title_movie_page = AboutTitleMoviePage(self.media_id, self.account_id,
-                                                              self.requests_session_tmdb, self.requests_session_images)
-            self.about_title_movie_page.show()
-        else:
-            self.about_title_tv_show_page = AboutTitleTvShowPage(self.media_id, self.account_id,
-                                                                 self.requests_session_tmdb,
-                                                                 self.requests_session_images)
-            self.about_title_tv_show_page.show()
+        self.application_window.change_to_about_specific_media_page(self.account_id, self.media_type, self.media_id)
 
     def mouseMoveEvent(self, ev):
         pass

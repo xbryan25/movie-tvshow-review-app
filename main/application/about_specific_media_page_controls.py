@@ -284,14 +284,6 @@ class AboutSpecificMediaPageControls:
             self.gridLayout_2.addWidget(self.synopsis_label, 4, 1, 2, 3)
             self.gridLayout_2.update()
 
-        # print(self.poster_label.width())
-        # print(self.poster_label.height())
-        #
-        # self.poster_label.resize(900, 600)
-        #
-        # print(self.poster_label.width())
-        # print(self.poster_label.height())
-
     def add_series_dictionary(self, number_of_episodes, vote_average, overview, series_id):
         # Shallow copies (meaning nested entries are not read) the first season of the show
         series_dictionary = dict(self.seasons[0])

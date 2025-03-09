@@ -4,14 +4,18 @@ from login.signup_dialog import SignupDialog
 from login.login_status_dialog import LoginStatusDialog
 
 from application.application_window_design import Ui_MainWindow as ApplicationWindowUI
+
 from application.choose_titles_page_controls import ChooseTitlesPageControls
 from application.login_page_controls import LoginPageControls
 from application.about_specific_media_page_controls import AboutSpecificMediaPageControls
+from application.search_results_page_controls import SearchResultsPageControls
 
 from utils.user_input_validators import UserInputValidators
 
 import sqlite3
 import requests
+
+
 
 
 class ApplicationWindow(QMainWindow, ApplicationWindowUI):
@@ -25,15 +29,20 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
 
         self.change_to_login_page()
 
-        # self.current_account_id = 0
+        self.current_account_id = 0
 
         self.has_loaded_posters = False
 
         self.app_title_button.clicked.connect(self.change_to_choose_title_page)
+        self.search_title_line_edit.returnPressed.connect(
+            lambda: self.change_to_search_results_page(self.search_title_line_edit.text()))
 
     def open_requests_session(self):
         self.requests_session_tmdb = requests.Session()
         self.requests_session_images = requests.Session()
+
+    def set_current_account_id(self, account_id):
+        self.current_account_id = account_id
 
     def load_controls(self):
         self.login_page_controls = LoginPageControls([self.sign_up_button,
@@ -72,6 +81,15 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
                                                                                   self.seasons_buttons_grid_layout,
                                                                                   self.gridLayout_2],
                                                                                  self)
+
+        self.search_results_page_controls = SearchResultsPageControls([self.showing_results_label,
+                                                                       self.movie_results_label,
+                                                                       self.tv_show_results_label,
+                                                                       self.movie_results_scroll_area,
+                                                                       self.tv_show_results_scroll_area,
+                                                                       self.movie_results_scroll_area_grid_layout,
+                                                                       self.tv_show_results_scroll_area_grid_layout],
+                                                                      self)
 
     def change_to_login_page(self):
         self.page_stacked_widget.setCurrentWidget(self.login_page)
@@ -112,3 +130,19 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
                                                                      self.requests_session_images)
 
         self.about_specific_media_page_controls.start_process()
+
+    def change_to_search_results_page(self, media_title_to_search):
+        if media_title_to_search.strip() == "":
+            print("The search bar is empty.")
+        else:
+            self.page_stacked_widget.setCurrentWidget(self.main_page)
+            self.subpage_stacked_widget.setCurrentWidget(self.search_results_subpage)
+
+            self.search_results_page_controls.set_media_title_to_search(media_title_to_search)
+            self.search_results_page_controls.set_account_id(self.current_account_id)
+            self.search_results_page_controls.set_requests_session(self.requests_session_tmdb,
+                                                                   self.requests_session_images)
+
+            self.search_results_page_controls.remove_old_search_results()
+            self.search_results_page_controls.show_search_results()
+

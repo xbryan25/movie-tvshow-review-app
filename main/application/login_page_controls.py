@@ -66,6 +66,7 @@ class LoginPageControls:
                                         {"username": username}).fetchone()[0]
 
             self.application_window.change_to_choose_title_page(account_id)
+            self.application_window.set_current_account_id(account_id)
 
         else:
             login_failure_dialog = LoginStatusDialog()
