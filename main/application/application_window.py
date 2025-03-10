@@ -9,13 +9,12 @@ from application.choose_titles_page_controls import ChooseTitlesPageControls
 from application.login_page_controls import LoginPageControls
 from application.about_specific_media_page_controls import AboutSpecificMediaPageControls
 from application.search_results_page_controls import SearchResultsPageControls
+from application.liked_or_to_watch_page_controls import LikedOrToWatchPageControls
 
 from utils.user_input_validators import UserInputValidators
 
 import sqlite3
 import requests
-
-
 
 
 class ApplicationWindow(QMainWindow, ApplicationWindowUI):
@@ -34,6 +33,9 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
         self.has_loaded_posters = False
 
         self.app_title_button.clicked.connect(self.change_to_choose_title_page)
+        self.liked_button.clicked.connect(lambda: self.change_to_liked_or_to_watch_page("liked"))
+        self.to_watch_button.clicked.connect(lambda: self.change_to_liked_or_to_watch_page("to_watch"))
+
         self.search_title_line_edit.returnPressed.connect(
             lambda: self.change_to_search_results_page(self.search_title_line_edit.text()))
 
@@ -91,6 +93,17 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
                                                                        self.tv_show_results_scroll_area_grid_layout],
                                                                       self)
 
+        self.liked_or_to_watch_page_controls = LikedOrToWatchPageControls([self.liked_or_to_watch_header_label,
+                                                                           self.liked_or_to_watch_movies_label,
+                                                                           self.liked_or_to_watch_tv_shows_label,
+                                                                           self.liked_or_to_watch_movies_scroll_area,
+                                                                           self.liked_or_to_watch_tv_shows_scroll_area,
+                                                                           self.liked_or_to_watch_movies_scroll_area_contents,
+                                                                           self.liked_or_to_watch_tv_shows_scroll_area_contents,
+                                                                           self.liked_or_to_watch_movies_scroll_area_grid_layout,
+                                                                           self.liked_or_to_watch_tv_shows_scroll_area_grid_layout],
+                                                                          self)
+
     def change_to_login_page(self):
         self.page_stacked_widget.setCurrentWidget(self.login_page)
 
@@ -130,6 +143,18 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
                                                                      self.requests_session_images)
 
         self.about_specific_media_page_controls.start_process()
+
+    def change_to_liked_or_to_watch_page(self, state_to_show):
+        self.page_stacked_widget.setCurrentWidget(self.main_page)
+        self.subpage_stacked_widget.setCurrentWidget(self.liked_or_to_watch_subpage)
+
+        self.liked_or_to_watch_page_controls.set_account_id(self.current_account_id)
+        self.liked_or_to_watch_page_controls.set_state_to_show(state_to_show)
+        self.liked_or_to_watch_page_controls.set_requests_session(self.requests_session_tmdb,
+                                                                  self.requests_session_images)
+
+        self.liked_or_to_watch_page_controls.initialize_page()
+        self.liked_or_to_watch_page_controls.load_liked_or_to_watch_media()
 
     def change_to_search_results_page(self, media_title_to_search):
         if media_title_to_search.strip() == "":

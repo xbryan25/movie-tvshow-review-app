@@ -1,8 +1,8 @@
 from choose_title.choose_titles_page_design import Ui_MainWindow as ChooseTitlesPageUI
 
-from choose_title.header_buttons.liked_media_page import LikedMediaPage
-from choose_title.header_buttons.media_to_watch_page import MediaToWatchPage
-from choose_title.header_buttons.members_page import MembersPage
+# from choose_title.header_buttons.liked_media_page import LikedMediaPage
+# from choose_title.header_buttons.media_to_watch_page import MediaToWatchPage
+# from choose_title.header_buttons.members_page import MembersPage
 
 from choose_title.logout_confirmation_dialog import LogoutConfirmationDialog
 
@@ -94,9 +94,9 @@ class ChooseTitlesPageControls:
         self.popular_tv_shows_scroll_area_grid_layout = self.widgets[8]
 
     def add_signals(self):
-        self.liked_button.clicked.connect(self.open_liked_media_page)
-        self.to_watch_button.clicked.connect(self.open_media_to_watch_page)
-        self.members_button.clicked.connect(self.open_members_page)
+        # self.liked_button.clicked.connect(self.open_liked_media_page)
+        # self.to_watch_button.clicked.connect(self.open_media_to_watch_page)
+        # self.members_button.clicked.connect(self.open_members_page)
         self.logout_button.clicked.connect(self.logout_account)
 
     def logout_account(self):

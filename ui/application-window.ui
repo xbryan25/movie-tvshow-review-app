@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1182</width>
-    <height>839</height>
+    <width>1193</width>
+    <height>841</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -36,7 +36,7 @@
     <item row="0" column="0">
      <widget class="QStackedWidget" name="page_stacked_widget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="login_page">
        <layout class="QGridLayout" name="gridLayout_5">
@@ -1197,7 +1197,7 @@ QScrollBar::handle:horizontal:pressed{
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>1142</width>
+                 <width>1153</width>
                  <height>250</height>
                 </rect>
                </property>
@@ -1317,7 +1317,7 @@ QScrollBar::handle:horizontal:pressed{
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>1142</width>
+                 <width>1153</width>
                  <height>250</height>
                 </rect>
                </property>
@@ -1422,7 +1422,7 @@ border-radius: 1px;
              <number>0</number>
             </property>
             <item row="3" column="0">
-             <widget class="QFrame" name="media_to_watch_outer_frame">
+             <widget class="QFrame" name="liked_or_to_watch_outer_frame">
               <property name="frameShape">
                <enum>QFrame::StyledPanel</enum>
               </property>
@@ -1431,7 +1431,7 @@ border-radius: 1px;
               </property>
               <layout class="QHBoxLayout" name="horizontalLayout_7">
                <item>
-                <widget class="QFrame" name="movies_to_watch_frame">
+                <widget class="QFrame" name="liked_or_to_watch_movies_frame">
                  <property name="frameShape">
                   <enum>QFrame::StyledPanel</enum>
                  </property>
@@ -1443,7 +1443,7 @@ border-radius: 1px;
                    <number>9</number>
                   </property>
                   <item>
-                   <widget class="QLabel" name="movies_to_watch_label">
+                   <widget class="QLabel" name="liked_or_to_watch_movies_label">
                     <property name="font">
                      <font>
                       <family>Oswald</family>
@@ -1459,23 +1459,23 @@ border-radius: 1px;
                    </widget>
                   </item>
                   <item>
-                   <widget class="QScrollArea" name="movies_to_watch_scroll_area">
+                   <widget class="QScrollArea" name="liked_or_to_watch_movies_scroll_area">
                     <property name="frameShape">
                      <enum>QFrame::NoFrame</enum>
                     </property>
                     <property name="widgetResizable">
                      <bool>true</bool>
                     </property>
-                    <widget class="QWidget" name="movies_to_watch_scroll_area_contents">
+                    <widget class="QWidget" name="liked_or_to_watch_movies_scroll_area_contents">
                      <property name="geometry">
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>537</width>
-                       <height>581</height>
+                       <width>552</width>
+                       <height>562</height>
                       </rect>
                      </property>
-                     <layout class="QGridLayout" name="gridLayout_28">
+                     <layout class="QGridLayout" name="liked_or_to_watch_movies_scroll_area_grid_layout">
                       <item row="0" column="1">
                        <widget class="QFrame" name="temp_liked_movie_frame_4">
                         <property name="sizePolicy">
@@ -1721,7 +1721,7 @@ border-radius: 1px;
                 </widget>
                </item>
                <item>
-                <widget class="QFrame" name="tv_shows_to_watch_frame">
+                <widget class="QFrame" name="liked_or_to_watch_tv_shows_frame">
                  <property name="frameShape">
                   <enum>QFrame::StyledPanel</enum>
                  </property>
@@ -1730,7 +1730,7 @@ border-radius: 1px;
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_8">
                   <item>
-                   <widget class="QLabel" name="tv_shows_to_watch_label">
+                   <widget class="QLabel" name="liked_or_to_watch_tv_shows_label">
                     <property name="font">
                      <font>
                       <family>Oswald</family>
@@ -1746,23 +1746,23 @@ border-radius: 1px;
                    </widget>
                   </item>
                   <item>
-                   <widget class="QScrollArea" name="tv_shows_to_watch_scroll_area">
+                   <widget class="QScrollArea" name="liked_or_to_watch_tv_shows_scroll_area">
                     <property name="frameShape">
                      <enum>QFrame::NoFrame</enum>
                     </property>
                     <property name="widgetResizable">
                      <bool>true</bool>
                     </property>
-                    <widget class="QWidget" name="tv_shows_to_watch_scroll_area_contents">
+                    <widget class="QWidget" name="liked_or_to_watch_tv_shows_scroll_area_contents">
                      <property name="geometry">
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>537</width>
-                       <height>581</height>
+                       <width>552</width>
+                       <height>560</height>
                       </rect>
                      </property>
-                     <layout class="QGridLayout" name="gridLayout_29">
+                     <layout class="QGridLayout" name="liked_or_to_watch_tv_shows_scroll_area_grid_layout">
                       <item row="0" column="1">
                        <widget class="QFrame" name="temp_liked_tv_show_frame_4">
                         <property name="sizePolicy">
@@ -1984,7 +1984,7 @@ border-radius: 1px;
              </widget>
             </item>
             <item row="1" column="0">
-             <widget class="QLabel" name="media_to_watch_header_label">
+             <widget class="QLabel" name="liked_or_to_watch_header_label">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
@@ -2096,8 +2096,8 @@ border-radius: 1px;
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>1149</width>
-                 <height>656</height>
+                 <width>1193</width>
+                 <height>650</height>
                 </rect>
                </property>
                <layout class="QGridLayout" name="gridLayout_8">
@@ -2973,7 +2973,7 @@ QScrollBar::handle:horizontal:pressed{
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>733</width>
+                    <width>777</width>
                     <height>50</height>
                    </rect>
                   </property>
@@ -3229,7 +3229,7 @@ padding: 10px;</string>
                  <x>0</x>
                  <y>0</y>
                  <width>558</width>
-                 <height>604</height>
+                 <height>592</height>
                 </rect>
                </property>
                <layout class="QGridLayout" name="movie_results_scroll_area_grid_layout">
@@ -3481,7 +3481,7 @@ padding: 10px;</string>
                  <x>0</x>
                  <y>0</y>
                  <width>558</width>
-                 <height>604</height>
+                 <height>592</height>
                 </rect>
                </property>
                <layout class="QGridLayout" name="tv_show_results_scroll_area_grid_layout">
@@ -3622,7 +3622,7 @@ padding: 10px;</string>
                   <property name="sizeHint" stdset="0">
                    <size>
                     <width>20</width>
-                    <height>407</height>
+                    <height>400</height>
                    </size>
                   </property>
                  </spacer>

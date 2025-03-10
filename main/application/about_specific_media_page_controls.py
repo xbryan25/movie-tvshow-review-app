@@ -83,6 +83,10 @@ class AboutSpecificMediaPageControls:
                 self.add_to_liked_button.setText("Remove from Liked")
 
                 self.add_to_liked_state = "clicked"
+            else:
+                self.add_to_liked_button.setText("Add to Liked")
+
+                self.add_to_liked_state = "not clicked"
 
         elif self.media_type == "movie":
             liked_movies = json.loads(
@@ -92,6 +96,12 @@ class AboutSpecificMediaPageControls:
                 self.add_to_liked_button.setText("Remove from Liked")
 
                 self.add_to_liked_state = "clicked"
+            else:
+                self.add_to_liked_button.setText("Add to Liked")
+
+                self.add_to_liked_state = "not clicked"
+
+            # print(self.add_to_liked_button.text())
 
         connection.commit()
         connection.close()
@@ -111,6 +121,11 @@ class AboutSpecificMediaPageControls:
 
                 self.add_to_watchlist_state = "clicked"
 
+            else:
+                self.add_to_watchlist_button.setText("Add to Watchlist")
+
+                self.add_to_watchlist_state = "not clicked"
+
         elif self.media_type == "movie":
             movies_to_watch = json.loads(
                 cursor.execute("""SELECT movies_to_watch FROM media_to_watch WHERE account_id=(:account_id)""",
@@ -120,6 +135,11 @@ class AboutSpecificMediaPageControls:
                 self.add_to_watchlist_button.setText("Remove from Watchlist")
 
                 self.add_to_watchlist_state = "clicked"
+
+            else:
+                self.add_to_watchlist_button.setText("Add to Watchlist")
+
+                self.add_to_watchlist_state = "not clicked"
 
         connection.commit()
         connection.close()
@@ -255,7 +275,7 @@ class AboutSpecificMediaPageControls:
 
         self.media_title_label.setText(self.media_title)
         self.year_label.setText(str(media_release_year))
-        self.general_stars_label.setText(str(media_vote_average))
+        self.general_stars_label.setText(str(media_vote_average/2))
         self.synopsis_label.setText(media_overview)
         self.director_label.setText("-")
         self.genres_label.setText("Genres: " + media_genres)
