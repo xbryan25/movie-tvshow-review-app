@@ -154,6 +154,9 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
                                                                   self.requests_session_images)
 
         self.liked_or_to_watch_page_controls.initialize_page()
+
+        self.liked_or_to_watch_page_controls.clear_all_media()
+
         self.liked_or_to_watch_page_controls.load_liked_or_to_watch_media()
 
     def change_to_search_results_page(self, media_title_to_search):

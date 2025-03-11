@@ -69,8 +69,45 @@ class LikedOrToWatchPageControls:
         connection.close()
 
     def edit_window_title(self):
-        self.application_window.setWindowTitle(f"{self.first_name}'s Liked Media")
-        self.liked_or_to_watch_header_label.setText(f"{self.first_name}'s Liked Media")
+
+        if self.state_to_show == "liked":
+            self.application_window.setWindowTitle(f"{self.first_name}'s Liked Media")
+            self.liked_or_to_watch_header_label.setText(f"{self.first_name}'s Liked Media")
+        elif self.state_to_show == "to_watch":
+            self.application_window.setWindowTitle(f"{self.first_name}'s Media to Watch")
+            self.liked_or_to_watch_header_label.setText(f"{self.first_name}'s Media to Watch")
+
+    def clear_all_media(self):
+        self.liked_or_to_watch_movies_scroll_area.verticalScrollBar().setValue(0)
+        self.liked_or_to_watch_tv_shows_scroll_area.verticalScrollBar().setValue(0)
+
+        liked_or_to_watch_movies_scroll_area_children = (self.liked_or_to_watch_movies_scroll_area.widget().
+                                                         findChildren(QFrame))
+
+        liked_or_to_watch_tv_shows_scroll_area_children = (self.liked_or_to_watch_tv_shows_scroll_area.widget().
+                                                           findChildren(QFrame))
+
+        # Delete the frames
+        for liked_or_to_watch_movies_scroll_area_child in liked_or_to_watch_movies_scroll_area_children:
+            liked_or_to_watch_movies_scroll_area_child.deleteLater()
+
+        for liked_or_to_watch_tv_shows_scroll_area_child in liked_or_to_watch_tv_shows_scroll_area_children:
+            liked_or_to_watch_tv_shows_scroll_area_child.deleteLater()
+
+        # Delete the vertical spacers
+        for i in range(self.liked_or_to_watch_movies_scroll_area_grid_layout.count()):
+            item = self.liked_or_to_watch_movies_scroll_area_grid_layout.itemAt(i)
+
+            if isinstance(item, QSpacerItem):
+                self.liked_or_to_watch_movies_scroll_area_grid_layout.removeItem(item)
+                break
+
+        for i in range(self.liked_or_to_watch_tv_shows_scroll_area_grid_layout.count()):
+            item = self.liked_or_to_watch_tv_shows_scroll_area_grid_layout.itemAt(i)
+
+            if isinstance(item, QSpacerItem):
+                self.liked_or_to_watch_tv_shows_scroll_area_grid_layout.removeItem(item)
+                break
 
     def load_liked_or_to_watch_media(self):
         connection = sqlite3.connect('../database\\accounts.db')
