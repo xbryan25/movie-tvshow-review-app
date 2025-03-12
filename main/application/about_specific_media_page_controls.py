@@ -233,8 +233,10 @@ class AboutSpecificMediaPageControls:
         self.seasons_buttons_grid_layout = self.widgets[15]
         self.gridLayout_2 = self.widgets[16]
 
-    # TODO: Rename to something such as load_posters
     def start_process(self):
+        # Make a shallow copy of the current season buttons present
+        old_season_buttons = list(self.season_buttons_scroll_area_widget_contents.findChildren(QPushButton))
+
         self.load_contents()
 
         self.load_old_rating()
@@ -245,7 +247,9 @@ class AboutSpecificMediaPageControls:
 
         if self.media_type == "tv":
             self.load_season_buttons()
-            self.attach_connection_to_change_season()
+            self.attach_connection_to_change_season(old_season_buttons)
+
+            self.clear_old_season_buttons(old_season_buttons)
 
     def load_contents(self):
         media_url = f"https://api.themoviedb.org/3/{self.media_type}/{self.media_id}"
@@ -296,13 +300,18 @@ class AboutSpecificMediaPageControls:
             self.poster_label.setPixmap(QPixmap(media_image))
             self.poster_label.setScaledContents(True)
 
-        if self.media_type == "movie":
-            self.gridLayout_2.removeWidget(self.season_buttons_scroll_area)
+        # Delete these widgets
+        self.gridLayout_2.removeWidget(self.synopsis_label)
+        self.gridLayout_2.removeWidget(self.season_buttons_scroll_area)
 
-            # Remove synopsis_label then re-add with now row span
-            self.gridLayout_2.removeWidget(self.synopsis_label)
+        # And then re-add based on the media type
+        if self.media_type == "movie":
             self.gridLayout_2.addWidget(self.synopsis_label, 4, 1, 2, 3)
-            self.gridLayout_2.update()
+        else:
+            self.gridLayout_2.addWidget(self.synopsis_label, 4, 1, 1, 3)
+            self.gridLayout_2.addWidget(self.season_buttons_scroll_area, 5, 1, 1, 3)
+
+        self.gridLayout_2.update()
 
     def add_series_dictionary(self, number_of_episodes, vote_average, overview, series_id):
         # Shallow copies (meaning nested entries are not read) the first season of the show
@@ -454,7 +463,17 @@ class AboutSpecificMediaPageControls:
 
             self.movie_review.show()
 
+    @staticmethod
+    def clear_old_season_buttons(old_season_buttons):
+        # Schedules the old_season_buttons for deletion
+
+        for old_season_button in old_season_buttons:
+            # self.seasons_buttons_grid_layout.removeWidget(old_season_button)
+            old_season_button.deleteLater()
+
     def load_season_buttons(self):
+        # print(self.season_buttons_scroll_area_widget_contents.findChildren(QPushButton))
+
         for season in self.seasons:
             # Don't forget to change QLabel to Poster
 
@@ -474,8 +493,12 @@ class AboutSpecificMediaPageControls:
 
             self.seasons_buttons_grid_layout.addWidget(self.season_button, 0, self.seasons.index(season), 1, 1)
 
-    def attach_connection_to_change_season(self):
-        season_buttons = self.season_buttons_scroll_area_widget_contents.findChildren(QPushButton)
+    def attach_connection_to_change_season(self, old_season_buttons):
+        # Filter new season buttons from old_season_buttons
+
+        season_buttons = [season_button for season_button in
+                          self.season_buttons_scroll_area_widget_contents.findChildren(QPushButton)
+                          if season_button not in old_season_buttons]
 
         for i in range(len(season_buttons)):
             # Used tip from
@@ -524,11 +547,6 @@ class AboutSpecificMediaPageControls:
         # print(self.seasons[season_index])
         #
         # season_button.synopsis_label.setText((self.seasons[season_index])['overview'])
-
-    # def add_connection_from_review_button_to_seasons(self):
-    #     for season in self.seasons:
-    #         # _season is just another name of season, I just can't think of any word other than season
-    #         self.add_review_button.clicked.connect(lambda state, _season=season: self.add_review_season(_season))
 
     def save_rating(self):
         connection = sqlite3.connect('../database\\accounts.db')

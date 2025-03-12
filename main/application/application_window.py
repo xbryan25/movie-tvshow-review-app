@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QMainWindow, QLineEdit
+from PyQt6.QtWidgets import QMainWindow, QLineEdit, QPushButton
 
 from login.signup_dialog import SignupDialog
 from login.login_status_dialog import LoginStatusDialog

@@ -148,7 +148,7 @@ class LikedOrToWatchPageControls:
 
         for count, liked_or_to_watch_movie in enumerate(liked_or_to_watch_movies):
             movie_url = f"https://api.themoviedb.org/3/movie/{liked_or_to_watch_movie}"
-            movie_response = requests.get(movie_url, headers=self.api_headers).json()
+            movie_response = self.requests_session_tmdb.get(movie_url, headers=self.api_headers).json()
 
             movie_title = movie_response['title']
             movie_release_year = (movie_response['release_date'].split('-'))[0]
@@ -193,7 +193,7 @@ class LikedOrToWatchPageControls:
                 movie_img_url = 'https://image.tmdb.org/t/p/w92/' + movie_poster_path
 
                 movie_image = QImage()
-                movie_image.loadFromData(requests.get(movie_img_url).content)
+                movie_image.loadFromData(self.requests_session_images.get(movie_img_url).content)
 
                 self.movie_poster_label.setPixmap(QPixmap(movie_image))
 
@@ -276,7 +276,7 @@ class LikedOrToWatchPageControls:
 
         for count, liked_or_to_watch_tv_show in enumerate(liked_or_to_watch_tv_shows):
             tv_show_url = f"https://api.themoviedb.org/3/tv/{liked_or_to_watch_tv_show}"
-            tv_show_response = requests.get(tv_show_url, headers=self.api_headers).json()
+            tv_show_response = self.requests_session_tmdb.get(tv_show_url, headers=self.api_headers).json()
 
             tv_show_title = tv_show_response['name']
             tv_show_release_year = (tv_show_response['first_air_date'].split('-'))[0]
@@ -320,7 +320,7 @@ class LikedOrToWatchPageControls:
                 tv_show_img_url = 'https://image.tmdb.org/t/p/w92' + tv_show_poster
 
                 tv_show_image = QImage()
-                tv_show_image.loadFromData(requests.get(tv_show_img_url).content)
+                tv_show_image.loadFromData(self.requests_session_images.get(tv_show_img_url).content)
 
                 self.tv_show_poster_label.setPixmap(QPixmap(tv_show_image))
                 self.tv_show_poster_label.setScaledContents(True)

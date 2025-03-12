@@ -90,7 +90,7 @@ class SearchResultsPageControls:
         for count, movie in enumerate(movie_search_results['results']):
             self.movie_result_frame = MediaResult(self.movie_results_scroll_area.widget(), movie['id'], "movie",
                                                   self.account_id, self.requests_session_tmdb,
-                                                  self.requests_session_tmdb, self.application_window)
+                                                  self.requests_session_images, self.application_window)
 
             self.movie_result_frame.media_title.setText(movie['title'])
 
