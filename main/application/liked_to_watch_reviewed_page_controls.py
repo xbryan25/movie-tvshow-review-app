@@ -9,7 +9,7 @@ import json
 import requests
 
 
-class LikedOrToWatchPageControls:
+class LikedToWatchReviewedPageControls:
     def __init__(self, widgets, application_window):
         super().__init__()
 
@@ -34,15 +34,15 @@ class LikedOrToWatchPageControls:
         # self.get_first_name()
 
     def load_widgets(self):
-        self.liked_or_to_watch_header_label = self.widgets[0]
-        self.liked_or_to_watch_movies_label = self.widgets[1]
-        self.liked_or_to_watch_tv_shows_label = self.widgets[2]
-        self.liked_or_to_watch_movies_scroll_area = self.widgets[3]
-        self.liked_or_to_watch_tv_shows_scroll_area = self.widgets[4]
-        self.liked_or_to_watch_movies_scroll_area_contents = self.widgets[5]
-        self.liked_or_to_watch_tv_shows_scroll_area_contents = self.widgets[6]
-        self.liked_or_to_watch_movies_scroll_area_grid_layout = self.widgets[7]
-        self.liked_or_to_watch_tv_shows_scroll_area_grid_layout = self.widgets[8]
+        self.l_tw_r_header_label = self.widgets[0]
+        self.l_tw_r_movies_label = self.widgets[1]
+        self.l_tw_r_tv_shows_label = self.widgets[2]
+        self.l_tw_r_movies_scroll_area = self.widgets[3]
+        self.l_tw_r_tv_shows_scroll_area = self.widgets[4]
+        self.l_tw_r_movies_scroll_area_contents = self.widgets[5]
+        self.l_tw_r_tv_shows_scroll_area_contents = self.widgets[6]
+        self.l_tw_r_movies_scroll_area_grid_layout = self.widgets[7]
+        self.l_tw_r_tv_shows_scroll_area_grid_layout = self.widgets[8]
 
     def set_account_id(self, account_id):
         self.account_id = account_id
@@ -72,117 +72,129 @@ class LikedOrToWatchPageControls:
 
         if self.state_to_show == "liked":
             self.application_window.setWindowTitle(f"{self.first_name}'s Liked Media")
-            self.liked_or_to_watch_header_label.setText(f"{self.first_name}'s Liked Media")
+            self.l_tw_r_header_label.setText(f"{self.first_name}'s Liked Media")
         elif self.state_to_show == "to_watch":
             self.application_window.setWindowTitle(f"{self.first_name}'s Media to Watch")
-            self.liked_or_to_watch_header_label.setText(f"{self.first_name}'s Media to Watch")
+            self.l_tw_r_header_label.setText(f"{self.first_name}'s Media to Watch")
+        elif self.state_to_show == "reviewed":
+            self.application_window.setWindowTitle(f"{self.first_name}'s Reviewed Media")
+            self.l_tw_r_header_label.setText(f"{self.first_name}'s Reviewed Media")
 
     def clear_all_media(self):
-        self.liked_or_to_watch_movies_scroll_area.verticalScrollBar().setValue(0)
-        self.liked_or_to_watch_tv_shows_scroll_area.verticalScrollBar().setValue(0)
+        self.l_tw_r_movies_scroll_area.verticalScrollBar().setValue(0)
+        self.l_tw_r_tv_shows_scroll_area.verticalScrollBar().setValue(0)
 
-        liked_or_to_watch_movies_scroll_area_children = (self.liked_or_to_watch_movies_scroll_area.widget().
-                                                         findChildren(QFrame))
+        l_tw_r_movies_scroll_area_children = (self.l_tw_r_movies_scroll_area.widget().
+                                              findChildren(QFrame))
 
-        liked_or_to_watch_tv_shows_scroll_area_children = (self.liked_or_to_watch_tv_shows_scroll_area.widget().
-                                                           findChildren(QFrame))
+        l_tw_r_tv_shows_scroll_area_children = (self.l_tw_r_tv_shows_scroll_area.widget().
+                                                findChildren(QFrame))
 
         # Delete the frames
-        for liked_or_to_watch_movies_scroll_area_child in liked_or_to_watch_movies_scroll_area_children:
-            liked_or_to_watch_movies_scroll_area_child.deleteLater()
+        for l_tw_r_movies_scroll_area_child in l_tw_r_movies_scroll_area_children:
+            l_tw_r_movies_scroll_area_child.deleteLater()
 
-        for liked_or_to_watch_tv_shows_scroll_area_child in liked_or_to_watch_tv_shows_scroll_area_children:
-            liked_or_to_watch_tv_shows_scroll_area_child.deleteLater()
+        for l_tw_r_tv_shows_scroll_area_child in l_tw_r_tv_shows_scroll_area_children:
+            l_tw_r_tv_shows_scroll_area_child.deleteLater()
 
         # Delete the vertical spacers
-        for i in range(self.liked_or_to_watch_movies_scroll_area_grid_layout.count()):
-            item = self.liked_or_to_watch_movies_scroll_area_grid_layout.itemAt(i)
+        for i in range(self.l_tw_r_movies_scroll_area_grid_layout.count()):
+            item = self.l_tw_r_movies_scroll_area_grid_layout.itemAt(i)
 
             if isinstance(item, QSpacerItem):
-                self.liked_or_to_watch_movies_scroll_area_grid_layout.removeItem(item)
+                self.l_tw_r_movies_scroll_area_grid_layout.removeItem(item)
                 break
 
-        for i in range(self.liked_or_to_watch_tv_shows_scroll_area_grid_layout.count()):
-            item = self.liked_or_to_watch_tv_shows_scroll_area_grid_layout.itemAt(i)
+        for i in range(self.l_tw_r_tv_shows_scroll_area_grid_layout.count()):
+            item = self.l_tw_r_tv_shows_scroll_area_grid_layout.itemAt(i)
 
             if isinstance(item, QSpacerItem):
-                self.liked_or_to_watch_tv_shows_scroll_area_grid_layout.removeItem(item)
+                self.l_tw_r_tv_shows_scroll_area_grid_layout.removeItem(item)
                 break
 
-    def load_liked_or_to_watch_media(self):
+    def load_l_tw_r_media(self):
         connection = sqlite3.connect('../database\\accounts.db')
         cursor = connection.cursor()
 
         if self.state_to_show == "liked":
-            liked_or_to_watch_movies = json.loads(
+            l_tw_r_movies = json.loads(
                 cursor.execute("""SELECT liked_movies FROM liked_media WHERE account_id=(:account_id)""",
                                {'account_id': self.account_id}).fetchone()[0])
 
-            liked_or_to_watch_tv_shows = json.loads(
+            l_tw_r_tv_shows = json.loads(
                 cursor.execute("""SELECT liked_tv_shows FROM liked_media WHERE account_id=(:account_id)""",
                                {'account_id': self.account_id}).fetchone()[0])
-        else:
-            liked_or_to_watch_movies = json.loads(
+        elif self.state_to_show == "to_watch":
+            l_tw_r_movies = json.loads(
                 cursor.execute("""SELECT movies_to_watch FROM media_to_watch WHERE account_id=(:account_id)""",
                                {'account_id': self.account_id}).fetchone()[0])
 
-            liked_or_to_watch_tv_shows = json.loads(
+            l_tw_r_tv_shows = json.loads(
                 cursor.execute("""SELECT tv_shows_to_watch FROM media_to_watch WHERE account_id=(:account_id)""",
                                {'account_id': self.account_id}).fetchone()[0])
+        else:
+            l_tw_r_movies = json.loads(
+                cursor.execute("""SELECT movie_reviews FROM reviews WHERE account_id=(:account_id)""",
+                               {'account_id': self.account_id}).fetchone()[0])
+
+            l_tw_r_tv_shows = json.loads(
+                cursor.execute("""SELECT tv_show_reviews FROM reviews WHERE account_id=(:account_id)""",
+                               {'account_id': self.account_id}).fetchone()[0])
+
+        # self.l_tw_r_movies_scroll_area_grid_layout.setColumnStretch(1, 1)
 
         # Pushes movie frames to the right
         left_v_spacer = QSpacerItem(20, 40, QSizePolicy.Policy.Expanding,
                                     QSizePolicy.Policy.Minimum)
 
-        self.liked_or_to_watch_movies_scroll_area_grid_layout.addItem(left_v_spacer,
-                                                                      0, 0, 1, 1)
+        self.l_tw_r_movies_scroll_area_grid_layout.addItem(left_v_spacer, 0, 0, 1, 1)
 
         # Pushes movie frames to the left
         right_v_spacer = QSpacerItem(20, 40, QSizePolicy.Policy.Expanding,
                                      QSizePolicy.Policy.Minimum)
 
-        self.liked_or_to_watch_movies_scroll_area_grid_layout.addItem(right_v_spacer,
-                                                                      0, 2, 1, 1)
+        self.l_tw_r_movies_scroll_area_grid_layout.addItem(right_v_spacer, 0, 2, 1, 1)
 
         count = 0
 
-        for count, liked_or_to_watch_movie in enumerate(liked_or_to_watch_movies):
-            movie_url = f"https://api.themoviedb.org/3/movie/{liked_or_to_watch_movie}"
+        for count, l_tw_r_movie in enumerate(l_tw_r_movies):
+            movie_url = f"https://api.themoviedb.org/3/movie/{l_tw_r_movie}"
             movie_response = self.requests_session_tmdb.get(movie_url, headers=self.api_headers).json()
 
             movie_title = movie_response['title']
             movie_release_year = (movie_response['release_date'].split('-'))[0]
             movie_poster_path = movie_response['poster_path']
 
-            self.liked_or_to_watch_movie_frame = QFrame(parent=self.liked_or_to_watch_movies_scroll_area_contents)
-            self.liked_or_to_watch_movie_frame.setMinimumSize(QSize(360, 160))
-            self.liked_or_to_watch_movie_frame.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-            self.liked_or_to_watch_movie_frame.setStyleSheet("background-color: rgb(13, 249, 249);")
-            self.liked_or_to_watch_movie_frame.setFrameShape(QFrame.Shape.StyledPanel)
-            self.liked_or_to_watch_movie_frame.setFrameShadow(QFrame.Shadow.Raised)
-            self.liked_or_to_watch_movie_frame.setObjectName(f"liked_or_to_watch_movie_{liked_or_to_watch_movie}")
+            self.l_tw_r_movie_frame = QFrame(parent=self.l_tw_r_movies_scroll_area_contents)
+            self.l_tw_r_movie_frame.setMinimumSize(QSize(360, 160))
+            self.l_tw_r_movie_frame.setMaximumSize(QSize(550, 160))
+            self.l_tw_r_movie_frame.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+            self.l_tw_r_movie_frame.setStyleSheet("background-color: rgb(13, 249, 249);")
+            self.l_tw_r_movie_frame.setFrameShape(QFrame.Shape.StyledPanel)
+            self.l_tw_r_movie_frame.setFrameShadow(QFrame.Shadow.Raised)
+            self.l_tw_r_movie_frame.setObjectName(f"l_tw_r_movie_{l_tw_r_movie}")
 
-            self.liked_or_to_watch_movie_grid_layout = QGridLayout(self.liked_or_to_watch_movie_frame)
-            self.liked_or_to_watch_movie_grid_layout.setObjectName("liked_or_to_watch_movie_grid_layout")
+            self.l_tw_r_movie_grid_layout = QGridLayout(self.l_tw_r_movie_frame)
+            self.l_tw_r_movie_grid_layout.setObjectName("l_tw_r_movie_grid_layout")
 
-            self.movie_title_label = QLabel(parent=self.liked_or_to_watch_movie_frame)
+            self.movie_title_label = QLabel(parent=self.l_tw_r_movie_frame)
             self.movie_title_label.setMinimumSize(QSize(0, 30))
             self.movie_title_label.setMaximumSize(QSize(16777215, 50))
             font = QFont()
             font.setFamily("Oswald")
             font.setPointSize(10)
             self.movie_title_label.setFont(font)
-            self.movie_title_label.setObjectName(f"movie_title_label_{liked_or_to_watch_movie}")
+            self.movie_title_label.setObjectName(f"movie_title_label_{l_tw_r_movie}")
             self.movie_title_label.setText(movie_title)
-            self.liked_or_to_watch_movie_grid_layout.addWidget(self.movie_title_label, 0, 2, 1, 2)
+            self.l_tw_r_movie_grid_layout.addWidget(self.movie_title_label, 0, 2, 1, 2)
 
-            self.movie_poster_label = QLabel(parent=self.liked_or_to_watch_movie_frame)
+            self.movie_poster_label = QLabel(parent=self.l_tw_r_movie_frame)
             self.movie_poster_label.setMinimumSize(QSize(0, 138))
             self.movie_poster_label.setMaximumSize(QSize(92, 138))
             self.movie_poster_label.setText("")
             self.movie_poster_label.setScaledContents(True)
             self.movie_poster_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.movie_poster_label.setObjectName(f"movie_poster_{liked_or_to_watch_movie}")
+            self.movie_poster_label.setObjectName(f"movie_poster_{l_tw_r_movie}")
             self.movie_poster_label.setScaledContents(True)
 
             if not movie_poster_path:
@@ -198,30 +210,30 @@ class LikedOrToWatchPageControls:
                 self.movie_poster_label.setPixmap(QPixmap(movie_image))
 
             self.movie_poster_label.setScaledContents(True)
-            self.liked_or_to_watch_movie_grid_layout.addWidget(self.movie_poster_label, 0, 0, 5, 1)
+            self.l_tw_r_movie_grid_layout.addWidget(self.movie_poster_label, 0, 0, 5, 1)
 
-            self.movie_year_label = QLabel(parent=self.liked_or_to_watch_movie_frame)
+            self.movie_year_label = QLabel(parent=self.l_tw_r_movie_frame)
             self.movie_year_label.setMinimumSize(QSize(0, 30))
             self.movie_year_label.setMaximumSize(QSize(16777215, 50))
             font = QFont()
             font.setFamily("Oswald")
             font.setPointSize(10)
             self.movie_year_label.setFont(font)
-            self.movie_year_label.setObjectName(f"movie_year_{liked_or_to_watch_movie}")
+            self.movie_year_label.setObjectName(f"movie_year_{l_tw_r_movie}")
             self.movie_year_label.setText(movie_release_year)
-            self.liked_or_to_watch_movie_grid_layout.addWidget(self.movie_year_label, 1, 2, 1, 2)
+            self.l_tw_r_movie_grid_layout.addWidget(self.movie_year_label, 1, 2, 1, 2)
 
-            self.movie_runtime_label = QLabel(parent=self.liked_or_to_watch_movie_frame)
+            self.movie_runtime_label = QLabel(parent=self.l_tw_r_movie_frame)
             self.movie_runtime_label.setMinimumSize(QSize(0, 30))
             self.movie_runtime_label.setMaximumSize(QSize(16777215, 30))
             font = QFont()
             font.setFamily("Oswald")
             font.setPointSize(10)
             self.movie_runtime_label.setFont(font)
-            self.movie_runtime_label.setObjectName(f"movie_runtime_{liked_or_to_watch_movie}")
-            self.liked_or_to_watch_movie_grid_layout.addWidget(self.movie_runtime_label, 2, 2, 1, 2)
+            self.movie_runtime_label.setObjectName(f"movie_runtime_{l_tw_r_movie}")
+            self.l_tw_r_movie_grid_layout.addWidget(self.movie_runtime_label, 2, 2, 1, 2)
 
-            self.remove_button_movie = QPushButton(parent=self.liked_or_to_watch_movie_frame)
+            self.remove_button_movie = QPushButton(parent=self.l_tw_r_movie_frame)
             font = QFont()
             font.setFamily("Oswald Medium")
             font.setPointSize(10)
@@ -232,28 +244,28 @@ class LikedOrToWatchPageControls:
             self.remove_button_movie.setObjectName("remove_from_liked_movie")
             self.remove_button_movie.setText("Remove")
 
-            self.remove_button_movie.clicked.connect(lambda state, frame=self.liked_or_to_watch_movie_frame,
-                                                      movie=liked_or_to_watch_movie,
-                                                      _liked_or_to_watch_movies=liked_or_to_watch_movies,
+            self.remove_button_movie.clicked.connect(lambda state, frame=self.l_tw_r_movie_frame,
+                                                      movie=l_tw_r_movie,
+                                                      _l_tw_r_movies=l_tw_r_movies,
                                                       media_type="movie":
-                                               self.remove_liked_media(frame, movie, _liked_or_to_watch_movies,
+                                               self.remove_liked_media(frame, movie, _l_tw_r_movies,
                                                                        media_type))
 
-            self.liked_or_to_watch_movie_grid_layout.addWidget(self.remove_button_movie, 3, 2, 1, 2)
+            self.l_tw_r_movie_grid_layout.addWidget(self.remove_button_movie, 3, 2, 1, 2)
 
             poster_spacer = QSpacerItem(10, 20, QSizePolicy.Policy.Fixed,
                                                QSizePolicy.Policy.Minimum)
 
-            self.liked_or_to_watch_movie_grid_layout.addItem(poster_spacer, 1, 1, 1, 1)
+            self.l_tw_r_movie_grid_layout.addItem(poster_spacer, 1, 1, 1, 1)
 
-            self.liked_or_to_watch_movies_scroll_area_grid_layout.addWidget(self.liked_or_to_watch_movie_frame,
+            self.l_tw_r_movies_scroll_area_grid_layout.addWidget(self.l_tw_r_movie_frame,
                                                                             count, 1, 1, 1)
 
         # Pushes movie frames up
         spacerItem1 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum,
                                             QSizePolicy.Policy.Expanding)
 
-        self.liked_or_to_watch_movies_scroll_area_grid_layout.addItem(spacerItem1,
+        self.l_tw_r_movies_scroll_area_grid_layout.addItem(spacerItem1,
                                                                       count + 1, 1, 1, 1)
 
         # -----------------------------------------------------------------------------------------------
@@ -262,55 +274,56 @@ class LikedOrToWatchPageControls:
         left_v_spacer = QSpacerItem(20, 40, QSizePolicy.Policy.Expanding,
                                     QSizePolicy.Policy.Minimum)
 
-        self.liked_or_to_watch_tv_shows_scroll_area_grid_layout.addItem(left_v_spacer,
+        self.l_tw_r_tv_shows_scroll_area_grid_layout.addItem(left_v_spacer,
                                                                         0, 0, 1, 1)
 
         # Pushes movie frames to the left
         right_v_spacer = QSpacerItem(20, 40, QSizePolicy.Policy.Expanding,
                                      QSizePolicy.Policy.Minimum)
 
-        self.liked_or_to_watch_tv_shows_scroll_area_grid_layout.addItem(right_v_spacer,
+        self.l_tw_r_tv_shows_scroll_area_grid_layout.addItem(right_v_spacer,
                                                                         0, 2, 1, 1)
 
         count = 0
 
-        for count, liked_or_to_watch_tv_show in enumerate(liked_or_to_watch_tv_shows):
-            tv_show_url = f"https://api.themoviedb.org/3/tv/{liked_or_to_watch_tv_show}"
+        for count, l_tw_r_tv_show in enumerate(l_tw_r_tv_shows):
+            tv_show_url = f"https://api.themoviedb.org/3/tv/{l_tw_r_tv_show}"
             tv_show_response = self.requests_session_tmdb.get(tv_show_url, headers=self.api_headers).json()
 
             tv_show_title = tv_show_response['name']
             tv_show_release_year = (tv_show_response['first_air_date'].split('-'))[0]
             tv_show_poster = tv_show_response['poster_path']
 
-            self.liked_or_to_watch_tv_show_frame = QFrame(parent=self.liked_or_to_watch_tv_shows_scroll_area_contents)
-            self.liked_or_to_watch_tv_show_frame.setMinimumSize(QSize(360, 160))
-            self.liked_or_to_watch_tv_show_frame.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-            self.liked_or_to_watch_tv_show_frame.setStyleSheet("background-color: rgb(13, 249, 249);")
-            self.liked_or_to_watch_tv_show_frame.setFrameShape(QFrame.Shape.StyledPanel)
-            self.liked_or_to_watch_tv_show_frame.setFrameShadow(QFrame.Shadow.Raised)
-            self.liked_or_to_watch_tv_show_frame.setObjectName(f"liked_or_to_watch_tv_show_{liked_or_to_watch_tv_show}")
+            self.l_tw_r_tv_show_frame = QFrame(parent=self.l_tw_r_tv_shows_scroll_area_contents)
+            self.l_tw_r_tv_show_frame.setMinimumSize(QSize(360, 160))
+            self.l_tw_r_tv_show_frame.setMaximumSize(QSize(550, 160))
+            self.l_tw_r_tv_show_frame.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+            self.l_tw_r_tv_show_frame.setStyleSheet("background-color: rgb(13, 249, 249);")
+            self.l_tw_r_tv_show_frame.setFrameShape(QFrame.Shape.StyledPanel)
+            self.l_tw_r_tv_show_frame.setFrameShadow(QFrame.Shadow.Raised)
+            self.l_tw_r_tv_show_frame.setObjectName(f"l_tw_r_tv_show_{l_tw_r_tv_show}")
 
-            self.liked_or_to_watch_tv_show_grid_layout = QGridLayout(self.liked_or_to_watch_tv_show_frame)
-            self.liked_or_to_watch_tv_show_grid_layout.setObjectName("liked_or_to_watch_tv_show_grid_layout")
+            self.l_tw_r_tv_show_grid_layout = QGridLayout(self.l_tw_r_tv_show_frame)
+            self.l_tw_r_tv_show_grid_layout.setObjectName("l_tw_r_tv_show_grid_layout")
 
-            self.tv_show_title_label = QLabel(parent=self.liked_or_to_watch_tv_show_frame)
+            self.tv_show_title_label = QLabel(parent=self.l_tw_r_tv_show_frame)
             self.tv_show_title_label.setMinimumSize(QSize(0, 30))
             self.tv_show_title_label.setMaximumSize(QSize(200, 50))
             font = QFont()
             font.setFamily("Oswald")
             font.setPointSize(10)
             self.tv_show_title_label.setFont(font)
-            self.tv_show_title_label.setObjectName(f"tv_show_title_label_{liked_or_to_watch_tv_show}")
+            self.tv_show_title_label.setObjectName(f"tv_show_title_label_{l_tw_r_tv_show}")
             self.tv_show_title_label.setText(tv_show_title)
-            self.liked_or_to_watch_tv_show_grid_layout.addWidget(self.tv_show_title_label, 0, 2, 1, 2)
+            self.l_tw_r_tv_show_grid_layout.addWidget(self.tv_show_title_label, 0, 2, 1, 2)
 
-            self.tv_show_poster_label = QLabel(parent=self.liked_or_to_watch_tv_show_frame)
+            self.tv_show_poster_label = QLabel(parent=self.l_tw_r_tv_show_frame)
             self.tv_show_poster_label.setMinimumSize(QSize(0, 138))
             self.tv_show_poster_label.setMaximumSize(QSize(92, 138))
             self.tv_show_poster_label.setText("")
             self.tv_show_poster_label.setScaledContents(True)
             self.tv_show_poster_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.tv_show_poster_label.setObjectName(f"tv_show_poster_{liked_or_to_watch_tv_show}")
+            self.tv_show_poster_label.setObjectName(f"tv_show_poster_{l_tw_r_tv_show}")
 
             if not tv_show_poster:
                 question_mark_image = QPixmap("../images/question_mark.jpg")
@@ -326,19 +339,19 @@ class LikedOrToWatchPageControls:
                 self.tv_show_poster_label.setScaledContents(True)
 
             self.tv_show_poster_label.setScaledContents(True)
-            self.liked_or_to_watch_tv_show_grid_layout.addWidget(self.tv_show_poster_label, 0, 0, 5, 1)
+            self.l_tw_r_tv_show_grid_layout.addWidget(self.tv_show_poster_label, 0, 0, 5, 1)
 
-            self.tv_show_seasons_label = QLabel(parent=self.liked_or_to_watch_tv_show_frame)
+            self.tv_show_seasons_label = QLabel(parent=self.l_tw_r_tv_show_frame)
             self.tv_show_seasons_label.setMinimumSize(QSize(0, 30))
             self.tv_show_seasons_label.setMaximumSize(QSize(200, 50))
             font = QFont()
             font.setFamily("Oswald")
             font.setPointSize(10)
             self.tv_show_seasons_label.setFont(font)
-            self.tv_show_seasons_label.setObjectName(f"tv_show_seasons_{liked_or_to_watch_tv_show}")
-            self.liked_or_to_watch_tv_show_grid_layout.addWidget(self.tv_show_seasons_label, 2, 2, 1, 2)
+            self.tv_show_seasons_label.setObjectName(f"tv_show_seasons_{l_tw_r_tv_show}")
+            self.l_tw_r_tv_show_grid_layout.addWidget(self.tv_show_seasons_label, 2, 2, 1, 2)
 
-            self.tv_show_year_label = QLabel(parent=self.liked_or_to_watch_tv_show_frame)
+            self.tv_show_year_label = QLabel(parent=self.l_tw_r_tv_show_frame)
             self.tv_show_year_label.setMinimumSize(QSize(0, 30))
             self.tv_show_year_label.setMaximumSize(QSize(200, 50))
             font = QFont()
@@ -347,40 +360,40 @@ class LikedOrToWatchPageControls:
             self.tv_show_year_label.setFont(font)
             self.tv_show_year_label.setObjectName("tv_show_year")
             self.tv_show_year_label.setText(tv_show_release_year)
-            self.liked_or_to_watch_tv_show_grid_layout.addWidget(self.tv_show_year_label, 1, 2, 1, 2)
+            self.l_tw_r_tv_show_grid_layout.addWidget(self.tv_show_year_label, 1, 2, 1, 2)
 
-            self.remove_button_tv_show = QPushButton(parent=self.liked_or_to_watch_tv_show_frame)
+            self.remove_button_tv_show = QPushButton(parent=self.l_tw_r_tv_show_frame)
             font = QFont()
             font.setFamily("Oswald Medium")
             font.setPointSize(10)
             self.remove_button_tv_show.setFont(font)
             self.remove_button_tv_show.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-            self.remove_button_tv_show.setObjectName(f"remove_button_tv_show_{liked_or_to_watch_tv_show}")
+            self.remove_button_tv_show.setObjectName(f"remove_button_tv_show_{l_tw_r_tv_show}")
             self.remove_button_tv_show.setText("Remove")
 
-            self.remove_button_tv_show.clicked.connect(lambda state, frame=self.liked_or_to_watch_tv_show_frame,
-                                                              tv_show=liked_or_to_watch_tv_show,
-                                                              _liked_or_to_watch_tv_shows=liked_or_to_watch_tv_shows,
+            self.remove_button_tv_show.clicked.connect(lambda state, frame=self.l_tw_r_tv_show_frame,
+                                                              tv_show=l_tw_r_tv_show,
+                                                              _l_tw_r_tv_shows=l_tw_r_tv_shows,
                                                               media_type="tv":
                                                        self.remove_liked_media(frame, tv_show,
-                                                                               _liked_or_to_watch_tv_shows,
+                                                                               _l_tw_r_tv_shows,
                                                                                media_type))
 
-            self.liked_or_to_watch_tv_show_grid_layout.addWidget(self.remove_button_tv_show, 3, 2, 1, 2)
+            self.l_tw_r_tv_show_grid_layout.addWidget(self.remove_button_tv_show, 3, 2, 1, 2)
 
             poster_spacer2 = QSpacerItem(10, 20, QSizePolicy.Policy.Fixed,
                                                QSizePolicy.Policy.Minimum)
 
-            self.liked_or_to_watch_tv_show_grid_layout.addItem(poster_spacer2, 1, 1, 1, 1)
+            self.l_tw_r_tv_show_grid_layout.addItem(poster_spacer2, 1, 1, 1, 1)
 
-            self.liked_or_to_watch_tv_shows_scroll_area_grid_layout.addWidget(self.liked_or_to_watch_tv_show_frame,
+            self.l_tw_r_tv_shows_scroll_area_grid_layout.addWidget(self.l_tw_r_tv_show_frame,
                                                                               count, 1, 1, 1)
 
         # Pushes movie frames up
         spacerItem2 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum,
                                   QSizePolicy.Policy.Expanding)
 
-        self.liked_or_to_watch_tv_shows_scroll_area_grid_layout.addItem(spacerItem2,
+        self.l_tw_r_tv_shows_scroll_area_grid_layout.addItem(spacerItem2,
                                                                        count + 1, 1, 1, 1)
 
         connection.commit()
@@ -390,7 +403,10 @@ class LikedOrToWatchPageControls:
         connection = sqlite3.connect('../database\\accounts.db')
         cursor = connection.cursor()
 
-        frame.close()
+        self.rearrange_layout(frame, media_type)
+
+        frame.hide()
+        frame.deleteLater()
 
         liked_media_list.remove(media)
         liked_media_json = json.dumps(liked_media_list)
@@ -404,3 +420,58 @@ class LikedOrToWatchPageControls:
 
         connection.commit()
         connection.close()
+
+    def rearrange_layout(self, frame, media_type):
+
+        if media_type == "movie":
+            # Make a shallow copy of the current children of the widget
+
+            movie_frames = [child for child in
+                            self.l_tw_r_movies_scroll_area.widget().findChildren(QFrame)
+                            if type(child) is QFrame]
+
+            # Remove v_spacer
+            v_spacer = self.l_tw_r_movies_scroll_area_grid_layout.itemAtPosition(len(movie_frames) + 1, 1)
+            self.l_tw_r_movies_scroll_area_grid_layout.removeItem(v_spacer)
+
+            count = 0
+
+            for movie_frame in movie_frames:
+                # Transfer frames one row up
+                self.l_tw_r_movies_scroll_area_grid_layout.removeWidget(movie_frame)
+
+                if movie_frame != frame:
+
+                    self.l_tw_r_movies_scroll_area_grid_layout.addWidget(movie_frame, count, 1, 1, 1)
+
+                    count += 1
+
+            # Add v_spacer again
+            v_spacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum,QSizePolicy.Policy.Expanding)
+            self.l_tw_r_movies_scroll_area_grid_layout.addItem(v_spacer, count + 1, 1, 1, 1)
+
+        elif media_type == "tv":
+            # Make a shallow copy of the current children of the widget
+
+            tv_show_frames = [child for child in
+                              self.l_tw_r_tv_shows_scroll_area.widget().findChildren(QFrame)
+                              if type(child) is QFrame]
+
+            # Remove v_spacer
+            v_spacer = self.l_tw_r_tv_shows_scroll_area_grid_layout.itemAtPosition(len(tv_show_frames) + 1, 1)
+            self.l_tw_r_tv_shows_scroll_area_grid_layout.removeItem(v_spacer)
+
+            count = 0
+
+            for tv_show_frame in tv_show_frames:
+                # Transfer frames one row up
+                self.l_tw_r_tv_shows_scroll_area_grid_layout.removeWidget(tv_show_frame)
+
+                if tv_show_frame != frame:
+                    self.l_tw_r_tv_shows_scroll_area_grid_layout.addWidget(tv_show_frame, count, 1, 1, 1)
+
+                    count += 1
+
+            # Add v_spacer again
+            v_spacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+            self.l_tw_r_tv_shows_scroll_area_grid_layout.addItem(v_spacer, count + 1, 1, 1, 1)
