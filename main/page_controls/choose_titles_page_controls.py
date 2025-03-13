@@ -1,4 +1,4 @@
-from choose_title.choose_titles_page_design import Ui_MainWindow as ChooseTitlesPageUI
+
 
 # from choose_title.header_buttons.liked_media_page import LikedMediaPage
 # from choose_title.header_buttons.media_to_watch_page import MediaToWatchPage

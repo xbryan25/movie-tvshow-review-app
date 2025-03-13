@@ -425,7 +425,7 @@ class AboutSpecificMediaPageControls:
             media_to_watch_type_json = json.dumps(media_to_watch_type)
 
             self.add_to_watchlist_state = "clicked"
-        elif self.add_to_liked_state == "clicked":
+        elif self.add_to_watchlist_state == "clicked":
             self.add_to_watchlist_button.setText("Add to Watchlist")
 
             media_to_watch_type.pop(media_to_watch_type.index(self.media_id))
