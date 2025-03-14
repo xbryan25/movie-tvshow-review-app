@@ -4,6 +4,8 @@ from PyQt6.QtCore import QRect, QPropertyAnimation
 from PyQt6.QtGui import QCursor, QFont, QImage, QPixmap
 from PyQt6.QtCore import Qt, QSize
 
+from dialogs.operation_confirmation_dialog import OperationConfirmationDialog
+
 import sqlite3
 import json
 import requests
@@ -245,10 +247,10 @@ class LikedToWatchReviewedPageControls:
             self.remove_button_movie.setText("Remove")
 
             self.remove_button_movie.clicked.connect(lambda state, frame=self.l_tw_r_movie_frame,
-                                                      movie=l_tw_r_movie,
-                                                      _l_tw_r_movies=l_tw_r_movies,
-                                                      media_type="movie":
-                                               self.remove_liked_media(frame, movie, _l_tw_r_movies,
+                                                            movie=l_tw_r_movie,
+                                                            _l_tw_r_movies=l_tw_r_movies,
+                                                            media_type="movie":
+                                                     self.remove_media(frame, movie, _l_tw_r_movies,
                                                                        media_type))
 
             self.l_tw_r_movie_grid_layout.addWidget(self.remove_button_movie, 3, 2, 1, 2)
@@ -375,9 +377,9 @@ class LikedToWatchReviewedPageControls:
                                                               tv_show=l_tw_r_tv_show,
                                                               _l_tw_r_tv_shows=l_tw_r_tv_shows,
                                                               media_type="tv":
-                                                       self.remove_liked_media(frame, tv_show,
-                                                                               _l_tw_r_tv_shows,
-                                                                               media_type))
+                                                       self.remove_media(frame, tv_show,
+                                                                         _l_tw_r_tv_shows,
+                                                                         media_type))
 
             self.l_tw_r_tv_show_grid_layout.addWidget(self.remove_button_tv_show, 3, 2, 1, 2)
 
@@ -399,27 +401,32 @@ class LikedToWatchReviewedPageControls:
         connection.commit()
         connection.close()
 
-    def remove_liked_media(self, frame, media, liked_media_list, media_type):
-        connection = sqlite3.connect('../database\\accounts.db')
-        cursor = connection.cursor()
+    def remove_media(self, frame, media, liked_media_list, media_type):
+        self.confirmation_dialog = OperationConfirmationDialog(media_type, self.state_to_show)
 
-        self.rearrange_layout(frame, media_type)
+        self.confirmation_dialog.exec()
 
-        frame.hide()
-        frame.deleteLater()
+        if self.confirmation_dialog.get_confirm_state():
+            connection = sqlite3.connect('../database\\accounts.db')
+            cursor = connection.cursor()
 
-        liked_media_list.remove(media)
-        liked_media_json = json.dumps(liked_media_list)
+            self.rearrange_layout(frame, media_type)
 
-        if media_type == "movie":
-            cursor.execute("""UPDATE liked_media SET liked_movies=(:liked_movies) WHERE account_id=(:account_id)""",
-                       {"liked_movies": liked_media_json, "account_id": self.account_id})
-        else:
-            cursor.execute("""UPDATE liked_media SET liked_tv_shows=(:liked_tv_shows) WHERE account_id=(:account_id)""",
-                           {"liked_tv_shows": liked_media_json, "account_id": self.account_id})
+            frame.hide()
+            frame.deleteLater()
 
-        connection.commit()
-        connection.close()
+            liked_media_list.remove(media)
+            liked_media_json = json.dumps(liked_media_list)
+
+            if media_type == "movie":
+                cursor.execute("""UPDATE liked_media SET liked_movies=(:liked_movies) WHERE account_id=(:account_id)""",
+                           {"liked_movies": liked_media_json, "account_id": self.account_id})
+            else:
+                cursor.execute("""UPDATE liked_media SET liked_tv_shows=(:liked_tv_shows) WHERE account_id=(:account_id)""",
+                               {"liked_tv_shows": liked_media_json, "account_id": self.account_id})
+
+            connection.commit()
+            connection.close()
 
     def rearrange_layout(self, frame, media_type):
 

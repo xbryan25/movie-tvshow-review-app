@@ -22,6 +22,7 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
         super().__init__()
 
         self.setupUi(self)
+        self.load_external_stylesheet()
 
         self.load_controls()
         self.open_requests_session()
@@ -175,3 +176,6 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
             self.search_results_page_controls.remove_old_search_results()
             self.search_results_page_controls.show_search_results()
 
+    def load_external_stylesheet(self):
+        with open("../assets/qss_files/login_page_style.qss", "r") as file:
+            self.login_page.setStyleSheet(file.read())
