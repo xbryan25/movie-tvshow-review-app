@@ -1,15 +1,14 @@
 from os.path import split
 
 from PyQt6.QtWidgets import QMainWindow, QPushButton
-from PyQt6.QtGui import QImage, QPixmap, QFont
+from PyQt6.QtGui import QImage, QPixmap, QFont, QCursor
 from PyQt6.QtCore import QSize, Qt
 
 # from about_title.about_title_tv_show_design import Ui_MainWindow as AboutTitleTvShowDesignUI
 from about_title.tv_show_review import TvShowReview
 from about_title.movie_review import MovieReview
 
-from PyQt6.QtGui import QCursor
-from PyQt6.QtCore import Qt
+from dialogs.operation_confirmation_dialog import OperationConfirmationDialog
 
 import requests
 import sqlite3
@@ -53,9 +52,9 @@ class AboutSpecificMediaPageControls:
 
     def add_signals(self):
         self.star_slider.valueChanged.connect(lambda: self.change_own_rating_slider())
-        self.add_to_liked_button.clicked.connect(self.add_to_liked)
-        self.add_to_watchlist_button.clicked.connect(self.add_to_watchlist)
-        self.add_review_button.clicked.connect(self.add_review_to_media)
+        self.add_to_liked_button.clicked.connect(self.manage_liked)
+        self.add_to_watchlist_button.clicked.connect(self.manage_watchlist)
+        self.add_review_button.clicked.connect(self.manage_reviewed)
         self.save_rating_button.clicked.connect(self.save_rating)
 
     def set_media_type_and_id(self, media_type, media_id):
@@ -158,6 +157,25 @@ class AboutSpecificMediaPageControls:
             if str(self.media_id) in movie_ids:
                 self.add_review_button.setText("Edit Review")
 
+        elif self.media_type == "tv":
+            tv_show_reviews = json.loads(
+                cursor.execute("""SELECT tv_show_reviews FROM reviews WHERE account_id=(:account_id)""",
+                               {"account_id": self.account_id}).fetchone()[0])
+
+            tv_show_ids = tv_show_reviews.keys()
+
+            current_tv_show_id = None
+
+            for tv_show_id in tv_show_ids:
+                if tv_show_id == self.media_id:
+                    current_tv_show_id = tv_show_id
+                    break
+
+            if current_tv_show_id and self.clicked_season in tv_show_reviews[current_tv_show_id].keys():
+                self.add_review_button.setText("Edit Review")
+            else:
+                self.add_review_button.setText("Add Review")
+
         connection.commit()
         connection.close()
 
@@ -234,6 +252,9 @@ class AboutSpecificMediaPageControls:
         self.gridLayout_2 = self.widgets[16]
 
     def start_process(self):
+        # Reset self.clicked_season
+        self.clicked_season = 'Series'
+
         # Make a shallow copy of the current season buttons present
         old_season_buttons = list(self.season_buttons_scroll_area_widget_contents.findChildren(QPushButton))
 
@@ -347,7 +368,7 @@ class AboutSpecificMediaPageControls:
             else:
                 self.star_label.setText(f"Own rating: {old_rating: .0f} stars")
 
-    def add_to_liked(self):
+    def manage_liked(self):
         connection = sqlite3.connect('../database\\accounts.db')
         cursor = connection.cursor()
 
@@ -365,32 +386,18 @@ class AboutSpecificMediaPageControls:
                 cursor.execute("""SELECT liked_movies FROM liked_media WHERE account_id=(:account_id)""",
                                {"account_id": self.account_id}).fetchone()[0])
 
-        # Manipulate values
         if self.add_to_liked_state == "not clicked":
-            self.add_to_liked_button.setText("Remove from Liked")
-            liked_media_type.append(self.media_id)
-
-            # Converts the list into a json
-            liked_media_type_json = json.dumps(liked_media_type)
-
-            self.add_to_liked_state = "clicked"
+            liked_media_type_json = self.add_to_liked(liked_media_type)
         elif self.add_to_liked_state == "clicked":
-            self.add_to_liked_button.setText("Add to Liked")
-
-            liked_media_type.pop(liked_media_type.index(self.media_id))
-
-            # Converts the list into a json
-            liked_media_type_json = json.dumps(liked_media_type)
-
-            self.add_to_liked_state = "not clicked"
+            liked_media_type_json = self.remove_from_liked(liked_media_type)
 
         # Update database
-        if self.media_type == "tv":
+        if self.media_type == "tv" and liked_media_type_json != "":
             cursor.execute(
                 """UPDATE liked_media SET liked_tv_shows=(:liked_tv_shows) WHERE account_id=(:account_id)""",
                 {"liked_tv_shows": liked_media_type_json, "account_id": self.account_id})
 
-        elif self.media_type == "movie":
+        elif self.media_type == "movie" and liked_media_type_json != "":
             cursor.execute(
                 """UPDATE liked_media SET liked_movies=(:liked_movies) WHERE account_id=(:account_id)""",
                 {"liked_movies": liked_media_type_json, "account_id": self.account_id})
@@ -398,7 +405,7 @@ class AboutSpecificMediaPageControls:
         connection.commit()
         connection.close()
 
-    def add_to_watchlist(self):
+    def manage_watchlist(self):
         connection = sqlite3.connect('../database\\accounts.db')
         cursor = connection.cursor()
 
@@ -416,16 +423,87 @@ class AboutSpecificMediaPageControls:
                 cursor.execute("""SELECT movies_to_watch FROM media_to_watch WHERE account_id=(:account_id)""",
                                {"account_id": self.account_id}).fetchone()[0])
 
-        # Manipulate values
         if self.add_to_watchlist_state == "not clicked":
-            self.add_to_watchlist_button.setText("Remove from Watchlist")
-            media_to_watch_type.append(self.media_id)
+            media_to_watch_type_json = self.add_to_watchlist(media_to_watch_type)
+        elif self.add_to_watchlist_state == "clicked":
+            media_to_watch_type_json = self.remove_from_watchlist(media_to_watch_type)
+
+        # Update database
+        if self.media_type == "tv" and media_to_watch_type_json != "":
+            cursor.execute(
+                """UPDATE media_to_watch SET tv_shows_to_watch=(:tv_shows_to_watch) WHERE account_id=(:account_id)""",
+                {"tv_shows_to_watch": media_to_watch_type_json, "account_id": self.account_id})
+
+        elif self.media_type == "movie" and media_to_watch_type_json != "":
+            cursor.execute(
+                """UPDATE media_to_watch SET movies_to_watch=(:movies_to_watch) WHERE account_id=(:account_id)""",
+                {"movies_to_watch": media_to_watch_type_json, "account_id": self.account_id})
+
+        connection.commit()
+        connection.close()
+
+    def manage_reviewed(self):
+        if self.media_type == "tv":
+            self.tv_show_review = TvShowReview(self.account_id, self.media_id, self.clicked_season,
+                                               self.add_review_button)
+
+            self.tv_show_review.title_label.setText(f"{self.media_title} | {self.clicked_season}")
+
+            self.tv_show_review.show()
+        elif self.media_type == "movie":
+            self.movie_review = MovieReview(self.account_id, self.media_id, self.add_review_button)
+
+            self.movie_review.title_label.setText(self.media_title)
+
+            self.movie_review.show()
+
+    def add_to_liked(self, liked_media_type):
+        # Manipulate values
+        self.add_to_liked_button.setText("Remove from Liked")
+        liked_media_type.append(self.media_id)
+
+        # Converts the list into a json
+        liked_media_type_json = json.dumps(liked_media_type)
+
+        self.add_to_liked_state = "clicked"
+
+        return liked_media_type_json
+
+    def add_to_watchlist(self, media_to_watch_type):
+        # Manipulate values
+        self.add_to_watchlist_button.setText("Remove from Watchlist")
+        media_to_watch_type.append(self.media_id)
+
+        # Converts the list into a json
+        media_to_watch_type_json = json.dumps(media_to_watch_type)
+
+        self.add_to_watchlist_state = "clicked"
+
+        return media_to_watch_type_json
+
+    def remove_from_liked(self, liked_media_type):
+        self.confirmation_dialog = OperationConfirmationDialog(self.media_type, "liked")
+        self.confirmation_dialog.exec()
+
+        if self.confirmation_dialog.get_confirm_state():
+            self.add_to_liked_button.setText("Add to Liked")
+
+            liked_media_type.pop(liked_media_type.index(self.media_id))
 
             # Converts the list into a json
-            media_to_watch_type_json = json.dumps(media_to_watch_type)
+            liked_media_type_json = json.dumps(liked_media_type)
 
-            self.add_to_watchlist_state = "clicked"
-        elif self.add_to_watchlist_state == "clicked":
+            self.add_to_liked_state = "not clicked"
+
+            return liked_media_type_json
+
+        return ""
+
+    def remove_from_watchlist(self, media_to_watch_type):
+        self.confirmation_dialog = OperationConfirmationDialog(self.media_type, "to_watch")
+        self.confirmation_dialog.exec()
+
+        if self.confirmation_dialog.get_confirm_state():
             self.add_to_watchlist_button.setText("Add to Watchlist")
 
             media_to_watch_type.pop(media_to_watch_type.index(self.media_id))
@@ -435,33 +513,9 @@ class AboutSpecificMediaPageControls:
 
             self.add_to_watchlist_state = "not clicked"
 
-        # Update database
-        if self.media_type == "tv":
-            cursor.execute(
-                """UPDATE media_to_watch SET tv_shows_to_watch=(:tv_shows_to_watch) WHERE account_id=(:account_id)""",
-                {"tv_shows_to_watch": media_to_watch_type_json, "account_id": self.account_id})
+            return media_to_watch_type_json
 
-        elif self.media_type == "movie":
-            cursor.execute(
-                """UPDATE media_to_watch SET movies_to_watch=(:movies_to_watch) WHERE account_id=(:account_id)""",
-                {"movies_to_watch": media_to_watch_type_json, "account_id": self.account_id})
-
-        connection.commit()
-        connection.close()
-
-    def add_review_to_media(self):
-
-        if self.media_type == "tv":
-            self.tv_show_review = TvShowReview(self.account_id, self.media_id, self.clicked_season)
-            self.tv_show_review.title_label.setText(f"{self.media_title} | {self.clicked_season}")
-
-            self.tv_show_review.show()
-        elif self.media_type == "movie":
-            self.movie_review = MovieReview(self.account_id, self.media_id)
-
-            self.movie_review.title_label.setText(self.media_title)
-
-            self.movie_review.show()
+        return ""
 
     @staticmethod
     def clear_old_season_buttons(old_season_buttons):
@@ -542,7 +596,8 @@ class AboutSpecificMediaPageControls:
         self.clicked_season = self.seasons[season_index]['name']
 
         self.load_old_rating()
-        print(self.clicked_season)
+
+        self.set_review_button_state()
 
         # print(self.seasons[season_index])
         #

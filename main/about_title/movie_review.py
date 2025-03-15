@@ -10,13 +10,14 @@ from PyQt6.QtCore import Qt
 
 
 class MovieReview(QMainWindow, MediaReviewUI):
-    def __init__(self, account_id, media_id):
+    def __init__(self, account_id, media_id, add_review_button):
         super().__init__()
 
         self.setupUi(self)
 
         self.account_id = account_id
         self.media_id = str(media_id)
+        self.add_review_button = add_review_button
 
         self.show_old_review()
 
@@ -49,10 +50,17 @@ class MovieReview(QMainWindow, MediaReviewUI):
 
         movie_ids = movie_reviews.keys()
 
-        if self.media_id in movie_ids:
+        if self.media_id in movie_ids and self.review_plain_text.toPlainText().strip() != "":
             movie_reviews[self.media_id] = self.review_plain_text.toPlainText()
-        else:
+            self.add_review_button.setText("Edit Review")
+
+        elif self.media_id not in movie_ids and self.review_plain_text.toPlainText().strip() != "":
             movie_reviews.update({self.media_id: self.review_plain_text.toPlainText()})
+
+            self.add_review_button.setText("Edit Review")
+        else:
+            movie_reviews.pop(self.media_id)
+            self.add_review_button.setText("Add Review")
 
         movie_reviews_json = json.dumps(movie_reviews)
 

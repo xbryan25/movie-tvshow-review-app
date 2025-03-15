@@ -10,7 +10,7 @@ from PyQt6.QtCore import Qt
 
 
 class TvShowReview(QMainWindow, MediaReviewUI):
-    def __init__(self, account_id, media_id, clicked_season):
+    def __init__(self, account_id, media_id, clicked_season, add_review_button):
         super().__init__()
 
         self.setupUi(self)
@@ -18,6 +18,7 @@ class TvShowReview(QMainWindow, MediaReviewUI):
         self.account_id = account_id
         self.media_id = str(media_id)
         self.clicked_season = clicked_season
+        self.add_review_button = add_review_button
 
         self.show_old_review()
 
@@ -62,23 +63,29 @@ class TvShowReview(QMainWindow, MediaReviewUI):
 
         tv_show_ids = tv_show_reviews.keys()
 
-        # tv_show_reviews.update({self.media_id: {season: self.review_plain_text.toPlainText()}})
-
         if self.media_id in tv_show_ids:
-            # Dictionary ni siya
+            # This is a dictionary
             tv_show_season_reviews = tv_show_reviews[self.media_id]
 
             reviewed_seasons = tv_show_season_reviews.keys()
 
-            if current_season in reviewed_seasons:
+            if current_season in reviewed_seasons and self.review_plain_text.toPlainText().strip() != "":
                 tv_show_season_reviews[current_season] = self.review_plain_text.toPlainText()
-            else:
+                self.add_review_button.setText("Edit Review")
+
+            elif current_season not in reviewed_seasons and self.review_plain_text.toPlainText().strip() != "":
                 tv_show_season_reviews.update({current_season: self.review_plain_text.toPlainText()})
+                self.add_review_button.setText("Edit Review")
 
-            # tv_show_reviews[self.media_id] = tv_show_season_reviews
+            if current_season in reviewed_seasons and self.review_plain_text.toPlainText().strip() == "":
+                tv_show_season_reviews.pop(current_season)
+                self.add_review_button.setText("Add Review")
 
-        else:
-            tv_show_reviews.update({self.media_id: {current_season: self.review_plain_text.toPlainText()}})
+        elif self.media_id not in tv_show_ids:
+            tv_show_reviews.update({self.media_id: {current_season: self.review_plain_text.toPlainText().strip()}})
+
+        if not tv_show_reviews[self.media_id]:
+            tv_show_reviews.pop(self.media_id)
 
         tv_show_reviews_json = json.dumps(tv_show_reviews)
 
