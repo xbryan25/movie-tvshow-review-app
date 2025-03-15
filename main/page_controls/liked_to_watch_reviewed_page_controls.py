@@ -1,10 +1,11 @@
-
 from PyQt6.QtWidgets import QLabel, QFrame, QGridLayout, QSizePolicy, QSpacerItem, QMainWindow, QPushButton
 from PyQt6.QtCore import QRect, QPropertyAnimation
 from PyQt6.QtGui import QCursor, QFont, QImage, QPixmap
 from PyQt6.QtCore import Qt, QSize
 
 from dialogs.operation_confirmation_dialog import OperationConfirmationDialog
+
+from utils.clickable_frame import ClickableFrame
 
 import sqlite3
 import json
@@ -165,9 +166,10 @@ class LikedToWatchReviewedPageControls:
 
             movie_title = movie_response['title']
             movie_release_year = (movie_response['release_date'].split('-'))[0]
+            movie_runtime = movie_response['runtime']
             movie_poster_path = movie_response['poster_path']
 
-            self.l_tw_r_movie_frame = QFrame(parent=self.l_tw_r_movies_scroll_area_contents)
+            self.l_tw_r_movie_frame = ClickableFrame(parent=self.l_tw_r_movies_scroll_area_contents)
             self.l_tw_r_movie_frame.setMinimumSize(QSize(360, 160))
             self.l_tw_r_movie_frame.setMaximumSize(QSize(550, 160))
             self.l_tw_r_movie_frame.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
@@ -175,6 +177,10 @@ class LikedToWatchReviewedPageControls:
             self.l_tw_r_movie_frame.setFrameShape(QFrame.Shape.StyledPanel)
             self.l_tw_r_movie_frame.setFrameShadow(QFrame.Shadow.Raised)
             self.l_tw_r_movie_frame.setObjectName(f"l_tw_r_movie_{l_tw_r_movie}")
+
+            self.l_tw_r_movie_frame.clicked.connect(lambda state, media_id=l_tw_r_movie:
+                                                    self.application_window.change_to_about_specific_media_page(
+                                                        self.account_id, "movie", media_id))
 
             self.l_tw_r_movie_grid_layout = QGridLayout(self.l_tw_r_movie_frame)
             self.l_tw_r_movie_grid_layout.setObjectName("l_tw_r_movie_grid_layout")
@@ -233,27 +239,29 @@ class LikedToWatchReviewedPageControls:
             font.setPointSize(10)
             self.movie_runtime_label.setFont(font)
             self.movie_runtime_label.setObjectName(f"movie_runtime_{l_tw_r_movie}")
+            self.movie_runtime_label.setText(f"{movie_runtime} minutes")
             self.l_tw_r_movie_grid_layout.addWidget(self.movie_runtime_label, 2, 2, 1, 2)
 
-            self.remove_button_movie = QPushButton(parent=self.l_tw_r_movie_frame)
-            font = QFont()
-            font.setFamily("Oswald Medium")
-            font.setPointSize(10)
-            font.setBold(False)
-            font.setWeight(50)
-            self.remove_button_movie.setFont(font)
-            self.remove_button_movie.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-            self.remove_button_movie.setObjectName("remove_from_liked_movie")
-            self.remove_button_movie.setText("Remove")
+            if self.state_to_show != "reviewed":
+                self.remove_button_movie = QPushButton(parent=self.l_tw_r_movie_frame)
+                font = QFont()
+                font.setFamily("Oswald Medium")
+                font.setPointSize(10)
+                font.setBold(False)
+                font.setWeight(50)
+                self.remove_button_movie.setFont(font)
+                self.remove_button_movie.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+                self.remove_button_movie.setObjectName("remove_from_liked_movie")
+                self.remove_button_movie.setText("Remove")
 
-            self.remove_button_movie.clicked.connect(lambda state, frame=self.l_tw_r_movie_frame,
-                                                            movie=l_tw_r_movie,
-                                                            _l_tw_r_movies=l_tw_r_movies,
-                                                            media_type="movie":
-                                                     self.remove_media(frame, movie, _l_tw_r_movies,
-                                                                       media_type))
+                self.remove_button_movie.clicked.connect(lambda state, frame=self.l_tw_r_movie_frame,
+                                                                movie=l_tw_r_movie,
+                                                                _l_tw_r_movies=l_tw_r_movies,
+                                                                media_type="movie":
+                                                         self.remove_media(frame, movie, _l_tw_r_movies,
+                                                                           media_type))
 
-            self.l_tw_r_movie_grid_layout.addWidget(self.remove_button_movie, 3, 2, 1, 2)
+                self.l_tw_r_movie_grid_layout.addWidget(self.remove_button_movie, 3, 2, 1, 2)
 
             poster_spacer = QSpacerItem(10, 20, QSizePolicy.Policy.Fixed,
                                                QSizePolicy.Policy.Minimum)
@@ -272,7 +280,7 @@ class LikedToWatchReviewedPageControls:
 
         # -----------------------------------------------------------------------------------------------
 
-        # Pushes movie frames to the right
+        # Pushes tv_show frames to the right
         left_v_spacer = QSpacerItem(20, 40, QSizePolicy.Policy.Expanding,
                                     QSizePolicy.Policy.Minimum)
 
@@ -294,9 +302,10 @@ class LikedToWatchReviewedPageControls:
 
             tv_show_title = tv_show_response['name']
             tv_show_release_year = (tv_show_response['first_air_date'].split('-'))[0]
+            tv_show_number_of_seasons = tv_show_response['number_of_seasons']
             tv_show_poster = tv_show_response['poster_path']
 
-            self.l_tw_r_tv_show_frame = QFrame(parent=self.l_tw_r_tv_shows_scroll_area_contents)
+            self.l_tw_r_tv_show_frame = ClickableFrame(parent=self.l_tw_r_tv_shows_scroll_area_contents)
             self.l_tw_r_tv_show_frame.setMinimumSize(QSize(360, 160))
             self.l_tw_r_tv_show_frame.setMaximumSize(QSize(550, 160))
             self.l_tw_r_tv_show_frame.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
@@ -304,6 +313,10 @@ class LikedToWatchReviewedPageControls:
             self.l_tw_r_tv_show_frame.setFrameShape(QFrame.Shape.StyledPanel)
             self.l_tw_r_tv_show_frame.setFrameShadow(QFrame.Shadow.Raised)
             self.l_tw_r_tv_show_frame.setObjectName(f"l_tw_r_tv_show_{l_tw_r_tv_show}")
+
+            self.l_tw_r_tv_show_frame.clicked.connect(lambda state, media_id=l_tw_r_tv_show:
+                                                      self.application_window.change_to_about_specific_media_page(
+                                                          self.account_id, "tv", media_id))
 
             self.l_tw_r_tv_show_grid_layout = QGridLayout(self.l_tw_r_tv_show_frame)
             self.l_tw_r_tv_show_grid_layout.setObjectName("l_tw_r_tv_show_grid_layout")
@@ -343,16 +356,6 @@ class LikedToWatchReviewedPageControls:
             self.tv_show_poster_label.setScaledContents(True)
             self.l_tw_r_tv_show_grid_layout.addWidget(self.tv_show_poster_label, 0, 0, 5, 1)
 
-            self.tv_show_seasons_label = QLabel(parent=self.l_tw_r_tv_show_frame)
-            self.tv_show_seasons_label.setMinimumSize(QSize(0, 30))
-            self.tv_show_seasons_label.setMaximumSize(QSize(200, 50))
-            font = QFont()
-            font.setFamily("Oswald")
-            font.setPointSize(10)
-            self.tv_show_seasons_label.setFont(font)
-            self.tv_show_seasons_label.setObjectName(f"tv_show_seasons_{l_tw_r_tv_show}")
-            self.l_tw_r_tv_show_grid_layout.addWidget(self.tv_show_seasons_label, 2, 2, 1, 2)
-
             self.tv_show_year_label = QLabel(parent=self.l_tw_r_tv_show_frame)
             self.tv_show_year_label.setMinimumSize(QSize(0, 30))
             self.tv_show_year_label.setMaximumSize(QSize(200, 50))
@@ -364,24 +367,36 @@ class LikedToWatchReviewedPageControls:
             self.tv_show_year_label.setText(tv_show_release_year)
             self.l_tw_r_tv_show_grid_layout.addWidget(self.tv_show_year_label, 1, 2, 1, 2)
 
-            self.remove_button_tv_show = QPushButton(parent=self.l_tw_r_tv_show_frame)
+            self.tv_show_seasons_label = QLabel(parent=self.l_tw_r_tv_show_frame)
+            self.tv_show_seasons_label.setMinimumSize(QSize(0, 30))
+            self.tv_show_seasons_label.setMaximumSize(QSize(200, 50))
             font = QFont()
-            font.setFamily("Oswald Medium")
+            font.setFamily("Oswald")
             font.setPointSize(10)
-            self.remove_button_tv_show.setFont(font)
-            self.remove_button_tv_show.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-            self.remove_button_tv_show.setObjectName(f"remove_button_tv_show_{l_tw_r_tv_show}")
-            self.remove_button_tv_show.setText("Remove")
+            self.tv_show_seasons_label.setFont(font)
+            self.tv_show_seasons_label.setObjectName(f"tv_show_seasons_{l_tw_r_tv_show}")
+            self.tv_show_seasons_label.setText(f"{tv_show_number_of_seasons} seasons")
+            self.l_tw_r_tv_show_grid_layout.addWidget(self.tv_show_seasons_label, 2, 2, 1, 2)
 
-            self.remove_button_tv_show.clicked.connect(lambda state, frame=self.l_tw_r_tv_show_frame,
-                                                              tv_show=l_tw_r_tv_show,
-                                                              _l_tw_r_tv_shows=l_tw_r_tv_shows,
-                                                              media_type="tv":
-                                                       self.remove_media(frame, tv_show,
-                                                                         _l_tw_r_tv_shows,
-                                                                         media_type))
+            if self.state_to_show != "reviewed":
+                self.remove_button_tv_show = QPushButton(parent=self.l_tw_r_tv_show_frame)
+                font = QFont()
+                font.setFamily("Oswald Medium")
+                font.setPointSize(10)
+                self.remove_button_tv_show.setFont(font)
+                self.remove_button_tv_show.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+                self.remove_button_tv_show.setObjectName(f"remove_button_tv_show_{l_tw_r_tv_show}")
+                self.remove_button_tv_show.setText("Remove")
 
-            self.l_tw_r_tv_show_grid_layout.addWidget(self.remove_button_tv_show, 3, 2, 1, 2)
+                self.remove_button_tv_show.clicked.connect(lambda state, frame=self.l_tw_r_tv_show_frame,
+                                                                  tv_show=l_tw_r_tv_show,
+                                                                  _l_tw_r_tv_shows=l_tw_r_tv_shows,
+                                                                  media_type="tv":
+                                                           self.remove_media(frame, tv_show,
+                                                                             _l_tw_r_tv_shows,
+                                                                             media_type))
+
+                self.l_tw_r_tv_show_grid_layout.addWidget(self.remove_button_tv_show, 3, 2, 1, 2)
 
             poster_spacer2 = QSpacerItem(10, 20, QSizePolicy.Policy.Fixed,
                                                QSizePolicy.Policy.Minimum)
@@ -401,7 +416,7 @@ class LikedToWatchReviewedPageControls:
         connection.commit()
         connection.close()
 
-    def remove_media(self, frame, media, liked_media_list, media_type):
+    def remove_media(self, frame, media, media_list, media_type):
         self.confirmation_dialog = OperationConfirmationDialog(media_type, self.state_to_show)
 
         self.confirmation_dialog.exec()
@@ -415,15 +430,15 @@ class LikedToWatchReviewedPageControls:
             frame.hide()
             frame.deleteLater()
 
-            liked_media_list.remove(media)
-            liked_media_json = json.dumps(liked_media_list)
+            media_list.remove(media)
+            media_json = json.dumps(liked_media_list)
 
             if media_type == "movie":
                 cursor.execute("""UPDATE liked_media SET liked_movies=(:liked_movies) WHERE account_id=(:account_id)""",
-                           {"liked_movies": liked_media_json, "account_id": self.account_id})
+                           {"liked_movies": media_json, "account_id": self.account_id})
             else:
                 cursor.execute("""UPDATE liked_media SET liked_tv_shows=(:liked_tv_shows) WHERE account_id=(:account_id)""",
-                               {"liked_tv_shows": liked_media_json, "account_id": self.account_id})
+                               {"liked_tv_shows": media_json, "account_id": self.account_id})
 
             connection.commit()
             connection.close()
@@ -482,3 +497,4 @@ class LikedToWatchReviewedPageControls:
             # Add v_spacer again
             v_spacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
             self.l_tw_r_tv_shows_scroll_area_grid_layout.addItem(v_spacer, count + 1, 1, 1, 1)
+
