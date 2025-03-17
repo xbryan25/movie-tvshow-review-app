@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1182</width>
-    <height>840</height>
+    <height>839</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -2276,7 +2276,7 @@ border-radius: 1px;
                  <x>0</x>
                  <y>0</y>
                  <width>1182</width>
-                 <height>657</height>
+                 <height>656</height>
                 </rect>
                </property>
                <layout class="QGridLayout" name="members_scroll_area_contents_grid_layout">

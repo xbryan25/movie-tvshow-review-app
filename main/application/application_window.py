@@ -43,6 +43,10 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
         self.search_title_line_edit.returnPressed.connect(
             lambda: self.change_to_search_results_page(self.search_title_line_edit.text()))
 
+        self.choose_titles_page_controls.set_requests_session(self.requests_session_tmdb,
+                                                              self.requests_session_images)
+        self.choose_titles_page_controls.start_process()
+
     def open_requests_session(self):
         self.requests_session_tmdb = requests.Session()
         self.requests_session_images = requests.Session()
@@ -134,9 +138,9 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
             self.subpage_stacked_widget.setCurrentWidget(self.popular_media_subpage)
 
             self.choose_titles_page_controls.set_account_id(self.current_account_id)
-            self.choose_titles_page_controls.set_requests_session(self.requests_session_tmdb,
-                                                                  self.requests_session_images)
-            self.choose_titles_page_controls.start_process()
+            # self.choose_titles_page_controls.set_requests_session(self.requests_session_tmdb,
+            #                                                       self.requests_session_images)
+            # self.choose_titles_page_controls.start_process()
 
             self.has_loaded_posters = True
 
@@ -194,3 +198,6 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
     def load_external_stylesheet(self):
         with open("../assets/qss_files/login_page_style.qss", "r") as file:
             self.login_page.setStyleSheet(file.read())
+
+    def resizeEvent(self, a0):
+        print(self.size())

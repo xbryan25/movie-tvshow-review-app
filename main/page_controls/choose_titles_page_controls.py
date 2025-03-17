@@ -162,7 +162,7 @@ class ChooseTitlesPageControls:
             tv_show_poster_containers[i].show()
 
             # print(f"{((i + 1) / 16) * 100:.2f}")
-            self.loading_screen.loading_progress_bar.setValue(int(((i + 1) / 16) * 100))
+            self.loading_screen.loading_progress_bar.setValue(int(((i + 1) / 12) * 100))
 
         print("Done!")
 

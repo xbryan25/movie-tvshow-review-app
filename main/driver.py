@@ -58,7 +58,6 @@ def main():
     connection.commit()
     connection.close()
 
-    app_window.show()
     app.exec()
 
 
