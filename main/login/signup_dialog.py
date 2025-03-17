@@ -82,7 +82,7 @@ class SignupDialog(QDialog, SignupDialogUI):
             self.confirm_password_lineedit.setEchoMode(QLineEdit.EchoMode.Normal)
         else:
             self.password_lineedit.setEchoMode(QLineEdit.EchoMode.Password)
-            selfconfirm_password_lineedit.setEchoMode(QLineEdit.EchoMode.Password)
+            self.confirm_password_lineedit.setEchoMode(QLineEdit.EchoMode.Password)
 
     def set_pointing_hand_cursor_to_interactables(self):
         self.sign_up_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))

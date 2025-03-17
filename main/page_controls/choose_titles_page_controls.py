@@ -176,7 +176,7 @@ class ChooseTitlesPageControls:
         # Don't forget to change QLabel to Poster
 
         self.label = Poster(parent=self.popular_movies_scroll_area_contents, media_type="movie",
-                            account_id=self.account_id, requests_session_tmdb=self.requests_session_tmdb,
+                            requests_session_tmdb=self.requests_session_tmdb,
                             requests_session_images=self.requests_session_images,
                             application_window=self.application_window)
         self.label.setMinimumSize(QSize(165, 225))
@@ -208,7 +208,7 @@ class ChooseTitlesPageControls:
         # Don't forget to change QLabel to Poster
 
         self.label_2 = Poster(parent=self.popular_tv_shows_scroll_area_contents, media_type="tv",
-                              account_id=self.account_id, requests_session_tmdb=self.requests_session_tmdb,
+                              requests_session_tmdb=self.requests_session_tmdb,
                               requests_session_images=self.requests_session_images,
                               application_window=self.application_window)
 

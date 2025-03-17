@@ -14,7 +14,6 @@ import requests
 
 class LikedToWatchReviewedPageControls:
     def __init__(self, widgets, application_window):
-        super().__init__()
 
         self.api_headers = {
             "accept": "application/json",
@@ -179,8 +178,8 @@ class LikedToWatchReviewedPageControls:
             self.l_tw_r_movie_frame.setObjectName(f"l_tw_r_movie_{l_tw_r_movie}")
 
             self.l_tw_r_movie_frame.clicked.connect(lambda state, media_id=l_tw_r_movie:
-                                                    self.application_window.change_to_about_specific_media_page(
-                                                        self.account_id, "movie", media_id))
+                                                    self.application_window.change_to_about_specific_media_page("movie",
+                                                                                                                media_id))
 
             self.l_tw_r_movie_grid_layout = QGridLayout(self.l_tw_r_movie_frame)
             self.l_tw_r_movie_grid_layout.setObjectName("l_tw_r_movie_grid_layout")
@@ -315,8 +314,8 @@ class LikedToWatchReviewedPageControls:
             self.l_tw_r_tv_show_frame.setObjectName(f"l_tw_r_tv_show_{l_tw_r_tv_show}")
 
             self.l_tw_r_tv_show_frame.clicked.connect(lambda state, media_id=l_tw_r_tv_show:
-                                                      self.application_window.change_to_about_specific_media_page(
-                                                          self.account_id, "tv", media_id))
+                                                      self.application_window.change_to_about_specific_media_page("tv",
+                                                                                                                  media_id))
 
             self.l_tw_r_tv_show_grid_layout = QGridLayout(self.l_tw_r_tv_show_frame)
             self.l_tw_r_tv_show_grid_layout.setObjectName("l_tw_r_tv_show_grid_layout")

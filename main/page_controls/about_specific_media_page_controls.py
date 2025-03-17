@@ -17,7 +17,6 @@ import json
 
 class AboutSpecificMediaPageControls:
     def __init__(self, widgets, application_window):
-        super().__init__()
 
         self.api_headers = {
             "accept": "application/json",

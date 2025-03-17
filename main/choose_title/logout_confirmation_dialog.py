@@ -14,7 +14,7 @@ class LogoutConfirmationDialog(QDialog, LogoutConfirmationUI):
         self.yes_button.clicked.connect(self.close_dialog)
 
     def close_dialog(self):
-        self.application_window.stackedWidget.setCurrentWidget(self.application_window.login_page)
+        self.application_window.page_stacked_widget.setCurrentWidget(self.application_window.login_page)
 
         self.close()
 

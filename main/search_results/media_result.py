@@ -94,27 +94,12 @@ class MediaResult(QFrame):
     def mousePressEvent(self, event):
         # print(self.title)
 
-        self.application_window.change_to_about_specific_media_page(self.account_id, self.media_type, self.media_id)
+        self.application_window.change_to_about_specific_media_page(self.media_type, self.media_id)
 
     def mouseMoveEvent(self, ev):
         pass
 
     def resize_animation(self):
         pass
-        # self.animation = QPropertyAnimation(self, b'geometry')
-        # self.animation.setDuration(100)
-        #
-        # if self.width() == 150:
-        #     self.animation.setStartValue(QRect(self.x(), self.y(), self.width(), self.height()))
-        #     self.animation.setEndValue(QRect(self.x(), self.y(), 200, self.height()))
-        #     self.animation.start()
-        #
-        # elif self.width() == 200:
-        #     self.animation.setStartValue(QRect(self.x(), self.y(), self.width(), self.height()))
-        #     self.animation.setEndValue(QRect(self.x(), self.y(), 150, self.height()))
-        #     self.animation.start()
-        #
-        #
-        #
-        # print(self.width())
+
 

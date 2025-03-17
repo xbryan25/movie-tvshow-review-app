@@ -10,6 +10,7 @@ from page_controls.login_page_controls import LoginPageControls
 from page_controls.about_specific_media_page_controls import AboutSpecificMediaPageControls
 from page_controls.search_results_page_controls import SearchResultsPageControls
 from page_controls.liked_to_watch_reviewed_page_controls import LikedToWatchReviewedPageControls
+from page_controls.members_page_controls import MembersPageControls
 
 from utils.user_input_validators import UserInputValidators
 
@@ -37,6 +38,7 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
         self.liked_button.clicked.connect(lambda: self.change_to_liked_to_watch_reviewed_page("liked"))
         self.to_watch_button.clicked.connect(lambda: self.change_to_liked_to_watch_reviewed_page("to_watch"))
         self.reviewed_button.clicked.connect(lambda: self.change_to_liked_to_watch_reviewed_page("reviewed"))
+        self.members_button.clicked.connect(lambda: self.change_to_members_page())
 
         self.search_title_line_edit.returnPressed.connect(
             lambda: self.change_to_search_results_page(self.search_title_line_edit.text()))
@@ -106,10 +108,17 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
                                                                                        self.l_tw_r_tv_shows_scroll_area_grid_layout],
                                                                                       self)
 
+        self.members_page_controls = MembersPageControls([self.members_label,
+                                                          self.total_member_count_label,
+                                                          self.members_scroll_area,
+                                                          self.members_scroll_area_contents,
+                                                          self.members_scroll_area_contents_grid_layout],
+                                                         self)
+
     def change_to_login_page(self):
         self.page_stacked_widget.setCurrentWidget(self.login_page)
 
-    def change_to_choose_title_page(self, account_id=None):
+    def change_to_choose_title_page(self):
         if not self.has_loaded_posters:
 
             login_successful_dialog = LoginStatusDialog()
@@ -124,7 +133,7 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
             self.page_stacked_widget.setCurrentWidget(self.main_page)
             self.subpage_stacked_widget.setCurrentWidget(self.popular_media_subpage)
 
-            self.choose_titles_page_controls.set_account_id(account_id)
+            self.choose_titles_page_controls.set_account_id(self.current_account_id)
             self.choose_titles_page_controls.set_requests_session(self.requests_session_tmdb,
                                                                   self.requests_session_images)
             self.choose_titles_page_controls.start_process()
@@ -135,11 +144,11 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
             self.page_stacked_widget.setCurrentWidget(self.main_page)
             self.subpage_stacked_widget.setCurrentWidget(self.popular_media_subpage)
 
-    def change_to_about_specific_media_page(self, account_id, media_type, media_id):
+    def change_to_about_specific_media_page(self, media_type, media_id):
         self.page_stacked_widget.setCurrentWidget(self.main_page)
         self.subpage_stacked_widget.setCurrentWidget(self.about_specific_media_subpage)
 
-        self.about_specific_media_page_controls.set_account_id(account_id)
+        self.about_specific_media_page_controls.set_account_id(self.current_account_id)
         self.about_specific_media_page_controls.set_media_type_and_id(media_type, media_id)
         self.about_specific_media_page_controls.set_requests_session(self.requests_session_tmdb,
                                                                      self.requests_session_images)
@@ -160,6 +169,12 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
         self.liked_to_watch_reviewed_page_controls.clear_all_media()
 
         self.liked_to_watch_reviewed_page_controls.load_l_tw_r_media()
+
+    def change_to_members_page(self):
+        self.page_stacked_widget.setCurrentWidget(self.main_page)
+        self.subpage_stacked_widget.setCurrentWidget(self.members_subpage)
+
+        self.members_page_controls.load_members()
 
     def change_to_search_results_page(self, media_title_to_search):
         if media_title_to_search.strip() == "":

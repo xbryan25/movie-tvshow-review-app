@@ -7,6 +7,7 @@ from utils.user_input_validators import UserInputValidators
 
 import sqlite3
 
+
 class LoginPageControls:
     def __init__(self, widgets, application_window):
 
@@ -65,8 +66,10 @@ class LoginPageControls:
             account_id = cursor.execute("SELECT account_id FROM accounts WHERE username=(:username)",
                                         {"username": username}).fetchone()[0]
 
-            self.application_window.change_to_choose_title_page(account_id)
             self.application_window.set_current_account_id(account_id)
+            self.application_window.change_to_choose_title_page()
+
+            print(f"Current account id: {account_id}")
 
         else:
             login_failure_dialog = LoginStatusDialog()
