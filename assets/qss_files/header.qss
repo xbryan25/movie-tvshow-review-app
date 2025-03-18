@@ -1,0 +1,29 @@
+
+
+#header_frame{
+    background-color: rgb(63, 67, 64);
+}
+
+QPushButton{
+    border: none;
+    outline: none;
+    color: rgb(190, 197, 190);
+}
+
+QPushButton:hover{
+    color: rgb(235, 240, 235);
+}
+
+QPushButton:pressed{
+    color: rgb(190, 197, 190);
+}
+
+#search_title_label{
+    color: rgb(210, 217, 210);
+}
+
+#search_title_line_edit{
+    padding: 4px;
+    border: 2px solid rgb(150, 157, 150);
+    border-radius: 15px;
+}

@@ -248,7 +248,7 @@ class AboutSpecificMediaPageControls:
         self.season_buttons_scroll_area = self.widgets[13]
         self.season_buttons_scroll_area_widget_contents = self.widgets[14]
         self.seasons_buttons_grid_layout = self.widgets[15]
-        self.gridLayout_2 = self.widgets[16]
+        self.display_info_frame_grid_layout = self.widgets[16]
 
     def start_process(self):
         # Reset self.clicked_season
@@ -320,18 +320,25 @@ class AboutSpecificMediaPageControls:
             self.poster_label.setPixmap(QPixmap(media_image))
             self.poster_label.setScaledContents(True)
 
-        # Delete these widgets
-        self.gridLayout_2.removeWidget(self.synopsis_label)
-        self.gridLayout_2.removeWidget(self.season_buttons_scroll_area)
+        # Remove these widgets from the grid layout and hide them
+        self.display_info_frame_grid_layout.removeWidget(self.synopsis_label)
+        self.display_info_frame_grid_layout.removeWidget(self.season_buttons_scroll_area)
+
+        self.synopsis_label.hide()
+        self.season_buttons_scroll_area.hide()
 
         # And then re-add based on the media type
         if self.media_type == "movie":
-            self.gridLayout_2.addWidget(self.synopsis_label, 4, 1, 2, 3)
+            self.display_info_frame_grid_layout.addWidget(self.synopsis_label, 3, 1, 2, 2)
+            self.synopsis_label.show()
         else:
-            self.gridLayout_2.addWidget(self.synopsis_label, 4, 1, 1, 3)
-            self.gridLayout_2.addWidget(self.season_buttons_scroll_area, 5, 1, 1, 3)
+            self.display_info_frame_grid_layout.addWidget(self.synopsis_label, 3, 1, 1, 2)
+            self.display_info_frame_grid_layout.addWidget(self.season_buttons_scroll_area, 4, 1, 1, 2)
 
-        self.gridLayout_2.update()
+            self.synopsis_label.show()
+            self.season_buttons_scroll_area.show()
+
+        self.display_info_frame_grid_layout.update()
 
     def add_series_dictionary(self, number_of_episodes, vote_average, overview, series_id):
         # Shallow copies (meaning nested entries are not read) the first season of the show

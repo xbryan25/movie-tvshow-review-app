@@ -192,8 +192,8 @@ class ChooseTitlesPageControls:
                                  "}\n"
                                  "\n"
                                  "QLabel:hover{\n"
-                                 "border: 4px solid blue;\n"
-                                 "border-radius: 1px;\n"
+                                 "border: 5px solid rgb(255, 166, 54);\n"
+                                 "border-radius: 5px;\n"
                                  "}\n"
                                  "\n"
                                  "")
@@ -221,15 +221,15 @@ class ChooseTitlesPageControls:
         self.label_2.setScaledContents(True)
 
         self.label_2.setStyleSheet("QLabel{\n"
-                                 "padding: 3px 3px 3px 3px;\n"
-                                 "}\n"
-                                 "\n"
-                                 "QLabel:hover{\n"
-                                 "border: 4px solid blue;\n"
-                                 "border-radius: 1px;\n"
-                                 "}\n"
-                                 "\n"
-                                 "")
+                                   "padding: 3px 3px 3px 3px;\n"
+                                   "}\n"
+                                   "\n"
+                                   "QLabel:hover{\n"
+                                   "border: 5px solid rgb(255, 166, 54);\n"
+                                   "border-radius: 5px;\n"
+                                   "}\n"
+                                   "\n"
+                                   "")
 
         self.popular_tv_shows_scroll_area_grid_layout.addWidget(self.label_2, 0, column, 1, 1)
 

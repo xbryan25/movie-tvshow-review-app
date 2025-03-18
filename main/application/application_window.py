@@ -1,4 +1,5 @@
 from PyQt6.QtWidgets import QMainWindow, QLineEdit, QPushButton
+from PyQt6.QtGui import QFontDatabase, QFont
 
 from login.signup_dialog import SignupDialog
 from login.login_status_dialog import LoginStatusDialog
@@ -24,6 +25,7 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
 
         self.setupUi(self)
         self.load_external_stylesheet()
+        self.load_fonts()
 
         self.load_controls()
         self.open_requests_session()
@@ -89,7 +91,7 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
                                                                                   self.season_buttons_scroll_area,
                                                                                   self.season_buttons_scroll_area_widget_contents,
                                                                                   self.seasons_buttons_grid_layout,
-                                                                                  self.gridLayout_2],
+                                                                                  self.display_info_frame_grid_layout],
                                                                                  self)
 
         self.search_results_page_controls = SearchResultsPageControls([self.showing_results_label,
@@ -124,13 +126,6 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
 
     def change_to_choose_title_page(self):
         if not self.has_loaded_posters:
-
-            login_successful_dialog = LoginStatusDialog()
-            login_successful_dialog.setWindowTitle("Login successful.")
-            login_successful_dialog.text_label.setText("No issues logging in!")
-
-            login_successful_dialog.exec()
-
             self.username_lineedit.setText("")
             self.password_lineedit.setText("")
 
@@ -198,6 +193,57 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
     def load_external_stylesheet(self):
         with open("../assets/qss_files/login_page_style.qss", "r") as file:
             self.login_page.setStyleSheet(file.read())
+
+        with open("../assets/qss_files/header.qss", "r") as file2:
+            self.header_frame.setStyleSheet(file2.read())
+
+        with open("../assets/qss_files/choose_titles_page_style.qss", "r") as file3:
+            self.popular_media_subpage.setStyleSheet(file3.read())
+
+        with open("../assets/qss_files/about_specific_media_page_style.qss", "r") as file4:
+            self.about_specific_media_subpage.setStyleSheet(file4.read())
+
+    def load_fonts(self):
+        # Load fonts, they can be used in any part of the application
+        QFontDatabase.addApplicationFont("../assets/fonts/ClashGroteskSemibold.otf")
+        QFontDatabase.addApplicationFont("../assets/fonts/ClashGroteskMedium.otf")
+        QFontDatabase.addApplicationFont("../assets/fonts/ClashGroteskRegular.otf")
+        # Get font id
+        cg_font_id = QFontDatabase.addApplicationFont("../assets/fonts/ClashGroteskRegular.otf")
+
+        # Get font family
+        self.cg_font_family = QFontDatabase.applicationFontFamilies(cg_font_id)[0]
+
+        # Login page
+        self.app_login_title_label.setFont(QFont(self.cg_font_family, 45, QFont.Weight.DemiBold))
+        self.username_label.setFont(QFont(self.cg_font_family, 18, QFont.Weight.Medium))
+        self.password_label.setFont(QFont(self.cg_font_family, 18, QFont.Weight.Medium))
+        self.show_password_checkbox.setFont(QFont(self.cg_font_family, 12, QFont.Weight.Medium))
+        self.login_button.setFont(QFont(self.cg_font_family, 26, QFont.Weight.DemiBold))
+        self.no_account_label.setFont(QFont(self.cg_font_family, 12, QFont.Weight.Medium))
+        self.sign_up_button.setFont(QFont(self.cg_font_family, 12, QFont.Weight.Medium))
+
+        # Header
+        self.app_title_button.setFont(QFont(self.cg_font_family, 28, QFont.Weight.DemiBold))
+        self.liked_button.setFont(QFont(self.cg_font_family, 16, QFont.Weight.Medium))
+        self.to_watch_button.setFont(QFont(self.cg_font_family, 16, QFont.Weight.Medium))
+        self.reviewed_button.setFont(QFont(self.cg_font_family, 16, QFont.Weight.Medium))
+        self.members_button.setFont(QFont(self.cg_font_family, 16, QFont.Weight.Medium))
+        self.logout_button.setFont(QFont(self.cg_font_family, 16, QFont.Weight.Medium))
+        self.search_title_label.setFont(QFont(self.cg_font_family, 16, QFont.Weight.Medium))
+
+        # Popular media page
+        self.popular_movie_week_label.setFont(QFont(self.cg_font_family, 24, QFont.Weight.DemiBold))
+        self.popular_tv_show_week_label.setFont(QFont(self.cg_font_family, 24, QFont.Weight.DemiBold))
+
+        # About specific media page
+        self.media_title_label.setFont(QFont(self.cg_font_family, 28, QFont.Weight.DemiBold))
+        self.director_label.setFont(QFont(self.cg_font_family, 16, QFont.Weight.Medium))
+        self.year_label.setFont(QFont(self.cg_font_family, 14, QFont.Weight.Medium))
+        self.genres_label.setFont(QFont(self.cg_font_family, 14, QFont.Weight.Medium))
+        self.synopsis_label.setFont(QFont(self.cg_font_family, 14, QFont.Weight.Normal))
+        self.general_stars_label.setFont(QFont(self.cg_font_family, 14, QFont.Weight.DemiBold))
+
 
     def resizeEvent(self, a0):
         print(self.size())

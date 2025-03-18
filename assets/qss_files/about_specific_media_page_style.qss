@@ -1,0 +1,45 @@
+
+QWidget{
+	background-color: rgb(122, 128, 124);
+}
+
+#season_buttons_scroll_area{
+	background-color: rgb(198, 192, 255);
+}
+
+
+QScrollBar:horizontal{
+	border: none;
+	background-color: rgb(43, 56, 138);
+	height: 5px;
+	margin: 0 0 0 0;
+	border-radius: 5px;
+}
+
+
+QScrollBar::handle:horizontal{
+	background-color: rgb(131, 207, 241);
+	min-width: 30px;
+	border-radius: 7px;
+}
+
+
+QScrollBar::handle:horizontal:hover{
+	background-color: rgb(131, 180, 210);
+}
+
+QScrollBar::handle:horizontal:pressed{
+	background-color: rgb(120, 170, 190);
+}
+
+#media_title_label, #director_label, #genres_label, #year_label, #synopsis_label{
+    background-color: rgb(179, 186, 181);
+}
+
+#general_stars_label{
+    background-color: rgb(152, 156, 153);
+}
+
+#synopsis_label{
+    padding: 10px;
+}

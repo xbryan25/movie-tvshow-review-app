@@ -1,0 +1,30 @@
+
+#login_page{
+    background-color: rgb(122, 128, 124);
+}
+
+#app_login_title_label, #username_label, #password_label,
+#show_password_checkbox, #no_account_label, #sign_up_button{
+    color: rgb(210, 217, 210);
+}
+
+#login_button{
+    background-color: rgb(235, 240, 235);
+    color: rgb(63, 67, 64);
+
+    border: 2px solid black;
+    border-radius: 20px;
+}
+
+#login_button:hover{
+    background-color: rgb(215, 220, 215);
+}
+
+#login_button:pressed{
+    background-color: rgb(235, 240, 235);
+}
+
+
+
+
+

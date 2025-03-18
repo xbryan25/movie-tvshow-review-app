@@ -1,0 +1,42 @@
+
+
+QWidget{
+	background-color: rgb(88, 92, 89);
+}
+
+QScrollBar:horizontal{
+	border: none;
+	background: rgb(255, 166, 54);
+	height: 10px;
+	margin: 0 0 0 0;
+	border-radius: 5px;
+}
+
+QScrollBar::handle:horizontal{
+	background-color: rgb(131, 207, 241);
+	min-width: 30px;
+	border-radius: 5px;
+}
+
+QScrollBar::handle:horizontal:hover{
+	background-color: rgb(131, 180, 210);
+}
+
+QScrollBar::handle:horizontal:pressed{
+	background-color: rgb(120, 170, 190);
+}
+
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
+    background: none;  /* Removes the track background */
+}
+
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+    background: none;  /* Hides the increment and decrement buttons */
+    border: none;
+    width: 0px;
+}
+
+#popular_movie_week_label, #popular_tv_show_week_label{
+    color: rgb(210, 217, 210);
+}
+

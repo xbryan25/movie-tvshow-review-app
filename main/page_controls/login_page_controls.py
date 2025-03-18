@@ -2,7 +2,6 @@ from PyQt6.QtWidgets import QMainWindow, QLineEdit
 
 from login.signup_dialog import SignupDialog
 from login.login_status_dialog import LoginStatusDialog
-
 from utils.user_input_validators import UserInputValidators
 
 import sqlite3
@@ -66,10 +65,14 @@ class LoginPageControls:
             account_id = cursor.execute("SELECT account_id FROM accounts WHERE username=(:username)",
                                         {"username": username}).fetchone()[0]
 
+            login_successful_dialog = LoginStatusDialog()
+            login_successful_dialog.setWindowTitle("Login successful.")
+            login_successful_dialog.text_label.setText("No issues logging in!")
+
+            login_successful_dialog.exec()
+
             self.application_window.set_current_account_id(account_id)
             self.application_window.change_to_choose_title_page()
-
-            print(f"Current account id: {account_id}")
 
         else:
             login_failure_dialog = LoginStatusDialog()
