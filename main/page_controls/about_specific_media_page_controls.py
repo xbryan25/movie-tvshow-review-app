@@ -2,7 +2,8 @@ from os.path import split
 
 from PyQt6.QtWidgets import QMainWindow, QPushButton
 from PyQt6.QtGui import QImage, QPixmap, QFont, QCursor
-from PyQt6.QtCore import QSize, Qt
+from PyQt6.QtCore import (QSize, Qt, QPropertyAnimation, QRect, QEvent, QThread, QObject, pyqtSignal, QRunnable,
+                          pyqtSlot, QThreadPool)
 
 # from about_title.about_title_tv_show_design import Ui_MainWindow as AboutTitleTvShowDesignUI
 from about_title.tv_show_review import TvShowReview
@@ -10,20 +11,20 @@ from about_title.movie_review import MovieReview
 
 from dialogs.operation_confirmation_dialog import OperationConfirmationDialog
 
+from loading_screen.loading_screen import LoadingScreen
+
+from utils.load_pictures_worker import LoadPicturesWorker
+
 import requests
 import sqlite3
 import json
 
+import asyncio
+import aiohttp
+
 
 class AboutSpecificMediaPageControls:
     def __init__(self, widgets, application_window):
-
-        self.api_headers = {
-            "accept": "application/json",
-            "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3N2Y0OWMyYmEyNmUxN2ZjMDkyY2VkYmQ2M2ZiZWIzNiIsIm5iZ"
-                             "iI6MTczMjE2NjEzOS4wNDMzNTc0LCJzdWIiOiI2NzNlYzE5NzQ2NTQxYmJjZDM3OWNmZTYiLCJzY29wZXMiOlsiYX"
-                             "BpX3JlYWQiXSwidmVyc2lvbiI6MX0.j9GlO1y5TXH6iexR69tp03m39ScK9-CoKdjbkfVBqJY"
-        }
 
         self.widgets = widgets
         self.application_window = application_window
@@ -31,8 +32,8 @@ class AboutSpecificMediaPageControls:
         self.media_id = None
         self.media_type = None
         self.account_id = None
-        self.requests_session_tmdb = None
-        self.requests_session_images = None
+
+        self.api_client = None
 
         # To be overwritten later
         self.media_title = ""
@@ -63,9 +64,8 @@ class AboutSpecificMediaPageControls:
     def set_account_id(self, account_id):
         self.account_id = account_id
 
-    def set_requests_session(self, requests_session_tmdb, requests_session_images):
-        self.requests_session_tmdb = requests_session_tmdb
-        self.requests_session_images = requests_session_images
+    def set_api_client(self, api_client):
+        self.api_client = api_client
 
     def set_liked_button_state(self):
         connection = sqlite3.connect('../database\\accounts.db')
@@ -178,20 +178,46 @@ class AboutSpecificMediaPageControls:
         connection.commit()
         connection.close()
 
-    def get_directors(self):
+    async def get_directors(self):
 
         if self.media_type == "tv":
             # Make a copy of self.seasons but without the series, which is the first element
 
             seasons_list_without_series = list(self.seasons[1:])
+
+            # for season in seasons_list_without_series:
+            #     season_directors = []
+            #
+            #     tv_show_season_credit_url = f"https://api.themoviedb.org/3/tv/{self.media_id}/season/{season['season_number']}"
+            #     tv_credit_response = self.requests_session_tmdb.get(tv_show_season_credit_url,
+            #                                                            headers=self.api_headers).json()
+            #
+            #     for episode_credits in tv_credit_response['episodes']:
+            #
+            #         # Check if episode_credits['crew'] (a list) is empty or not
+            #         if episode_credits['crew']:
+            #             for crew in episode_credits['crew']:
+            #
+            #                 if crew['job'] == 'Director':
+            #                     episode_director_name = crew['name']
+            #
+            #                     if episode_director_name not in season_directors:
+            #                         season_directors.append(episode_director_name)
+            #
+            #     self.seasons_directors.update({season['name']: season_directors})
+
+            tv_show_season_credit_urls = []
+
             for season in seasons_list_without_series:
+                tv_show_season_credit_url = f"https://api.themoviedb.org/3/tv/{self.media_id}/season/{season['season_number']}"
+                tv_show_season_credit_urls.append(tv_show_season_credit_url)
+
+            tv_show_season_credits = await self.api_client.multi_fetch(tv_show_season_credit_urls)
+
+            for count, tv_show_season_credit in enumerate(tv_show_season_credits):
                 season_directors = []
 
-                tv_show_season_credit_url = f"https://api.themoviedb.org/3/tv/{self.media_id}/season/{season['season_number']}"
-                tv_credit_response = self.requests_session_tmdb.get(tv_show_season_credit_url,
-                                                                       headers=self.api_headers).json()
-
-                for episode_credits in tv_credit_response['episodes']:
+                for episode_credits in tv_show_season_credit['episodes']:
 
                     # Check if episode_credits['crew'] (a list) is empty or not
                     if episode_credits['crew']:
@@ -203,12 +229,12 @@ class AboutSpecificMediaPageControls:
                                 if episode_director_name not in season_directors:
                                     season_directors.append(episode_director_name)
 
-                self.seasons_directors.update({season['name']: season_directors})
+                self.seasons_directors.update({seasons_list_without_series[count]['name']: season_directors})
 
         elif self.media_type == "movie":
             movie_credits_url = f"https://api.themoviedb.org/3/movie/{self.media_id}/credits?language=en-US"
 
-            movie_credits_response = self.requests_session_tmdb.get(movie_credits_url, headers=self.api_headers).json()
+            movie_credits_response = await self.api_client.fetch(movie_credits_url)
 
             movie_directors = []
 
@@ -257,7 +283,7 @@ class AboutSpecificMediaPageControls:
         # Make a shallow copy of the current season buttons present
         old_season_buttons = list(self.season_buttons_scroll_area_widget_contents.findChildren(QPushButton))
 
-        self.load_contents()
+        # self.load_contents()
 
         self.load_old_rating()
 
@@ -271,11 +297,29 @@ class AboutSpecificMediaPageControls:
 
             self.clear_old_season_buttons(old_season_buttons)
 
-    def load_contents(self):
+        # self.loading_screen = LoadingScreen()
+        # self.loading_screen.show()
+
+        self.threadpool = QThreadPool()
+        self.start_load_contents_thread()
+
+    def start_load_contents_thread(self):
+        load_contents_worker = LoadPicturesWorker(self.load_contents, self.api_client)
+
+        load_contents_worker.signals.finished.connect(lambda: self.application_window.subpage_stacked_widget.
+                                                      setCurrentWidget(self.application_window.
+                                                                       about_specific_media_subpage))
+
+        # load_contents_worker.signals.finished.connect(self.loading_screen.close)
+
+
+        self.threadpool.start(load_contents_worker)
+
+    async def load_contents(self):
         media_url = f"https://api.themoviedb.org/3/{self.media_type}/{self.media_id}"
         media_release_year = ""
 
-        media_response = self.requests_session_tmdb.get(media_url, headers=self.api_headers).json()
+        media_response = await self.api_client.fetch(media_url)
 
         if self.media_type == "tv":
             self.media_title = media_response['name']
@@ -304,7 +348,7 @@ class AboutSpecificMediaPageControls:
         self.director_label.setText("-")
         self.genres_label.setText("Genres: " + media_genres)
 
-        self.get_directors()
+        await self.get_directors()
 
         if not media_response['poster_path']:
             question_mark_image = QPixmap("../images/question_mark.jpg")
@@ -315,7 +359,7 @@ class AboutSpecificMediaPageControls:
             media_img_url = 'https://image.tmdb.org/t/p/w500' + media_response['poster_path']
 
             media_image = QImage()
-            media_image.loadFromData(self.requests_session_images.get(media_img_url).content)
+            media_image.loadFromData(await self.api_client.fetch_image(media_img_url, for_loading_screen=False))
 
             self.poster_label.setPixmap(QPixmap(media_image))
             self.poster_label.setScaledContents(True)

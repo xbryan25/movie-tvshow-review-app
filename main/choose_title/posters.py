@@ -12,8 +12,7 @@ import requests
 # TODO: Finish pulsing animation whenever a poster gets hovered by the mouse
 
 class Poster(QLabel):
-    def __init__(self, parent, media_type, requests_session_tmdb, requests_session_images,
-                 application_window):
+    def __init__(self, parent, media_type, application_window):
 
         super().__init__()
         self.parent = parent
@@ -21,9 +20,6 @@ class Poster(QLabel):
         self.title = ""
         self.media_id = ""
         self.media_type = media_type
-
-        self.requests_session_tmdb = requests_session_tmdb
-        self.requests_session_images = requests_session_images
 
         self.application_window = application_window
 

@@ -3,28 +3,37 @@ from PyQt6.QtCore import QRect, QPropertyAnimation
 from PyQt6.QtGui import QCursor, QFont
 from PyQt6.QtCore import Qt, QSize
 
-import requests
-
 
 class MediaResult(QFrame):
-    def __init__(self, parent, media_id, media_type, account_id, requests_session_tmdb, requests_session_images,
-                 application_window):
+    def __init__(self, parent, media_type, account_id, application_window):
 
         super().__init__()
 
         self.parent = parent
         self.setMouseTracking(True)
         self.title = ""
-        self.media_id = media_id
+        self.media_id = None
         self.media_type = media_type
         self.account_id = account_id
-
-        self.requests_session_tmdb = requests_session_tmdb
-        self.requests_session_images = requests_session_images
 
         self.application_window = application_window
 
         self.setup_elements()
+
+    def set_media_id(self, media_id):
+        self.media_id = media_id
+
+    def set_media_title(self, media_title):
+        self.media_title.setText(media_title)
+
+    def set_media_poster(self, media_poster):
+        self.media_poster.setPixmap(media_poster)
+
+    def set_media_release_year(self, media_release_year):
+        self.media_release_year.setText(media_release_year)
+
+    def set_short_info(self, media_short_info):
+        self.media_short_info.setText(media_short_info)
 
     def setup_elements(self):
         self.setMinimumSize(QSize(500, 170))
@@ -67,7 +76,7 @@ class MediaResult(QFrame):
         font.setPointSize(10)
         self.media_short_info.setFont(font)
         self.media_short_info.setObjectName("media_short_info")
-        self.gridLayout.addWidget(self.media_short_info, 2, 4, 1, 1)
+        self.gridLayout.addWidget(self.media_short_info, 2, 3, 1, 1)
 
         self.media_release_year = QLabel(parent=self)
         font = QFont()

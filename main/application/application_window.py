@@ -14,9 +14,13 @@ from page_controls.liked_to_watch_reviewed_page_controls import LikedToWatchRevi
 from page_controls.members_page_controls import MembersPageControls
 
 from utils.user_input_validators import UserInputValidators
+from utils.api_client import APIClient
 
 import sqlite3
 import requests
+
+import aiohttp
+import asyncio
 
 
 class ApplicationWindow(QMainWindow, ApplicationWindowUI):
@@ -28,13 +32,23 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
         self.load_fonts()
 
         self.load_controls()
-        self.open_requests_session()
 
         self.change_to_login_page()
 
         self.current_account_id = 0
 
         self.has_loaded_posters = False
+
+        self.api_headers = {
+            "accept": "application/json",
+            "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3N2Y0OWMyYmEyNmUxN2ZjMDkyY2VkYmQ2M2ZiZWIzNiIsIm5iZiI6MTczMjE2NjEzOS4wNDMzNTc0LCJzdWIiOiI2NzNlYzE5NzQ2NTQxYmJjZDM3OWNmZTYiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.j9GlO1y5TXH6iexR69tp03m39ScK9-CoKdjbkfVBqJY",
+        }
+
+        self.api_client = APIClient(self.api_headers)
+
+        # ✅ Schedule `test()` inside APIClient's event loop
+        future = asyncio.run_coroutine_threadsafe(self.start_api_client_session(), self.api_client.loop)
+        future.result()  # ✅ Wait for completion (optional)
 
         self.app_title_button.clicked.connect(self.change_to_choose_title_page)
         self.liked_button.clicked.connect(lambda: self.change_to_liked_to_watch_reviewed_page("liked"))
@@ -45,13 +59,11 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
         self.search_title_line_edit.returnPressed.connect(
             lambda: self.change_to_search_results_page(self.search_title_line_edit.text()))
 
-        self.choose_titles_page_controls.set_requests_session(self.requests_session_tmdb,
-                                                              self.requests_session_images)
+        self.choose_titles_page_controls.set_api_client(self.api_client)
         self.choose_titles_page_controls.start_process()
 
-    def open_requests_session(self):
-        self.requests_session_tmdb = requests.Session()
-        self.requests_session_images = requests.Session()
+    async def start_api_client_session(self):
+        await self.api_client.start_session()
 
     def set_current_account_id(self, account_id):
         self.current_account_id = account_id
@@ -144,15 +156,16 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
             self.subpage_stacked_widget.setCurrentWidget(self.popular_media_subpage)
 
     def change_to_about_specific_media_page(self, media_type, media_id):
-        self.page_stacked_widget.setCurrentWidget(self.main_page)
-        self.subpage_stacked_widget.setCurrentWidget(self.about_specific_media_subpage)
-
         self.about_specific_media_page_controls.set_account_id(self.current_account_id)
         self.about_specific_media_page_controls.set_media_type_and_id(media_type, media_id)
-        self.about_specific_media_page_controls.set_requests_session(self.requests_session_tmdb,
-                                                                     self.requests_session_images)
+        self.about_specific_media_page_controls.set_api_client(self.api_client)
 
         self.about_specific_media_page_controls.start_process()
+
+        # self.page_stacked_widget.setCurrentWidget(self.main_page)
+
+        # This is now called inside AboutSpecificMediaPageControls, specifically, after the contents have been loaded
+        # self.subpage_stacked_widget.setCurrentWidget(self.about_specific_media_subpage)
 
     def change_to_liked_to_watch_reviewed_page(self, state_to_show):
         self.page_stacked_widget.setCurrentWidget(self.main_page)
@@ -160,14 +173,9 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
 
         self.liked_to_watch_reviewed_page_controls.set_account_id(self.current_account_id)
         self.liked_to_watch_reviewed_page_controls.set_state_to_show(state_to_show)
-        self.liked_to_watch_reviewed_page_controls.set_requests_session(self.requests_session_tmdb,
-                                                                        self.requests_session_images)
+        self.liked_to_watch_reviewed_page_controls.set_api_client(self.api_client)
 
-        self.liked_to_watch_reviewed_page_controls.initialize_page()
-
-        self.liked_to_watch_reviewed_page_controls.clear_all_media()
-
-        self.liked_to_watch_reviewed_page_controls.load_l_tw_r_media()
+        self.liked_to_watch_reviewed_page_controls.start_process()
 
     def change_to_members_page(self):
         self.page_stacked_widget.setCurrentWidget(self.main_page)
@@ -184,11 +192,9 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
 
             self.search_results_page_controls.set_media_title_to_search(media_title_to_search)
             self.search_results_page_controls.set_account_id(self.current_account_id)
-            self.search_results_page_controls.set_requests_session(self.requests_session_tmdb,
-                                                                   self.requests_session_images)
+            self.search_results_page_controls.set_api_client(self.api_client)
 
-            self.search_results_page_controls.remove_old_search_results()
-            self.search_results_page_controls.show_search_results()
+            self.search_results_page_controls.start_process()
 
     def load_external_stylesheet(self):
         with open("../assets/qss_files/login_page_style.qss", "r") as file:

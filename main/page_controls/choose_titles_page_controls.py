@@ -19,48 +19,39 @@ from loading_screen.loading_screen import LoadingScreen
 
 from utils.load_pictures_worker import LoadPicturesWorker
 
-import requests
 import sqlite3
 import re
 import urllib
-import asyncio
+
 import threading
 import sys
 import traceback
+
+import aiohttp
+import asyncio
 
 import time
 
 
 class ChooseTitlesPageControls:
     def __init__(self, widgets, application_window):
-
-        self.api_headers = {
-            "accept": "application/json",
-            "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3N2Y0OWMyYmEyNmUxN2ZjMDkyY2VkYmQ2M2ZiZWIzNiIsIm5iZiI6MTczMjE2NjEzOS4wNDMzNTc0LCJzdWIiOiI2NzNlYzE5NzQ2NTQxYmJjZDM3OWNmZTYiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.j9GlO1y5TXH6iexR69tp03m39ScK9-CoKdjbkfVBqJY",
-        }
-
         self.widgets = widgets
         self.application_window = application_window
 
         self.account_id = None
-        self.requests_session_tmdb = None
-        self.requests_session_images = None
+        self.api_client = None
 
         self.load_widgets()
         self.add_signals()
 
-        # self.requests_session_tmdb = requests.Session()
-        # self.requests_session_images = requests.Session()
-
     def set_account_id(self, account_id):
         self.account_id = account_id
 
-    def set_requests_session(self, requests_session_tmdb, requests_session_images):
-        self.requests_session_tmdb = requests_session_tmdb
-        self.requests_session_images = requests_session_images
+    def set_api_client(self, api_client):
+        self.api_client = api_client
 
     def start_process(self):
-        for i in range(12):
+        for i in range(20):
             self.make_more_movie_posters(i)
             self.make_more_tv_show_posters(i)
 
@@ -110,61 +101,83 @@ class ChooseTitlesPageControls:
     def start_load_pictures_thread(self):
         self.application_window.hide()
 
-        load_pictures_worker = LoadPicturesWorker(self.load_pictures)
+        load_pictures_worker = LoadPicturesWorker(self.load_pictures, self.api_client)
 
         load_pictures_worker.signals.finished.connect(self.show_choose_titles_page)
 
         self.threadpool.start(load_pictures_worker)
 
-    def load_pictures(self):
+    async def load_pictures(self):
 
+        # await self.api_client.start_session()
         popular_movies_api_url = "https://api.themoviedb.org/3/movie/popular?language=en-US&page=1"
-        # popular_movies_api_response = requests.get(popular_movies_api_url, headers=self.api_headers)
-        popular_movies_api_response = self.requests_session_tmdb.get(popular_movies_api_url, headers=self.api_headers)
-
+        popular_movies_api_response = await self.api_client.fetch(popular_movies_api_url)
 
         popular_tv_shows_api_url = "https://api.themoviedb.org/3/tv/popular?language=en-US&page=1"
-        # popular_tv_shows_api_response = requests.get(popular_tv_shows_api_url, headers=self.api_headers)
-        popular_tv_shows_api_response = self.requests_session_tmdb.get(popular_tv_shows_api_url, headers=self.api_headers)
+        popular_tv_shows_api_response = await self.api_client.fetch(popular_tv_shows_api_url)
 
         # Find the children of the Poster class
         movie_poster_containers = self.popular_movies_scroll_area_contents.findChildren(Poster)
         tv_show_poster_containers = self.popular_tv_shows_scroll_area_contents.findChildren(Poster)
 
-        for i in range(12):
-            movie_img_url = 'https://image.tmdb.org/t/p/w342/' + popular_movies_api_response.json()['results'][i][
-                'poster_path']
 
-            movie_id = popular_movies_api_response.json()['results'][i][
-                'id']
+        movie_img_urls = []
+        tv_show_img_urls = []
 
-            movie_image = QImage()
-            movie_image.loadFromData(self.requests_session_images.get(movie_img_url).content)
-            # print("load movie image"/7)
+        # Set up Poster details
+        for i in range(20):
+            movie_img_url = ""
 
+            if popular_movies_api_response['results'][i]['poster_path']:
+                movie_img_url = 'https://image.tmdb.org/t/p/w342/' + popular_movies_api_response['results'][i][
+                    'poster_path']
+
+            movie_img_urls.append(movie_img_url)
+
+            movie_id = popular_movies_api_response['results'][i]['id']
             movie_poster_containers[i].setMediaId(movie_id)
-            movie_poster_containers[i].setPixmap(QPixmap(movie_image))
+
             movie_poster_containers[i].show()
 
             # TMDB poster download sizes
             # https://www.themoviedb.org/talk/5ee4ba52a217c0001fd0cb83
 
-            tv_show_img_url = 'https://image.tmdb.org/t/p/w342/' + \
-                              popular_tv_shows_api_response.json()['results'][i]['poster_path']
+            tv_show_img_url = ""
 
-            tv_show_id = popular_tv_shows_api_response.json()['results'][i]['id']
+            if popular_tv_shows_api_response['results'][i]['poster_path']:
+                tv_show_img_url = ('https://image.tmdb.org/t/p/w342/' +
+                                   popular_tv_shows_api_response['results'][i]['poster_path'])
 
-            tv_show_image = QImage()
-            tv_show_image.loadFromData(self.requests_session_images.get(tv_show_img_url).content)
+            tv_show_img_urls.append(tv_show_img_url)
 
+            tv_show_id = popular_tv_shows_api_response['results'][i]['id']
             tv_show_poster_containers[i].setMediaId(tv_show_id)
-            tv_show_poster_containers[i].setPixmap(QPixmap(tv_show_image))
+
             tv_show_poster_containers[i].show()
 
-            # print(f"{((i + 1) / 16) * 100:.2f}")
-            self.loading_screen.loading_progress_bar.setValue(int(((i + 1) / 12) * 100))
+        # Fetch data from TMDB
+        movie_img_data = await self.api_client.fetch_all_images(movie_img_urls, self.loading_screen.loading_progress_bar, 0, 40)
+        tv_show_img_data = await self.api_client.fetch_all_images(tv_show_img_urls, self.loading_screen.loading_progress_bar, 21, 40)
+
+        # Load image data to Posters
+        for j in range(20):
+            if movie_img_data[j] != '':
+
+                movie_image = QImage()
+                movie_image.loadFromData(movie_img_data[j])
+
+                movie_poster_containers[j].setPixmap(QPixmap(movie_image))
+
+            if tv_show_img_data[j] != '':
+
+                tv_show_image = QImage()
+                tv_show_image.loadFromData(tv_show_img_data[j])
+
+                tv_show_poster_containers[j].setPixmap(QPixmap(tv_show_image))
 
         print("Done!")
+
+        # await self.api_client.close_session()
 
     def show_choose_titles_page(self):
         self.loading_screen.close()
@@ -176,8 +189,6 @@ class ChooseTitlesPageControls:
         # Don't forget to change QLabel to Poster
 
         self.label = Poster(parent=self.popular_movies_scroll_area_contents, media_type="movie",
-                            requests_session_tmdb=self.requests_session_tmdb,
-                            requests_session_images=self.requests_session_images,
                             application_window=self.application_window)
         self.label.setMinimumSize(QSize(165, 225))
         self.label.setMaximumSize(QSize(165, 270))
@@ -208,8 +219,6 @@ class ChooseTitlesPageControls:
         # Don't forget to change QLabel to Poster
 
         self.label_2 = Poster(parent=self.popular_tv_shows_scroll_area_contents, media_type="tv",
-                              requests_session_tmdb=self.requests_session_tmdb,
-                              requests_session_images=self.requests_session_images,
                               application_window=self.application_window)
 
         self.label_2.setMinimumSize(QSize(165, 225))
