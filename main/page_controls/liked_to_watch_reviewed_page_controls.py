@@ -332,9 +332,6 @@ class LikedToWatchReviewedPageControls:
         self.confirmation_dialog.exec()
 
         if self.confirmation_dialog.get_confirm_state():
-            connection = sqlite3.connect('../database\\accounts.db')
-            cursor = connection.cursor()
-
             self.rearrange_layout(frame, media_type)
 
             frame.hide()
@@ -343,15 +340,32 @@ class LikedToWatchReviewedPageControls:
             media_list.remove(media)
             media_json = json.dumps(media_list)
 
-            if media_type == "movie":
+            self.update_database_after_removing(media_type, media_json)
+
+    def update_database_after_removing(self, media_type, media_json):
+
+        connection = sqlite3.connect('../database\\accounts.db')
+        cursor = connection.cursor()
+
+        if media_type == "movie":
+            if self.state_to_show == "liked":
                 cursor.execute("""UPDATE liked_media SET liked_movies=(:liked_movies) WHERE account_id=(:account_id)""",
-                           {"liked_movies": media_json, "account_id": self.account_id})
-            else:
+                               {"liked_movies": media_json, "account_id": self.account_id})
+            elif self.state_to_show == "to_watch":
+                cursor.execute("""UPDATE media_to_watch SET movies_to_watch=(:movies_to_watch) WHERE account_id=(:account_id)""",
+                               {"movies_to_watch": media_json, "account_id": self.account_id})
+
+        elif media_type == "tv":
+            if self.state_to_show == "liked":
                 cursor.execute("""UPDATE liked_media SET liked_tv_shows=(:liked_tv_shows) WHERE account_id=(:account_id)""",
                                {"liked_tv_shows": media_json, "account_id": self.account_id})
+            elif self.state_to_show == "to_watch":
+                cursor.execute(
+                    """UPDATE media_to_watch SET tv_shows_to_watch=(:tv_shows_to_watch) WHERE account_id=(:account_id)""",
+                    {"tv_shows_to_watch": media_json, "account_id": self.account_id})
 
-            connection.commit()
-            connection.close()
+        connection.commit()
+        connection.close()
 
     def rearrange_layout(self, frame, media_type):
         if media_type == "movie":
