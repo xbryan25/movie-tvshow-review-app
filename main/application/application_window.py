@@ -168,14 +168,17 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
         # self.subpage_stacked_widget.setCurrentWidget(self.about_specific_media_subpage)
 
     def change_to_liked_to_watch_reviewed_page(self, state_to_show):
-        self.page_stacked_widget.setCurrentWidget(self.main_page)
-        self.subpage_stacked_widget.setCurrentWidget(self.l_tw_r_subpage)
+        # self.page_stacked_widget.setCurrentWidget(self.main_page)
+
 
         self.liked_to_watch_reviewed_page_controls.set_account_id(self.current_account_id)
         self.liked_to_watch_reviewed_page_controls.set_state_to_show(state_to_show)
         self.liked_to_watch_reviewed_page_controls.set_api_client(self.api_client)
 
         self.liked_to_watch_reviewed_page_controls.start_process()
+
+        # This is now called inside AboutSpecificMediaPageControls, specifically, after the contents have been loaded
+        # self.subpage_stacked_widget.setCurrentWidget(self.l_tw_r_subpage)
 
     def change_to_members_page(self):
         self.page_stacked_widget.setCurrentWidget(self.main_page)

@@ -1,34 +1,38 @@
 from PyQt6.QtWidgets import QLabel, QFrame, QGridLayout, QSizePolicy, QSpacerItem, QMainWindow, QPushButton
 from PyQt6.QtCore import QRect, QPropertyAnimation
 from PyQt6.QtGui import QCursor, QFont, QImage, QPixmap
-from PyQt6.QtCore import Qt, QSize
+from PyQt6.QtCore import Qt, QSize, QThreadPool
 
 from dialogs.operation_confirmation_dialog import OperationConfirmationDialog
 
-from utils.clickable_frame import ClickableFrame
+from utils.liked_to_watch_reviewed_media_result import LikedToWatchReviewedMediaResult
+
+from loading_screen.loading_screen import LoadingScreen
+from utils.load_pictures_worker import LoadPicturesWorker
 
 import sqlite3
 import json
 import requests
 
-
 class LikedToWatchReviewedPageControls:
     def __init__(self, widgets, application_window):
-
-        self.api_headers = {
-            "accept": "application/json",
-            "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3N2Y0OWMyYmEyNmUxN2ZjMDkyY2VkYmQ2M2ZiZWIzNiIsIm5iZ"
-                             "iI6MTczMjE2NjEzOS4wNDMzNTc0LCJzdWIiOiI2NzNlYzE5NzQ2NTQxYmJjZDM3OWNmZTYiLCJzY29wZXMiOlsiYX"
-                             "BpX3JlYWQiXSwidmVyc2lvbiI6MX0.j9GlO1y5TXH6iexR69tp03m39ScK9-CoKdjbkfVBqJY"
-        }
 
         self.widgets = widgets
         self.application_window = application_window
 
         self.account_id = None
         self.state_to_show = None
-        self.requests_session_tmdb = None
-        self.requests_session_images = None
+        self.api_client = None
+
+        self.l_tw_r_movies = None
+        self.l_tw_r_tv_shows = None
+
+        self.l_tw_r_movies_num = None
+        self.l_tw_r_tv_shows_num = None
+        self.total_l_tw_r_media = None
+
+        self.l_tw_r_movie_frames = []
+        self.l_tw_r_tv_show_frames = []
 
         self.load_widgets()
 
@@ -52,9 +56,8 @@ class LikedToWatchReviewedPageControls:
     def set_state_to_show(self, state_to_show):
         self.state_to_show = state_to_show
 
-    def set_requests_session(self, requests_session_tmdb, requests_session_images):
-        self.requests_session_tmdb = requests_session_tmdb
-        self.requests_session_images = requests_session_images
+    def set_api_client(self, api_client):
+        self.api_client = api_client
 
     def initialize_page(self):
         self.get_first_name()
@@ -69,6 +72,20 @@ class LikedToWatchReviewedPageControls:
 
         connection.commit()
         connection.close()
+
+    def start_process(self):
+        self.initialize_page()
+        self.clear_all_media()
+
+        self.get_movies_and_tv_shows_from_database()
+
+        self.make_media_result_frames(len(self.l_tw_r_movies), len(self.l_tw_r_tv_shows))
+
+        self.loading_screen = LoadingScreen()
+        self.loading_screen.show()
+
+        self.threadpool = QThreadPool()
+        self.start_show_results_thread()
 
     def edit_window_title(self):
 
@@ -114,37 +131,44 @@ class LikedToWatchReviewedPageControls:
                 self.l_tw_r_tv_shows_scroll_area_grid_layout.removeItem(item)
                 break
 
-    def load_l_tw_r_media(self):
+    def get_movies_and_tv_shows_from_database(self):
         connection = sqlite3.connect('../database\\accounts.db')
         cursor = connection.cursor()
 
         if self.state_to_show == "liked":
-            l_tw_r_movies = json.loads(
+            self.l_tw_r_movies = json.loads(
                 cursor.execute("""SELECT liked_movies FROM liked_media WHERE account_id=(:account_id)""",
                                {'account_id': self.account_id}).fetchone()[0])
 
-            l_tw_r_tv_shows = json.loads(
+            self.l_tw_r_tv_shows = json.loads(
                 cursor.execute("""SELECT liked_tv_shows FROM liked_media WHERE account_id=(:account_id)""",
                                {'account_id': self.account_id}).fetchone()[0])
         elif self.state_to_show == "to_watch":
-            l_tw_r_movies = json.loads(
+            self.l_tw_r_movies = json.loads(
                 cursor.execute("""SELECT movies_to_watch FROM media_to_watch WHERE account_id=(:account_id)""",
                                {'account_id': self.account_id}).fetchone()[0])
 
-            l_tw_r_tv_shows = json.loads(
+            self.l_tw_r_tv_shows = json.loads(
                 cursor.execute("""SELECT tv_shows_to_watch FROM media_to_watch WHERE account_id=(:account_id)""",
                                {'account_id': self.account_id}).fetchone()[0])
         else:
-            l_tw_r_movies = json.loads(
+            self.l_tw_r_movies = json.loads(
                 cursor.execute("""SELECT movie_reviews FROM reviews WHERE account_id=(:account_id)""",
                                {'account_id': self.account_id}).fetchone()[0])
 
-            l_tw_r_tv_shows = json.loads(
+            self.l_tw_r_tv_shows = json.loads(
                 cursor.execute("""SELECT tv_show_reviews FROM reviews WHERE account_id=(:account_id)""",
                                {'account_id': self.account_id}).fetchone()[0])
 
-        # self.l_tw_r_movies_scroll_area_grid_layout.setColumnStretch(1, 1)
+        self.l_tw_r_movies_num = len(self.l_tw_r_movies)
+        self.l_tw_r_tv_shows_num = len(self.l_tw_r_tv_shows)
 
+        self.total_l_tw_r_media = self.l_tw_r_movies_num + self.l_tw_r_tv_shows_num
+
+        connection.commit()
+        connection.close()
+
+    def make_media_result_frames(self, num_of_movies, num_of_tv_shows):
         # Pushes movie frames to the right
         left_v_spacer = QSpacerItem(20, 40, QSizePolicy.Policy.Expanding,
                                     QSizePolicy.Policy.Minimum)
@@ -159,123 +183,21 @@ class LikedToWatchReviewedPageControls:
 
         count = 0
 
-        for count, l_tw_r_movie in enumerate(l_tw_r_movies):
-            movie_url = f"https://api.themoviedb.org/3/movie/{l_tw_r_movie}"
-            movie_response = self.requests_session_tmdb.get(movie_url, headers=self.api_headers).json()
+        for count in range(num_of_movies):
+            self.l_tw_r_movie_frame = LikedToWatchReviewedMediaResult(self.l_tw_r_movies_scroll_area, "movie",
+                                                                      self.account_id, self.application_window,
+                                                                      self.state_to_show)
 
-            movie_title = movie_response['title']
-            movie_release_year = (movie_response['release_date'].split('-'))[0]
-            movie_runtime = movie_response['runtime']
-            movie_poster_path = movie_response['poster_path']
+            self.l_tw_r_movies_scroll_area_grid_layout.addWidget(self.l_tw_r_movie_frame, count, 1, 1, 1)
 
-            self.l_tw_r_movie_frame = ClickableFrame(parent=self.l_tw_r_movies_scroll_area_contents)
-            self.l_tw_r_movie_frame.setMinimumSize(QSize(360, 160))
-            self.l_tw_r_movie_frame.setMaximumSize(QSize(550, 160))
-            self.l_tw_r_movie_frame.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-            self.l_tw_r_movie_frame.setStyleSheet("background-color: rgb(13, 249, 249);")
-            self.l_tw_r_movie_frame.setFrameShape(QFrame.Shape.StyledPanel)
-            self.l_tw_r_movie_frame.setFrameShadow(QFrame.Shadow.Raised)
-            self.l_tw_r_movie_frame.setObjectName(f"l_tw_r_movie_{l_tw_r_movie}")
-
-            self.l_tw_r_movie_frame.clicked.connect(lambda state, media_id=l_tw_r_movie:
-                                                    self.application_window.change_to_about_specific_media_page("movie",
-                                                                                                                media_id))
-
-            self.l_tw_r_movie_grid_layout = QGridLayout(self.l_tw_r_movie_frame)
-            self.l_tw_r_movie_grid_layout.setObjectName("l_tw_r_movie_grid_layout")
-
-            self.movie_title_label = QLabel(parent=self.l_tw_r_movie_frame)
-            self.movie_title_label.setMinimumSize(QSize(0, 30))
-            self.movie_title_label.setMaximumSize(QSize(16777215, 50))
-            font = QFont()
-            font.setFamily("Oswald")
-            font.setPointSize(10)
-            self.movie_title_label.setFont(font)
-            self.movie_title_label.setObjectName(f"movie_title_label_{l_tw_r_movie}")
-            self.movie_title_label.setText(movie_title)
-            self.l_tw_r_movie_grid_layout.addWidget(self.movie_title_label, 0, 2, 1, 2)
-
-            self.movie_poster_label = QLabel(parent=self.l_tw_r_movie_frame)
-            self.movie_poster_label.setMinimumSize(QSize(0, 138))
-            self.movie_poster_label.setMaximumSize(QSize(92, 138))
-            self.movie_poster_label.setText("")
-            self.movie_poster_label.setScaledContents(True)
-            self.movie_poster_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.movie_poster_label.setObjectName(f"movie_poster_{l_tw_r_movie}")
-            self.movie_poster_label.setScaledContents(True)
-
-            if not movie_poster_path:
-                question_mark_image = QPixmap("../images/question_mark.jpg")
-
-                self.movie_poster.setPixmap(question_mark_image)
-            else:
-                movie_img_url = 'https://image.tmdb.org/t/p/w92/' + movie_poster_path
-
-                movie_image = QImage()
-                movie_image.loadFromData(self.requests_session_images.get(movie_img_url).content)
-
-                self.movie_poster_label.setPixmap(QPixmap(movie_image))
-
-            self.movie_poster_label.setScaledContents(True)
-            self.l_tw_r_movie_grid_layout.addWidget(self.movie_poster_label, 0, 0, 5, 1)
-
-            self.movie_year_label = QLabel(parent=self.l_tw_r_movie_frame)
-            self.movie_year_label.setMinimumSize(QSize(0, 30))
-            self.movie_year_label.setMaximumSize(QSize(16777215, 50))
-            font = QFont()
-            font.setFamily("Oswald")
-            font.setPointSize(10)
-            self.movie_year_label.setFont(font)
-            self.movie_year_label.setObjectName(f"movie_year_{l_tw_r_movie}")
-            self.movie_year_label.setText(movie_release_year)
-            self.l_tw_r_movie_grid_layout.addWidget(self.movie_year_label, 1, 2, 1, 2)
-
-            self.movie_runtime_label = QLabel(parent=self.l_tw_r_movie_frame)
-            self.movie_runtime_label.setMinimumSize(QSize(0, 30))
-            self.movie_runtime_label.setMaximumSize(QSize(16777215, 30))
-            font = QFont()
-            font.setFamily("Oswald")
-            font.setPointSize(10)
-            self.movie_runtime_label.setFont(font)
-            self.movie_runtime_label.setObjectName(f"movie_runtime_{l_tw_r_movie}")
-            self.movie_runtime_label.setText(f"{movie_runtime} minutes")
-            self.l_tw_r_movie_grid_layout.addWidget(self.movie_runtime_label, 2, 2, 1, 2)
-
-            if self.state_to_show != "reviewed":
-                self.remove_button_movie = QPushButton(parent=self.l_tw_r_movie_frame)
-                font = QFont()
-                font.setFamily("Oswald Medium")
-                font.setPointSize(10)
-                font.setBold(False)
-                font.setWeight(50)
-                self.remove_button_movie.setFont(font)
-                self.remove_button_movie.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-                self.remove_button_movie.setObjectName("remove_from_liked_movie")
-                self.remove_button_movie.setText("Remove")
-
-                self.remove_button_movie.clicked.connect(lambda state, frame=self.l_tw_r_movie_frame,
-                                                                movie=l_tw_r_movie,
-                                                                _l_tw_r_movies=l_tw_r_movies,
-                                                                media_type="movie":
-                                                         self.remove_media(frame, movie, _l_tw_r_movies,
-                                                                           media_type))
-
-                self.l_tw_r_movie_grid_layout.addWidget(self.remove_button_movie, 3, 2, 1, 2)
-
-            poster_spacer = QSpacerItem(10, 20, QSizePolicy.Policy.Fixed,
-                                               QSizePolicy.Policy.Minimum)
-
-            self.l_tw_r_movie_grid_layout.addItem(poster_spacer, 1, 1, 1, 1)
-
-            self.l_tw_r_movies_scroll_area_grid_layout.addWidget(self.l_tw_r_movie_frame,
-                                                                            count, 1, 1, 1)
+            self.l_tw_r_movie_frames.append(self.l_tw_r_movie_frame)
 
         # Pushes movie frames up
         spacerItem1 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum,
-                                            QSizePolicy.Policy.Expanding)
+                                  QSizePolicy.Policy.Expanding)
 
         self.l_tw_r_movies_scroll_area_grid_layout.addItem(spacerItem1,
-                                                                      count + 1, 1, 1, 1)
+                                                           count + 1, 1, 1, 1)
 
         # -----------------------------------------------------------------------------------------------
 
@@ -284,140 +206,129 @@ class LikedToWatchReviewedPageControls:
                                     QSizePolicy.Policy.Minimum)
 
         self.l_tw_r_tv_shows_scroll_area_grid_layout.addItem(left_v_spacer,
-                                                                        0, 0, 1, 1)
+                                                             0, 0, 1, 1)
 
         # Pushes movie frames to the left
         right_v_spacer = QSpacerItem(20, 40, QSizePolicy.Policy.Expanding,
                                      QSizePolicy.Policy.Minimum)
 
         self.l_tw_r_tv_shows_scroll_area_grid_layout.addItem(right_v_spacer,
-                                                                        0, 2, 1, 1)
+                                                             0, 2, 1, 1)
 
         count = 0
 
-        for count, l_tw_r_tv_show in enumerate(l_tw_r_tv_shows):
-            tv_show_url = f"https://api.themoviedb.org/3/tv/{l_tw_r_tv_show}"
-            tv_show_response = self.requests_session_tmdb.get(tv_show_url, headers=self.api_headers).json()
+        for count in range(num_of_tv_shows):
+            self.l_tw_r_tv_show_frame = LikedToWatchReviewedMediaResult(self.l_tw_r_tv_shows_scroll_area, "tv",
+                                                                        self.account_id, self.application_window,
+                                                                        self.state_to_show)
 
-            tv_show_title = tv_show_response['name']
-            tv_show_release_year = (tv_show_response['first_air_date'].split('-'))[0]
-            tv_show_number_of_seasons = tv_show_response['number_of_seasons']
-            tv_show_poster = tv_show_response['poster_path']
+            self.l_tw_r_tv_shows_scroll_area_grid_layout.addWidget(self.l_tw_r_tv_show_frame, count, 1, 1, 1)
 
-            self.l_tw_r_tv_show_frame = ClickableFrame(parent=self.l_tw_r_tv_shows_scroll_area_contents)
-            self.l_tw_r_tv_show_frame.setMinimumSize(QSize(360, 160))
-            self.l_tw_r_tv_show_frame.setMaximumSize(QSize(550, 160))
-            self.l_tw_r_tv_show_frame.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-            self.l_tw_r_tv_show_frame.setStyleSheet("background-color: rgb(13, 249, 249);")
-            self.l_tw_r_tv_show_frame.setFrameShape(QFrame.Shape.StyledPanel)
-            self.l_tw_r_tv_show_frame.setFrameShadow(QFrame.Shadow.Raised)
-            self.l_tw_r_tv_show_frame.setObjectName(f"l_tw_r_tv_show_{l_tw_r_tv_show}")
+            self.l_tw_r_tv_show_frames.append(self.l_tw_r_tv_show_frame)
 
-            self.l_tw_r_tv_show_frame.clicked.connect(lambda state, media_id=l_tw_r_tv_show:
-                                                      self.application_window.change_to_about_specific_media_page("tv",
-                                                                                                                  media_id))
-
-            self.l_tw_r_tv_show_grid_layout = QGridLayout(self.l_tw_r_tv_show_frame)
-            self.l_tw_r_tv_show_grid_layout.setObjectName("l_tw_r_tv_show_grid_layout")
-
-            self.tv_show_title_label = QLabel(parent=self.l_tw_r_tv_show_frame)
-            self.tv_show_title_label.setMinimumSize(QSize(0, 30))
-            self.tv_show_title_label.setMaximumSize(QSize(200, 50))
-            font = QFont()
-            font.setFamily("Oswald")
-            font.setPointSize(10)
-            self.tv_show_title_label.setFont(font)
-            self.tv_show_title_label.setObjectName(f"tv_show_title_label_{l_tw_r_tv_show}")
-            self.tv_show_title_label.setText(tv_show_title)
-            self.l_tw_r_tv_show_grid_layout.addWidget(self.tv_show_title_label, 0, 2, 1, 2)
-
-            self.tv_show_poster_label = QLabel(parent=self.l_tw_r_tv_show_frame)
-            self.tv_show_poster_label.setMinimumSize(QSize(0, 138))
-            self.tv_show_poster_label.setMaximumSize(QSize(92, 138))
-            self.tv_show_poster_label.setText("")
-            self.tv_show_poster_label.setScaledContents(True)
-            self.tv_show_poster_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.tv_show_poster_label.setObjectName(f"tv_show_poster_{l_tw_r_tv_show}")
-
-            if not tv_show_poster:
-                question_mark_image = QPixmap("../images/question_mark.jpg")
-                self.tv_show_poster_label.setPixmap(question_mark_image)
-
-            else:
-                tv_show_img_url = 'https://image.tmdb.org/t/p/w92' + tv_show_poster
-
-                tv_show_image = QImage()
-                tv_show_image.loadFromData(self.requests_session_images.get(tv_show_img_url).content)
-
-                self.tv_show_poster_label.setPixmap(QPixmap(tv_show_image))
-                self.tv_show_poster_label.setScaledContents(True)
-
-            self.tv_show_poster_label.setScaledContents(True)
-            self.l_tw_r_tv_show_grid_layout.addWidget(self.tv_show_poster_label, 0, 0, 5, 1)
-
-            self.tv_show_year_label = QLabel(parent=self.l_tw_r_tv_show_frame)
-            self.tv_show_year_label.setMinimumSize(QSize(0, 30))
-            self.tv_show_year_label.setMaximumSize(QSize(200, 50))
-            font = QFont()
-            font.setFamily("Oswald")
-            font.setPointSize(10)
-            self.tv_show_year_label.setFont(font)
-            self.tv_show_year_label.setObjectName("tv_show_year")
-            self.tv_show_year_label.setText(tv_show_release_year)
-            self.l_tw_r_tv_show_grid_layout.addWidget(self.tv_show_year_label, 1, 2, 1, 2)
-
-            self.tv_show_seasons_label = QLabel(parent=self.l_tw_r_tv_show_frame)
-            self.tv_show_seasons_label.setMinimumSize(QSize(0, 30))
-            self.tv_show_seasons_label.setMaximumSize(QSize(200, 50))
-            font = QFont()
-            font.setFamily("Oswald")
-            font.setPointSize(10)
-            self.tv_show_seasons_label.setFont(font)
-            self.tv_show_seasons_label.setObjectName(f"tv_show_seasons_{l_tw_r_tv_show}")
-            self.tv_show_seasons_label.setText(f"{tv_show_number_of_seasons} seasons")
-            self.l_tw_r_tv_show_grid_layout.addWidget(self.tv_show_seasons_label, 2, 2, 1, 2)
-
-            if self.state_to_show != "reviewed":
-                self.remove_button_tv_show = QPushButton(parent=self.l_tw_r_tv_show_frame)
-                font = QFont()
-                font.setFamily("Oswald Medium")
-                font.setPointSize(10)
-                self.remove_button_tv_show.setFont(font)
-                self.remove_button_tv_show.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-                self.remove_button_tv_show.setObjectName(f"remove_button_tv_show_{l_tw_r_tv_show}")
-                self.remove_button_tv_show.setText("Remove")
-
-                self.remove_button_tv_show.clicked.connect(lambda state, frame=self.l_tw_r_tv_show_frame,
-                                                                  tv_show=l_tw_r_tv_show,
-                                                                  _l_tw_r_tv_shows=l_tw_r_tv_shows,
-                                                                  media_type="tv":
-                                                           self.remove_media(frame, tv_show,
-                                                                             _l_tw_r_tv_shows,
-                                                                             media_type))
-
-                self.l_tw_r_tv_show_grid_layout.addWidget(self.remove_button_tv_show, 3, 2, 1, 2)
-
-            poster_spacer2 = QSpacerItem(10, 20, QSizePolicy.Policy.Fixed,
-                                               QSizePolicy.Policy.Minimum)
-
-            self.l_tw_r_tv_show_grid_layout.addItem(poster_spacer2, 1, 1, 1, 1)
-
-            self.l_tw_r_tv_shows_scroll_area_grid_layout.addWidget(self.l_tw_r_tv_show_frame,
-                                                                              count, 1, 1, 1)
-
-        # Pushes movie frames up
+        # Pushes tv show frames up
         spacerItem2 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum,
                                   QSizePolicy.Policy.Expanding)
 
         self.l_tw_r_tv_shows_scroll_area_grid_layout.addItem(spacerItem2,
-                                                                       count + 1, 1, 1, 1)
+                                                             count + 1, 1, 1, 1)
 
-        connection.commit()
-        connection.close()
+    def add_remove_button_operation_to_frames(self):
+        for l_tw_r_movie_frame in self.l_tw_r_movie_frames:
+            l_tw_r_movie_frame.add_remove_button_operation(self.l_tw_r_movies, self)
+
+        for l_tw_r_tv_show_frame in self.l_tw_r_tv_show_frames:
+            l_tw_r_tv_show_frame.add_remove_button_operation(self.l_tw_r_tv_shows, self)
+
+    def start_show_results_thread(self):
+        self.load_pictures_worker = LoadPicturesWorker(self.load_l_tw_r_media_contents, self.api_client)
+
+        self.load_pictures_worker.signals.finished.connect(self.loading_screen.close)
+
+        if self.state_to_show != 'reviewed':
+            self.load_pictures_worker.signals.finished.connect(self.add_remove_button_operation_to_frames)
+
+        self.load_pictures_worker.signals.finished.connect(lambda: self.application_window.
+                                                           subpage_stacked_widget.
+                                                           setCurrentWidget(self.application_window.l_tw_r_subpage))
+
+        self.threadpool.start(self.load_pictures_worker)
+
+    async def load_l_tw_r_media_contents(self):
+
+        movie_img_urls = []
+
+        for count, l_tw_r_movie in enumerate(self.l_tw_r_movies):
+            movie_url = f"https://api.themoviedb.org/3/movie/{l_tw_r_movie}"
+
+            movie_response = await self.api_client.fetch(movie_url)
+
+            self.l_tw_r_movie_frames[count].set_media_id(l_tw_r_movie)
+            self.l_tw_r_movie_frames[count].set_media_title(movie_response['title'])
+            self.l_tw_r_movie_frames[count].set_media_release_year((movie_response['release_date'].split('-'))[0])
+            self.l_tw_r_movie_frames[count].set_media_short_info(f"{movie_response['runtime']} minutes")
+
+            if movie_response['poster_path']:
+                movie_img_url = 'https://image.tmdb.org/t/p/w92/' + movie_response['poster_path']
+                movie_img_urls.append(movie_img_url)
+
+            else:
+                movie_img_urls.append("")
+
+        movie_img_contents = await self.api_client.fetch_all_images(movie_img_urls,
+                                                                    self.loading_screen.loading_progress_bar,
+                                                                    0,
+                                                                    self.total_l_tw_r_media)
+
+        for i in range(len(movie_img_contents)):
+            if movie_img_contents[i]:
+                movie_image = QImage()
+                movie_image.loadFromData(movie_img_contents[i])
+
+                self.l_tw_r_movie_frames[i].set_media_poster(QPixmap(movie_image))
+            else:
+                question_mark_image = QPixmap("../images/question_mark.jpg")
+                self.l_tw_r_movie_frames[i].setPixmap(question_mark_image)
+
+        # -----------------------------------------------------------------------------------------------
+
+        tv_show_img_urls = []
+
+        for count, l_tw_r_tv_show in enumerate(self.l_tw_r_tv_shows):
+            tv_show_url = f"https://api.themoviedb.org/3/tv/{l_tw_r_tv_show}"
+
+            tv_show_response = await self.api_client.fetch(tv_show_url)
+
+            self.l_tw_r_tv_show_frames[count].set_media_id(l_tw_r_tv_show)
+            self.l_tw_r_tv_show_frames[count].set_media_title(tv_show_response['name'])
+            self.l_tw_r_tv_show_frames[count].set_media_release_year((tv_show_response['first_air_date'].split('-'))[0])
+            self.l_tw_r_tv_show_frames[count].set_media_short_info(f"{tv_show_response['number_of_seasons']} seasons")
+
+
+            if tv_show_response['poster_path']:
+                tv_show_img_url = 'https://image.tmdb.org/t/p/w92/' + tv_show_response['poster_path']
+                tv_show_img_urls.append(tv_show_img_url)
+
+            else:
+                tv_show_img_urls.append("")
+
+        tv_show_img_contents = await self.api_client.fetch_all_images(tv_show_img_urls,
+                                                                      self.loading_screen.loading_progress_bar,
+                                                                      len(self.l_tw_r_movies) + 1,
+                                                                      self.total_l_tw_r_media)
+
+        for i in range(len(tv_show_img_contents)):
+            if tv_show_img_contents[i]:
+                tv_show_image = QImage()
+                tv_show_image.loadFromData(tv_show_img_contents[i])
+
+                self.l_tw_r_tv_show_frames[i].set_media_poster(QPixmap(tv_show_image))
+            else:
+                question_mark_image = QPixmap("../images/question_mark.jpg")
+                self.l_tw_r_tv_show_frames[i].setPixmap(question_mark_image)
 
     def remove_media(self, frame, media, media_list, media_type):
         self.confirmation_dialog = OperationConfirmationDialog(media_type, self.state_to_show)
-
         self.confirmation_dialog.exec()
 
         if self.confirmation_dialog.get_confirm_state():
@@ -430,7 +341,7 @@ class LikedToWatchReviewedPageControls:
             frame.deleteLater()
 
             media_list.remove(media)
-            media_json = json.dumps(liked_media_list)
+            media_json = json.dumps(media_list)
 
             if media_type == "movie":
                 cursor.execute("""UPDATE liked_media SET liked_movies=(:liked_movies) WHERE account_id=(:account_id)""",
@@ -443,21 +354,15 @@ class LikedToWatchReviewedPageControls:
             connection.close()
 
     def rearrange_layout(self, frame, media_type):
-
         if media_type == "movie":
-            # Make a shallow copy of the current children of the widget
-
-            movie_frames = [child for child in
-                            self.l_tw_r_movies_scroll_area.widget().findChildren(QFrame)
-                            if type(child) is QFrame]
 
             # Remove v_spacer
-            v_spacer = self.l_tw_r_movies_scroll_area_grid_layout.itemAtPosition(len(movie_frames) + 1, 1)
+            v_spacer = self.l_tw_r_movies_scroll_area_grid_layout.itemAtPosition(len(self.l_tw_r_movie_frames), 1)
             self.l_tw_r_movies_scroll_area_grid_layout.removeItem(v_spacer)
 
             count = 0
 
-            for movie_frame in movie_frames:
+            for movie_frame in self.l_tw_r_movie_frames:
                 # Transfer frames one row up
                 self.l_tw_r_movies_scroll_area_grid_layout.removeWidget(movie_frame)
 
@@ -472,19 +377,14 @@ class LikedToWatchReviewedPageControls:
             self.l_tw_r_movies_scroll_area_grid_layout.addItem(v_spacer, count + 1, 1, 1, 1)
 
         elif media_type == "tv":
-            # Make a shallow copy of the current children of the widget
-
-            tv_show_frames = [child for child in
-                              self.l_tw_r_tv_shows_scroll_area.widget().findChildren(QFrame)
-                              if type(child) is QFrame]
 
             # Remove v_spacer
-            v_spacer = self.l_tw_r_tv_shows_scroll_area_grid_layout.itemAtPosition(len(tv_show_frames) + 1, 1)
+            v_spacer = self.l_tw_r_tv_shows_scroll_area_grid_layout.itemAtPosition(len(self.l_tw_r_tv_show_frames) + 1, 1)
             self.l_tw_r_tv_shows_scroll_area_grid_layout.removeItem(v_spacer)
 
             count = 0
 
-            for tv_show_frame in tv_show_frames:
+            for tv_show_frame in self.l_tw_r_tv_show_frames:
                 # Transfer frames one row up
                 self.l_tw_r_tv_shows_scroll_area_grid_layout.removeWidget(tv_show_frame)
 

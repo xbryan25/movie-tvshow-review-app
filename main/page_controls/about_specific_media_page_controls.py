@@ -185,27 +185,6 @@ class AboutSpecificMediaPageControls:
 
             seasons_list_without_series = list(self.seasons[1:])
 
-            # for season in seasons_list_without_series:
-            #     season_directors = []
-            #
-            #     tv_show_season_credit_url = f"https://api.themoviedb.org/3/tv/{self.media_id}/season/{season['season_number']}"
-            #     tv_credit_response = self.requests_session_tmdb.get(tv_show_season_credit_url,
-            #                                                            headers=self.api_headers).json()
-            #
-            #     for episode_credits in tv_credit_response['episodes']:
-            #
-            #         # Check if episode_credits['crew'] (a list) is empty or not
-            #         if episode_credits['crew']:
-            #             for crew in episode_credits['crew']:
-            #
-            #                 if crew['job'] == 'Director':
-            #                     episode_director_name = crew['name']
-            #
-            #                     if episode_director_name not in season_directors:
-            #                         season_directors.append(episode_director_name)
-            #
-            #     self.seasons_directors.update({season['name']: season_directors})
-
             tv_show_season_credit_urls = []
 
             for season in seasons_list_without_series:
