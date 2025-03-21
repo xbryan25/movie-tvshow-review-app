@@ -37,7 +37,6 @@ class LikedToWatchReviewedPageControls:
         self.load_widgets()
 
         self.first_name = ""
-        # self.get_first_name()
 
     def load_widgets(self):
         self.l_tw_r_header_label = self.widgets[0]
@@ -82,7 +81,10 @@ class LikedToWatchReviewedPageControls:
         self.make_media_result_frames(len(self.l_tw_r_movies), len(self.l_tw_r_tv_shows))
 
         self.loading_screen = LoadingScreen()
-        self.loading_screen.show()
+
+        # Don't show loading screen of there are no media
+        if self.l_tw_r_movies_num != 0 and self.l_tw_r_tv_shows_num != 0:
+            self.loading_screen.show()
 
         self.threadpool = QThreadPool()
         self.start_show_results_thread()
@@ -103,18 +105,16 @@ class LikedToWatchReviewedPageControls:
         self.l_tw_r_movies_scroll_area.verticalScrollBar().setValue(0)
         self.l_tw_r_tv_shows_scroll_area.verticalScrollBar().setValue(0)
 
-        l_tw_r_movies_scroll_area_children = (self.l_tw_r_movies_scroll_area.widget().
-                                              findChildren(QFrame))
+        # Delete the MediaResult frames
+        for i in range(len(self.l_tw_r_movie_frames)):
+            self.l_tw_r_movie_frames[i].deleteLater()
 
-        l_tw_r_tv_shows_scroll_area_children = (self.l_tw_r_tv_shows_scroll_area.widget().
-                                                findChildren(QFrame))
+        self.l_tw_r_movie_frames.clear()
 
-        # Delete the frames
-        for l_tw_r_movies_scroll_area_child in l_tw_r_movies_scroll_area_children:
-            l_tw_r_movies_scroll_area_child.deleteLater()
+        for j in range(len(self.l_tw_r_tv_show_frames)):
+            self.l_tw_r_tv_show_frames[j].deleteLater()
 
-        for l_tw_r_tv_shows_scroll_area_child in l_tw_r_tv_shows_scroll_area_children:
-            l_tw_r_tv_shows_scroll_area_child.deleteLater()
+        self.l_tw_r_tv_show_frames.clear()
 
         # Delete the vertical spacers
         for i in range(self.l_tw_r_movies_scroll_area_grid_layout.count()):

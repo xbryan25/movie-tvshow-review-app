@@ -10,6 +10,3 @@ class LoadingScreen(QMainWindow, LoadingScreenUI):
         super().__init__()
 
         self.setupUi(self)
-
-        self.show()
-        # self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint)
