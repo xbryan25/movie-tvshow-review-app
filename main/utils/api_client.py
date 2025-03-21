@@ -2,6 +2,9 @@ import aiohttp
 import asyncio
 import threading
 
+from PyQt6.QtWidgets import QApplication
+from PyQt6.QtCore import QMetaObject, Qt, QTimer, pyqtSignal, QObject, Q_ARG
+
 
 class APIClient:
     def __init__(self, api_headers):
@@ -37,7 +40,14 @@ class APIClient:
             if for_loading_screen:
                 content = await response.json()
                 counter["completed"] += 1
-                progress_bar.setValue(int(((counter["completed"] + start_value) / end_value) * 100))
+
+                percentage = int(((counter["completed"] + start_value) / end_value) * 100)
+
+                # This safely updates the progress bar in the main thread
+                # Q_ARG wraps percentage, it converts it into QGenericArgument
+                QMetaObject.invokeMethod(progress_bar, "setValue", Qt.ConnectionType.QueuedConnection,
+                                         Q_ARG(int, percentage))
+
                 return content
             else:
                 return await response.json()
@@ -61,7 +71,13 @@ class APIClient:
             if for_loading_screen:
                 image_content = await response.content.read()
                 counter["completed"] += 1
-                progress_bar.setValue(int(((counter["completed"] + start_value) / end_value) * 100))
+
+                percentage = int(((counter["completed"] + start_value) / end_value) * 100)
+
+                # This safely updates the progress bar in the main thread
+                QMetaObject.invokeMethod(progress_bar, "setValue", Qt.ConnectionType.QueuedConnection,
+                                         Q_ARG(int, percentage))
+
                 return image_content
             else:
                 return await response.content.read()

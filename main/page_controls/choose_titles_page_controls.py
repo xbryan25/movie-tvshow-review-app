@@ -44,34 +44,21 @@ class ChooseTitlesPageControls:
         self.load_widgets()
         self.add_signals()
 
+        self.movie_posters = []
+        self.tv_show_posters = []
+
+        self.movie_posters_contents = {}
+        self.tv_show_posters_contents = {}
+
     def set_account_id(self, account_id):
         self.account_id = account_id
 
     def set_api_client(self, api_client):
         self.api_client = api_client
+        # self.api_client.progress_updated.connect(lambda: print("Yo"))
 
-    def start_process(self):
-        for i in range(20):
-            self.make_more_movie_posters(i)
-            self.make_more_tv_show_posters(i)
-
-        self.loading_screen = LoadingScreen()
-        self.loading_screen.show()
-
-        self.threadpool = QThreadPool()
-        self.start_load_pictures_thread()
-
-    def open_liked_media_page(self):
-        self.liked_media_page = LikedMediaPage(self.account_id)
-        self.liked_media_page.show()
-
-    def open_media_to_watch_page(self):
-        self.media_to_watch_page = MediaToWatchPage(self.account_id)
-        self.media_to_watch_page.show()
-
-    def open_members_page(self):
-        self.members_page = MembersPage()
-        self.members_page.show()
+    def update_progress_bar(self, percentage):
+        self.loading_screen.loading_progress_bar.setValue(percentage)
 
     def load_widgets(self):
         self.search_title_line_edit = self.widgets[0]
@@ -85,17 +72,21 @@ class ChooseTitlesPageControls:
         self.popular_tv_shows_scroll_area_grid_layout = self.widgets[8]
 
     def add_signals(self):
-        # self.liked_button.clicked.connect(self.open_liked_media_page)
-        # self.to_watch_button.clicked.connect(self.open_media_to_watch_page)
-        # self.members_button.clicked.connect(self.open_members_page)
         self.logout_button.clicked.connect(self.logout_account)
 
+    def start_process(self):
+        for i in range(20):
+            self.make_more_movie_posters(i)
+            self.make_more_tv_show_posters(i)
+
+        self.loading_screen = LoadingScreen()
+        self.loading_screen.show()
+
+        self.threadpool = QThreadPool()
+        self.start_load_pictures_thread()
+
     def logout_account(self):
-
         self.logout_confirmation_dialog = LogoutConfirmationDialog(self.application_window)
-
-        print(self.logout_confirmation_dialog)
-
         self.logout_confirmation_dialog.exec()
 
     def start_load_pictures_thread(self):
@@ -103,28 +94,51 @@ class ChooseTitlesPageControls:
 
         load_pictures_worker = LoadPicturesWorker(self.load_pictures, self.api_client)
 
+        load_pictures_worker.signals.finished.connect(self.show_posters)
+
         load_pictures_worker.signals.finished.connect(self.show_choose_titles_page)
 
         self.threadpool.start(load_pictures_worker)
 
-    async def load_pictures(self):
+    def show_posters(self):
+        for i, (key, value) in enumerate(self.movie_posters_contents.items()):
+            self.movie_posters[i].setMediaId(key)
 
-        # await self.api_client.start_session()
+            if value != '':
+                movie_image = QImage()
+                movie_image.loadFromData(value)
+
+                self.movie_posters[i].setPixmap(QPixmap(movie_image))
+            else:
+                question_mark_image = QPixmap("../assets/images/question_mark.jpg")
+                self.movie_posters[i].setPixmap(QPixmap(question_mark_image))
+
+        for i, (key, value) in enumerate(self.tv_show_posters_contents.items()):
+            self.tv_show_posters[i].setMediaId(key)
+
+            if value != '':
+                tv_show_image = QImage()
+                tv_show_image.loadFromData(value)
+
+                self.tv_show_posters[i].setPixmap(QPixmap(tv_show_image))
+            else:
+                question_mark_image = QPixmap("../assets/images/question_mark.jpg")
+                self.tv_show_posters[i].setPixmap(QPixmap(question_mark_image))
+
+    async def load_pictures(self):
         popular_movies_api_url = "https://api.themoviedb.org/3/movie/popular?language=en-US&page=1"
         popular_movies_api_response = await self.api_client.fetch(popular_movies_api_url)
 
         popular_tv_shows_api_url = "https://api.themoviedb.org/3/tv/popular?language=en-US&page=1"
         popular_tv_shows_api_response = await self.api_client.fetch(popular_tv_shows_api_url)
 
-        # Find the children of the Poster class
-        movie_poster_containers = self.popular_movies_scroll_area_contents.findChildren(Poster)
-        tv_show_poster_containers = self.popular_tv_shows_scroll_area_contents.findChildren(Poster)
-
-
+        movie_ids = []
         movie_img_urls = []
+
+        tv_show_ids = []
         tv_show_img_urls = []
 
-        # Set up Poster details
+        # Get Poster details
         for i in range(20):
             movie_img_url = ""
 
@@ -134,10 +148,7 @@ class ChooseTitlesPageControls:
 
             movie_img_urls.append(movie_img_url)
 
-            movie_id = popular_movies_api_response['results'][i]['id']
-            movie_poster_containers[i].setMediaId(movie_id)
-
-            movie_poster_containers[i].show()
+            movie_ids.append(popular_movies_api_response['results'][i]['id'])
 
             # TMDB poster download sizes
             # https://www.themoviedb.org/talk/5ee4ba52a217c0001fd0cb83
@@ -150,10 +161,7 @@ class ChooseTitlesPageControls:
 
             tv_show_img_urls.append(tv_show_img_url)
 
-            tv_show_id = popular_tv_shows_api_response['results'][i]['id']
-            tv_show_poster_containers[i].setMediaId(tv_show_id)
-
-            tv_show_poster_containers[i].show()
+            tv_show_ids.append(popular_tv_shows_api_response['results'][i]['id'])
 
         # Fetch data from TMDB
         movie_img_data = await self.api_client.fetch_all_images(movie_img_urls, self.loading_screen.loading_progress_bar, 0, 40)
@@ -161,23 +169,10 @@ class ChooseTitlesPageControls:
 
         # Load image data to Posters
         for j in range(20):
-            if movie_img_data[j] != '':
+            self.movie_posters_contents.update({movie_ids[j]: movie_img_data[j]})
+            self.tv_show_posters_contents.update({tv_show_ids[j]: tv_show_img_data[j]})
 
-                movie_image = QImage()
-                movie_image.loadFromData(movie_img_data[j])
 
-                movie_poster_containers[j].setPixmap(QPixmap(movie_image))
-
-            if tv_show_img_data[j] != '':
-
-                tv_show_image = QImage()
-                tv_show_image.loadFromData(tv_show_img_data[j])
-
-                tv_show_poster_containers[j].setPixmap(QPixmap(tv_show_image))
-
-        print("Done!")
-
-        # await self.api_client.close_session()
 
     def show_choose_titles_page(self):
         self.loading_screen.close()
@@ -186,61 +181,19 @@ class ChooseTitlesPageControls:
     def make_more_movie_posters(self, column):
         frame_name = "movie_frame_" + str(column + 1)
 
-        # Don't forget to change QLabel to Poster
+        self.movie_poster = Poster(parent=self.popular_movies_scroll_area_contents, media_type="movie",
+                                   application_window=self.application_window, frame_name=frame_name)
 
-        self.label = Poster(parent=self.popular_movies_scroll_area_contents, media_type="movie",
-                            application_window=self.application_window)
-        self.label.setMinimumSize(QSize(165, 225))
-        self.label.setMaximumSize(QSize(165, 270))
+        self.popular_movies_scroll_area_grid_layout.addWidget(self.movie_poster, 0, column, 1, 1)
 
-        self.label.setText("")
-        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.label.setObjectName(frame_name)
-        self.label.setScaledContents(True)
-
-        self.label.setStyleSheet("QLabel{\n"
-                                 "padding: 3px 3px 3px 3px;\n"
-                                 "}\n"
-                                 "\n"
-                                 "QLabel:hover{\n"
-                                 "border: 5px solid rgb(255, 166, 54);\n"
-                                 "border-radius: 5px;\n"
-                                 "}\n"
-                                 "\n"
-                                 "")
-
-        # movie_poster_containers = self.scrollAreaWidgetContents.findChildren(Poster)
-
-        self.popular_movies_scroll_area_grid_layout.addWidget(self.label, 0, column, 1, 1)
+        self.movie_posters.append(self.movie_poster)
 
     def make_more_tv_show_posters(self, column):
         frame_name = "tv_show_frame_" + str(column + 1)
 
-        # Don't forget to change QLabel to Poster
+        self.tv_show_poster = Poster(parent=self.popular_tv_shows_scroll_area_contents, media_type="tv",
+                                     application_window=self.application_window, frame_name=frame_name)
 
-        self.label_2 = Poster(parent=self.popular_tv_shows_scroll_area_contents, media_type="tv",
-                              application_window=self.application_window)
+        self.popular_tv_shows_scroll_area_grid_layout.addWidget(self.tv_show_poster, 0, column, 1, 1)
 
-        self.label_2.setMinimumSize(QSize(165, 225))
-        self.label_2.setMaximumSize(QSize(165, 270))
-
-        self.label_2.setText("")
-        self.label_2.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.label_2.setObjectName(frame_name)
-        self.label_2.setScaledContents(True)
-
-        self.label_2.setStyleSheet("QLabel{\n"
-                                   "padding: 3px 3px 3px 3px;\n"
-                                   "}\n"
-                                   "\n"
-                                   "QLabel:hover{\n"
-                                   "border: 5px solid rgb(255, 166, 54);\n"
-                                   "border-radius: 5px;\n"
-                                   "}\n"
-                                   "\n"
-                                   "")
-
-        self.popular_tv_shows_scroll_area_grid_layout.addWidget(self.label_2, 0, column, 1, 1)
-
-
-
+        self.tv_show_posters.append(self.tv_show_poster)
