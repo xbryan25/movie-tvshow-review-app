@@ -2,6 +2,7 @@ from application.application_window import ApplicationWindow
 from PyQt6.QtWidgets import QApplication
 import sqlite3
 
+
 def main():
     connection = sqlite3.connect('../database\\accounts.db')
     cursor = connection.cursor()

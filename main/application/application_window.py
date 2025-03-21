@@ -187,17 +187,23 @@ class ApplicationWindow(QMainWindow, ApplicationWindowUI):
         self.members_page_controls.load_members()
 
     def change_to_search_results_page(self, media_title_to_search):
+
         if media_title_to_search.strip() == "":
             print("The search bar is empty.")
         else:
-            self.page_stacked_widget.setCurrentWidget(self.main_page)
-            self.subpage_stacked_widget.setCurrentWidget(self.search_results_subpage)
+            # self.page_stacked_widget.setCurrentWidget(self.main_page)
+            # self.subpage_stacked_widget.setCurrentWidget(self.search_results_subpage)
 
             self.search_results_page_controls.set_media_title_to_search(media_title_to_search)
             self.search_results_page_controls.set_account_id(self.current_account_id)
             self.search_results_page_controls.set_api_client(self.api_client)
 
+            # self.search_results_page_controls.remove_old_search_results()
+
             self.search_results_page_controls.start_process()
+
+            # This is now called inside SearchResultsPageControls, specifically, after the contents have been loaded
+            # self.subpage_stacked_widget.setCurrentWidget(self.search_results_subpage)
 
     def load_external_stylesheet(self):
         with open("../assets/qss_files/login_page_style.qss", "r") as file:
