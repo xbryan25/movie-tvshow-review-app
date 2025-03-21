@@ -26,7 +26,7 @@ class APIClient:
 
             self.session = aiohttp.ClientSession(headers=self.api_headers, connector=connector)
 
-    async def fetch(self, url):
+    async def fetch(self, url, for_loading_screen=False, progress_bar=None, start_value=None, end_value=None, counter=None):
         if self.session is None:
             await self.start_session()
 
@@ -34,16 +34,23 @@ class APIClient:
             return ""
 
         async with self.session.get(url) as response:
-            return await response.json()
+            if for_loading_screen:
+                content = await response.json()
+                counter["completed"] += 1
+                progress_bar.setValue(int(((counter["completed"] + start_value) / end_value) * 100))
+                return content
+            else:
+                return await response.json()
 
-    async def multi_fetch(self, urls):
-        tasks = [self.fetch(url) for url in urls]
+    async def multi_fetch(self, urls, progress_bar, start_value, end_value):
+        counter = {"completed": 0}
+        tasks = [self.fetch(url, True, progress_bar, start_value, end_value, counter) for url in urls]
 
         # * means that a list is unpacked into separate arguments
         # In other words, one argument for item in the list
         return await asyncio.gather(*tasks)
 
-    async def fetch_image(self, url, for_loading_screen=True, progress_bar=None, start_value=None, end_value=None, counter=None):
+    async def fetch_image(self, url, for_loading_screen=False, progress_bar=None, start_value=None, end_value=None, counter=None):
         if self.session is None:
             await self.start_session()
 

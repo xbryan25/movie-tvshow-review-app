@@ -187,11 +187,16 @@ class AboutSpecificMediaPageControls:
 
             tv_show_season_credit_urls = []
 
+            # self.loading_screen.loading_progress_bar.setValue(int(count + 1 / len(self.seasons)) * 100)
+
             for season in seasons_list_without_series:
                 tv_show_season_credit_url = f"https://api.themoviedb.org/3/tv/{self.media_id}/season/{season['season_number']}"
                 tv_show_season_credit_urls.append(tv_show_season_credit_url)
 
-            tv_show_season_credits = await self.api_client.multi_fetch(tv_show_season_credit_urls)
+            tv_show_season_credits = await self.api_client.multi_fetch(tv_show_season_credit_urls,
+                                                                       self.loading_screen.loading_progress_bar,
+                                                                       0,
+                                                                       len(seasons_list_without_series))
 
             for count, tv_show_season_credit in enumerate(tv_show_season_credits):
                 season_directors = []
@@ -259,25 +264,16 @@ class AboutSpecificMediaPageControls:
         # Reset self.clicked_season
         self.clicked_season = 'Series'
 
-        # Make a shallow copy of the current season buttons present
-        old_season_buttons = list(self.season_buttons_scroll_area_widget_contents.findChildren(QPushButton))
-
-        # self.load_contents()
-
         self.load_old_rating()
 
         self.set_liked_button_state()
         self.set_watchlist_button_state()
         self.set_review_button_state()
 
+        self.loading_screen = LoadingScreen()
+
         if self.media_type == "tv":
-            self.load_season_buttons()
-            self.attach_connection_to_change_season(old_season_buttons)
-
-            self.clear_old_season_buttons(old_season_buttons)
-
-        # self.loading_screen = LoadingScreen()
-        # self.loading_screen.show()
+            self.loading_screen.show()
 
         self.threadpool = QThreadPool()
         self.start_load_contents_thread()
@@ -285,12 +281,14 @@ class AboutSpecificMediaPageControls:
     def start_load_contents_thread(self):
         load_contents_worker = LoadPicturesWorker(self.load_contents, self.api_client)
 
+        if self.media_type == "tv":
+            load_contents_worker.signals.finished.connect(self.load_season_buttons)
+
         load_contents_worker.signals.finished.connect(lambda: self.application_window.subpage_stacked_widget.
                                                       setCurrentWidget(self.application_window.
                                                                        about_specific_media_subpage))
 
-        # load_contents_worker.signals.finished.connect(self.loading_screen.close)
-
+        load_contents_worker.signals.finished.connect(self.loading_screen.close)
 
         self.threadpool.start(load_contents_worker)
 
@@ -555,7 +553,8 @@ class AboutSpecificMediaPageControls:
             old_season_button.deleteLater()
 
     def load_season_buttons(self):
-        # print(self.season_buttons_scroll_area_widget_contents.findChildren(QPushButton))
+        # Make a shallow copy of the current season buttons present
+        old_season_buttons = list(self.season_buttons_scroll_area_widget_contents.findChildren(QPushButton))
 
         for season in self.seasons:
             # Don't forget to change QLabel to Poster
@@ -575,6 +574,10 @@ class AboutSpecificMediaPageControls:
             self.season_button.setObjectName(f'{(season['name'].replace(" ", "_")).lower()}_button')
 
             self.seasons_buttons_grid_layout.addWidget(self.season_button, 0, self.seasons.index(season), 1, 1)
+
+        self.attach_connection_to_change_season(old_season_buttons)
+
+        self.clear_old_season_buttons(old_season_buttons)
 
     def attach_connection_to_change_season(self, old_season_buttons):
         # Filter new season buttons from old_season_buttons
